@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>みんなで日本一周の旅</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 16px;
+    }
+    .container { max-width: 480px; margin: 0 auto; }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+    }
+    .header { text-align: center; color: white; margin-bottom: 20px; }
+    .header h1 { font-size: 22px; font-weight: bold; }
+    .header p  { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+    .map-area { position: relative; width: 100%; }
+    #japan-map { width: 100%; height: auto; display: block; }
+    .map-marker {
+      position: absolute;
+      transform: translate(-50%, -100%);
+      text-align: center;
+      transition: all 1s ease;
+      pointer-events: none;
+    }
+    .map-marker .icon { font-size: 32px; animation: bounce 1s infinite; }
+    .map-marker .label {
+      background: #FF6B6B;
+      color: white;
+      font-size: 10px;
+      padding: 2px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+      font-weight: bold;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translateY(0); }
+      50%      { transform: translateY(-6px); }
+    }
+    .progress-section { margin-bottom: 8px; }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+    .progress-bar {
+      background: #f0f0f0;
+      border-radius: 999px;
+      height: 16px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #FF6B6B, #FFD93D);
+      transition: width 1s ease;
+    }
+    .goal-badges { display: flex; gap: 8px; margin-top: 10px; }
+    .goal-badge {
+      flex: 1;
+      text-align: center;
+      padding: 6px 4px;
+      border-radius: 10px;
+      font-size: 11px;
+      border: 2px solid #e0e0e0;
+      color: #aaa;
+    }
+    .goal-badge.reached {
+      border-color: #FFD700;
+      background: #FFF9E6;
+      color: #B8860B;
+      font-weight: bold;
+    }
+    .goal-badge .medal { font-size: 18px; }
+    #participate-btn {
+      width: 100%;
+      padding: 18px;
+      font-size: 18px;
+      font-weight: bold;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: linear-gradient(135deg, #FF6B6B, #FF8E53);
+      color: white;
+      box-shadow: 0 4px 16px rgba(255,107,107,0.4);
+    }
+    #participate-btn:active { transform: scale(0.97); }
+    #participate-btn.done {
+      background: linear-gradient(135deg, #43C6AC, #191654);
+      box-shadow: 0 4px 16px rgba(67,198,172,0.4);
+    }
+    #participate-btn:disabled { opacity: 0.7; cursor: not-allowed; }
+    .input-group { margin-bottom: 12px; }
+    .input-group label { font-size: 13px; color: #666; margin-bottom: 4px; display: block; }
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 12px;
+      font-size: 15px;
+      outline: none;
+      transition: border-color 0.2s;
+      font-family: inherit;
+    }
+    .input-group input:focus { border-color: #667eea; }
+    .member-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .member-chip {
+      background: #f0f4ff;
+      border-radius: 20px;
+      padding: 6px 12px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .member-chip .km { color: #667eea; font-weight: bold; font-size: 11px; }
+    .waypoint-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .waypoint-chip {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      background: #FFF3CD;
+      border: 1px solid #FFD700;
+    }
+    .waypoint-chip.current {
+      background: #FF6B6B;
+      color: white;
+      border-color: #FF6B6B;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      text-align: center;
+    }
+    .stat-item { padding: 10px; background: #f8f9ff; border-radius: 12px; }
+    .stat-num { font-size: 22px; font-weight: bold; color: #667eea; }
+    .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #333;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-size: 14px;
+      transition: transform 0.3s;
+      z-index: 999;
+      white-space: nowrap;
+    }
+    #toast.show { transform: translateX(-50%) translateY(0); }
+    #goal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    #goal-overlay.show { display: flex; }
+    .goal-popup {
+      background: white;
+      border-radius: 24px;
+      padding: 32px 24px;
+      text-align: center;
+      max-width: 320px;
+      width: 90%;
+    }
+    .goal-popup h2 { font-size: 24px; margin: 12px 0; }
+    .goal-popup p  { color: #666; font-size: 14px; }
+    .firework { font-size: 48px; }
+  </style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <h1>🗾 みんなで日本一周の旅</h1>
+    <p id="week-label">読み込み中...</p>
+  </div>
+
+  <div class="card">
+    <div class="section-title">📍 現在地</div>
+    <div class="map-area">
+      <svg id="japan-map" viewBox="0 0 300 400" xmlns="http://www.w3.org/2000/svg">
+        <rect width="300" height="400" fill="#B8D4E8"/>
+        <ellipse cx="220" cy="55" rx="55" ry="35" fill="#8BC34A" stroke="#fff" stroke-width="2"/>
+        <text x="220" y="59" text-anchor="middle" font-size="9" fill="#555">北海道</text>
+        <rect x="185" y="90" width="50" height="80" rx="10" fill="#AED581" stroke="#fff" stroke-width="2"/>
+        <text x="210" y="135" text-anchor="middle" font-size="9" fill="#555">東北</text>
+        <rect x="175" y="175" width="55" height="50" rx="8" fill="#C5E1A5" stroke="#fff" stroke-width="2"/>
+        <text x="202" y="204" text-anchor="middle" font-size="9" fill="#555">関東</text>
+        <rect x="145" y="200" width="45" height="45" rx="8" fill="#DCE775" stroke="#fff" stroke-width="2"/>
+        <text x="167" y="226" text-anchor="middle" font-size="8" fill="#555">中部</text>
+        <rect x="115" y="225" width="45" height="40" rx="8" fill="#FFD54F" stroke="#fff" stroke-width="2"/>
+        <text x="137" y="249" text-anchor="middle" font-size="8" fill="#555">近畿</text>
+        <rect x="80" y="250" width="55" height="35" rx="8" fill="#FFB74D" stroke="#fff" stroke-width="2"/>
+        <text x="107" y="271" text-anchor="middle" font-size="8" fill="#555">中国四国</text>
+        <ellipse cx="100" cy="320" rx="35" ry="40" fill="#FF8A65" stroke="#fff" stroke-width="2"/>
+        <text x="100" y="324" text-anchor="middle" font-size="9" fill="#555">九州</text>
+        <ellipse cx="70" cy="385" rx="18" ry="10" fill="#F06292" stroke="#fff" stroke-width="2"/>
+        <text x="70" y="388" text-anchor="middle" font-size="7" fill="#555">沖縄</text>
+        <polyline id="route-line"
+          points="202,200 167,222 137,245 107,268 100,290"
+          fill="none" stroke="#FF6B6B" stroke-width="3"
+          stroke-dasharray="8,4" opacity="0.7"/>
+      </svg>
+      <div class="map-marker" id="map-marker">
+        <div class="icon" id="marker-icon">🚶</div>
+        <div class="label" id="marker-label">出発地</div>
+      </div>
+    </div>
+    <div style="margin-top:12px;">
+      <div class="section-title" style="font-size:13px;">🏙️ 通過した街</div>
+      <div class="waypoint-list" id="waypoint-list">
+        <div class="waypoint-chip">東京 🗼</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">🚀 今週の進捗</div>
+    <div class="progress-section">
+      <div class="progress-label">
+        <span id="current-km">0 km</span>
+        <span style="color:#FF6B6B;">ゴールド: 4,500 km</span>
+      </div>
+      <div class="progress-bar">
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+      </div>
+    </div>
+    <div class="goal-badges">
+      <div class="goal-badge" id="badge-bronze">
+        <div class="medal">🥉</div>
+        <div>ブロンズ</div>
+        <div>2,500km</div>
+      </div>
+      <div class="goal-badge" id="badge-silver">
+        <div class="medal">🥈</div>
+        <div>シルバー</div>
+        <div>3,500km</div>
+      </div>
+      <div class="goal-badge" id="badge-gold">
+        <div class="medal">🥇</div>
+        <div>ゴールド</div>
+        <div>4,500km</div>
+      </div>
+    </div>
+    <div class="stats-grid" style="margin-top:16px;">
+      <div class="stat-item">
+        <div class="stat-num" id="stat-days">0</div>
+        <div class="stat-label">経過日数</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-members">0</div>
+        <div class="stat-label">今日の参加者</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-num" id="stat-cities">0</div>
+        <div class="stat-label">訪問した街</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="section-title">✋ 今日の参加登録</div>
+    <div class="input-group">
+      <label>あなたの名前</label>
+      <input type="text" id="name-input" placeholder="例：田中" maxlength="10">
+    </div>
+    <div class="input-group">
+      <label>一言コメント（任意・20文字まで）</label>
+      <input type="text" id="comment-input" placeholder="例：今日は寒かった！" maxlength="20">
+    </div>
+    <button id="participate-btn" onclick="participate()">
+      🏃 ラジオ体操参加！+100km
+    </button>
+  </div>
+
+  <div class="card">
+    <div class="section-title">👥 今日の参加者 <span id="today-count">(0人)</span></div>
+    <div class="member-list" id="member-list">
+      <div style="color:#aaa;font-size:13px;">まだ誰も参加していません</div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="goal-overlay">
+  <div class="goal-popup">
+    <div class="firework" id="goal-firework">🎆</div>
+    <h2 id="goal-title">ゴール達成！</h2>
+    <p id="goal-message"></p>
+    <button onclick="document.getElementById('goal-overlay').classList.remove('show')"
+      style="margin-top:16px;padding:10px 24px;border:none;background:#667eea;
+             color:white;border-radius:12px;font-size:16px;cursor:pointer;">
+      やった！🎉
+    </button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
+const SUPABASE_KEY = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
+
+const EVENT_START = '2026-03-16';
+
+const ROUTE = {
+  name: '東海道・西日本制覇ルート',
+  totalKm: 4500,
+  waypoints: [
+    { km: 0,    name: '東京',   emoji: '🗼', mapX: 51, mapY: 46 },
+    { km: 200,  name: '静岡',   emoji: '🗻', mapX: 46, mapY: 51 },
+    { km: 400,  name: '名古屋', emoji: '🏯', mapX: 42, mapY: 56 },
+    { km: 600,  name: '京都',   emoji: '⛩️', mapX: 37, mapY: 61 },
+    { km: 800,  name: '大阪',   emoji: '🍜', mapX: 33, mapY: 67 },
+    { km: 1100, name: '広島',   emoji: '🕊️', mapX: 28, mapY: 72 },
+    { km: 1500, name: '福岡',   emoji: '🍜', mapX: 33, mapY: 80 },
+    { km: 2000, name: '鹿児島', emoji: '🌋', mapX: 33, mapY: 87 },
+    { km: 2500, name: '那覇',   emoji: '🌺', mapX: 23, mapY: 96 },
+    { km: 3000, name: '大阪',   emoji: '⬆️', mapX: 33, mapY: 67 },
+    { km: 3500, name: '東京',   emoji: '🔄', mapX: 51, mapY: 46 },
+    { km: 4000, name: '仙台',   emoji: '🌸', mapX: 53, mapY: 37 },
+    { km: 4500, name: '札幌',   emoji: '🦀', mapX: 56, mapY: 20 },
+  ]
+};
+
+const { createClient } = supabase;
+const db = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let todayParticipations = [];
+let totalKm = 0;
+let alreadyParticipated = false;
+
+async function init() {
+  updateWeekLabel();
+  await loadData();
+  setupRealtimeSubscription();
+}
+
+function updateWeekLabel() {
+  const start = new Date(EVENT_START);
+  const today = new Date();
+  const diffDays = Math.floor((today - start) / (1000 * 60 * 60 * 24));
+  const week = Math.floor(diffDays / 7) + 1;
+  document.getElementById('week-label').textContent =
+    `第${week}週 · ${today.getMonth()+1}月${today.getDate()}日（${['日','月','火','水','木','金','土'][today.getDay()]}）`;
+}
+
+async function loadData() {
+  const today = getToday();
+  const { data: todayData } = await db
+    .from('participations')
+    .select('*')
+    .eq('date', today)
+    .order('created_at');
+
+  const { data: allData } = await db
+    .from('participations')
+    .select('*')
+    .gte('date', EVENT_START)
+    .order('date');
+
+  todayParticipations = todayData || [];
+  totalKm = calculateTotalKm(allData || []);
+
+  const myName = localStorage.getItem('myName');
+  if (myName) {
+    alreadyParticipated = todayParticipations.some(p => p.user_name === myName);
+    if (alreadyParticipated) {
+      document.getElementById('name-input').value = myName;
+      setParticipatedState();
+    }
+  }
+  renderAll();
+}
+
+function calculateTotalKm(allData) {
+  const byDate = {};
+  allData.forEach(p => {
+    if (!byDate[p.date]) byDate[p.date] = [];
+    byDate[p.date].push(p);
+  });
+  let total = 0;
+  Object.entries(byDate).forEach(([date, participants]) => {
+    const count = participants.length;
+    const bonus = count >= 15 ? 2 : 1;
+    total += count * 100 * bonus;
+  });
+  return Math.min(total, ROUTE.totalKm);
+}
+
+function renderAll() {
+  renderProgress();
+  renderMapMarker();
+  renderMemberList();
+  renderWaypoints();
+  checkGoalReached();
+}
+
+function renderProgress() {
+  const pct = Math.min((totalKm / ROUTE.totalKm) * 100, 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('current-km').textContent = totalKm.toLocaleString() + ' km';
+  if (totalKm >= 2500) document.getElementById('badge-bronze').classList.add('reached');
+  if (totalKm >= 3500) document.getElementById('badge-silver').classList.add('reached');
+  if (totalKm >= 4500) document.getElementById('badge-gold').classList.add('reached');
+  const start = new Date(EVENT_START);
+  const diffDays = Math.floor((new Date() - start) / (1000 * 60 * 60 * 24)) + 1;
+  document.getElementById('stat-days').textContent = Math.min(diffDays, 7);
+  document.getElementById('stat-members').textContent = todayParticipations.length;
+  document.getElementById('stat-cities').textContent = getVisitedWaypoints().length;
+}
+
+function getVisitedWaypoints() {
+  return ROUTE.waypoints.filter(w => w.km <= totalKm);
+}
+
+function renderMapMarker() {
+  const visited = getVisitedWaypoints();
+  if (visited.length === 0) return;
+  let currentWP = visited[visited.length - 1];
+  let nextWP = ROUTE.waypoints[visited.length] || currentWP;
+  const segmentKm = nextWP.km - currentWP.km || 1;
+  const progress = (totalKm - currentWP.km) / segmentKm;
+  const x = currentWP.mapX + (nextWP.mapX - currentWP.mapX) * progress;
+  const y = currentWP.mapY + (nextWP.mapY - currentWP.mapY) * progress;
+  const mapEl = document.getElementById('japan-map');
+  const marker = document.getElementById('map-marker');
+  const rect = mapEl.getBoundingClientRect();
+  marker.style.left = (x / 100 * rect.width) + 'px';
+  marker.style.top  = (y / 100 * rect.height) + 'px';
+  const count = todayParticipations.length;
+  document.getElementById('marker-icon').textContent =
+    count >= 15 ? '🎪' : count >= 10 ? '🚌' : count >= 5 ? '🚶‍♀️' : '🚶';
+  document.getElementById('marker-label').textContent = currentWP.name + currentWP.emoji;
+}
+
+function renderMemberList() {
+  const list = document.getElementById('member-list');
+  document.getElementById('today-count').textContent = `(${todayParticipations.length}人)`;
+  if (todayParticipations.length === 0) {
+    list.innerHTML = '<div style="color:#aaa;font-size:13px;">まだ誰も参加していません</div>';
+    return;
+  }
+  list.innerHTML = todayParticipations.map(p => `
+    <div class="member-chip">
+      <span>🙋 ${escapeHtml(p.user_name)}</span>
+      ${p.comment ? `<span style="color:#888;font-size:11px;">「${escapeHtml(p.comment)}」</span>` : ''}
+      <span class="km">+100km</span>
+    </div>
+  `).join('');
+}
+
+function renderWaypoints() {
+  const visited = getVisitedWaypoints();
+  const list = document.getElementById('waypoint-list');
+  if (visited.length === 0) {
+    list.innerHTML = '<div style="color:#aaa;font-size:13px;">まだ出発していません</div>';
+    return;
+  }
+  list.innerHTML = visited.map((w, i) => `
+    <div class="waypoint-chip ${i === visited.length-1 ? 'current' : ''}">
+      ${w.name} ${w.emoji}
+    </div>
+  `).join('');
+}
+
+function checkGoalReached() {
+  const reached = localStorage.getItem('goalReached');
+  if (totalKm >= 4500 && reached !== 'gold') {
+    localStorage.setItem('goalReached', 'gold');
+    showGoal('🥇 ゴールド達成！！', `${totalKm.toLocaleString()}km走破！チーム全員で日本一周完成！🎉`, '🎆');
+  } else if (totalKm >= 3500 && reached !== 'silver' && reached !== 'gold') {
+    localStorage.setItem('goalReached', 'silver');
+    showGoal('🥈 シルバー達成！', `${totalKm.toLocaleString()}km到達！もう少しでゴールド！`, '✨');
+  } else if (totalKm >= 2500 && !reached) {
+    localStorage.setItem('goalReached', 'bronze');
+    showGoal('🥉 ブロンズ達成！', `${totalKm.toLocaleString()}km！順調に旅が進んでいます！`, '🌟');
+  }
+}
+
+function showGoal(title, message, firework) {
+  document.getElementById('goal-title').textContent = title;
+  document.getElementById('goal-message').textContent = message;
+  document.getElementById('goal-firework').textContent = firework;
+  document.getElementById('goal-overlay').classList.add('show');
+}
+
+async function participate() {
+  const name = document.getElementById('name-input').value.trim();
+  const comment = document.getElementById('comment-input').value.trim();
+  if (!name) { showToast('⚠️ 名前を入力してください'); return; }
+  const btn = document.getElementById('participate-btn');
+  btn.disabled = true;
+  btn.textContent = '登録中...';
+  const today = getToday();
+  const { error } = await db.from('participations').upsert({
+    user_name: name,
+    date: today,
+    comment: comment || null,
+    participated: true,
+  }, { onConflict: 'user_name,date' });
+  if (error) {
+    showToast('❌ エラーが発生しました');
+    btn.disabled = false;
+    btn.textContent = '🏃 ラジオ体操参加！+100km';
+    return;
+  }
+  localStorage.setItem('myName', name);
+  alreadyParticipated = true;
+  setParticipatedState();
+  showToast('🎉 参加完了！チームが100km前進！');
+  await loadData();
+}
+
+function setParticipatedState() {
+  const btn = document.getElementById('participate-btn');
+  btn.textContent = '✅ 今日は参加済み！ありがとう！';
+  btn.classList.add('done');
+  btn.disabled = true;
+  document.getElementById('name-input').disabled = true;
+  document.getElementById('comment-input').disabled = true;
+}
+
+function setupRealtimeSubscription() {
+  db.channel('participations-channel')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'participations' },
+      (payload) => {
+        showToast(`🙋 ${payload.new.user_name}さんが参加！+100km`);
+        loadData();
+      }
+    )
+    .subscribe();
+}
+
+function getToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function escapeHtml(str) {
+  const d = document.createElement('div');
+  d.appendChild(document.createTextNode(str));
+  return d.innerHTML;
+}
+
+window.addEventListener('load', init);
+window.addEventListener('resize', renderMapMarker);
+</script>
+</body>
+</html>
