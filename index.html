@@ -462,13 +462,30 @@
     #current-location-bar .loc-emoji { font-size: 1.5rem; }
     #current-location-bar .loc-name  { font-weight: bold; font-size: 1rem; }
     #current-location-bar .loc-next  { font-size: 0.78rem; opacity: 0.85; }
+
+    .doctor-yellow-badge {
+      display: inline-block;
+      background: #ffc107;
+      color: #333;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: bold;
+      margin-left: 4px;
+      animation: pulse 1s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
   </style>
 </head>
 <body>
 
 <header>
   <h1>🗾 みんなで日本一周の旅</h1>
-  <p>ラジオ体操チャレンジ 〜 大阪から那覇まで！</p>
+  <p>ラジオ体操チャレンジ 〜 駅を巡る冒険！</p>
 </header>
 
 <div class="container">
@@ -480,7 +497,7 @@
       <div class="loc-emoji" id="loc-emoji">🍜</div>
       <div>
         <div class="loc-name" id="loc-name">新大阪</div>
-        <div class="loc-next" id="loc-next">次の駅: ⛩️ 京都（あと14km）</div>
+        <div class="loc-next" id="loc-next">次の駅: ⛩️ 京都（あと1駅）</div>
       </div>
     </div>
     <div class="map-and-stamp">
@@ -505,8 +522,8 @@
       <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
     </div>
     <div class="progress-stats">
-      <span id="stat-today">今日: 0回参加</span>
-      <span id="stat-total">合計: 0回</span>
+      <span id="stat-today">今日: 0駅進行</span>
+      <span id="stat-total">合計: 0駅</span>
     </div>
     <div class="badges">
       <div class="badge bronze" id="badge-bronze">🥉 ブロンズ 1,500km</div>
@@ -527,7 +544,7 @@
     <div id="my-stats">
       <div class="my-name"  id="my-stats-name">あなたの累計</div>
       <div class="my-km"    id="my-stats-km">0 km</div>
-      <div class="my-count" id="my-stats-count">0回参加</div>
+      <div class="my-count" id="my-stats-count">0駅進行</div>
     </div>
 
     <div id="session-text">本日の参加残り: 3回</div>
@@ -547,7 +564,7 @@
     </div>
 
     <button class="btn-participate" id="btn-participate" onclick="participate()">
-      🏃 ラジオ体操参加！ +20km
+      🏃 ラジオ体操参加！ +1駅
     </button>
 
     <div style="margin-top:20px">
@@ -587,7 +604,8 @@
 const SUPABASE_URL   = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
 const SUPABASE_KEY   = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
 const EVENT_START    = '2026-03-16';
-const KM_PER_SESSION = 20;
+const STATIONS_PER_SESSION = 1;  // 1回につき1駅進む（デフォルト）
+const DOCTOR_YELLOW_PROBABILITY = 0.03;  // 3%の確率でドクターイエロー
 const MAX_SESSIONS   = 3;
 const GOAL_BRONZE    = 1500;
 const GOAL_SILVER    = 2500;
@@ -834,8 +852,25 @@ function renderAll() {
   prevKm = totalKm;
 }
 
+// ============================================================
+// キロ数計算（駅ベース）
+// ============================================================
 function calculateTotalKm() {
-  return Math.min(allData.length * KM_PER_SESSION, GOAL_GOLD);
+  const totalStations = allData.reduce((sum, record) => 
+    sum + (record.station_progress || 1), 0
+  );
+
+  let totalKm = 0;
+  let stationCount = 0;
+  const sorted = [...WAYPOINTS].sort((a, b) => a.km - b.km);
+  
+  for (const wp of sorted) {
+    if (stationCount >= totalStations) break;
+    totalKm = wp.km;
+    stationCount++;
+  }
+
+  return Math.min(totalKm, GOAL_GOLD);
 }
 
 // ============================================================
@@ -867,7 +902,6 @@ function renderStampGrid(totalKm) {
       }, 400);
     }
 
-    // ホバーで説明
     item.title = earned
       ? `${stamp.name}：${stamp.desc}（${stamp.km}km地点）`
       : `${stamp.name}（${stamp.km}kmで獲得）`;
@@ -907,7 +941,7 @@ function updateMarkerPosition(totalKm) {
   marker.style.left = pos.x + '%';
   marker.style.top  = pos.y + '%';
   const u = new Set(todayData.map(d => d.user_name)).size;
-  marker.textContent = u >= 15 ? '🚌' : u >= 8 ? '🚆' : u >= 3 ? '🏃' : '🚶';
+  marker.textContent = u >= 15 ? '🚄🚄' : u >= 8 ? '🚄' : u >= 3 ? '🚄' : '🚄';
 }
 
 function getPositionOnRoute(km) {
@@ -949,8 +983,16 @@ function renderProgress(totalKm) {
     `${totalKm.toLocaleString()} <span>km / ${GOAL_GOLD.toLocaleString()}km</span>`;
   document.getElementById('progress-bar').style.width =
     Math.min((totalKm / GOAL_GOLD) * 100, 100) + '%';
-  document.getElementById('stat-today').textContent = `今日: ${todayData.length}回参加`;
-  document.getElementById('stat-total').textContent = `合計: ${allData.length}回`;
+  
+  const totalStations = allData.reduce((sum, record) => 
+    sum + (record.station_progress || 1), 0
+  );
+  const todayStations = todayData.reduce((sum, record) => 
+    sum + (record.station_progress || 1), 0
+  );
+  
+  document.getElementById('stat-today').textContent = `今日: ${todayStations}駅進行`;
+  document.getElementById('stat-total').textContent = `合計: ${totalStations}駅`;
   document.getElementById('badge-bronze').classList.toggle('reached', totalKm >= GOAL_BRONZE);
   document.getElementById('badge-silver').classList.toggle('reached', totalKm >= GOAL_SILVER);
   document.getElementById('badge-gold'  ).classList.toggle('reached', totalKm >= GOAL_GOLD);
@@ -992,15 +1034,19 @@ function renderMemberList() {
   }
   el.innerHTML = '';
   const countMap = {};
-  todayData.forEach(d => { countMap[d.user_name] = (countMap[d.user_name] || 0) + 1; });
-  Object.entries(countMap).forEach(([name, count]) => {
+  todayData.forEach(d => { 
+    if (!countMap[d.user_name]) countMap[d.user_name] = 0;
+    countMap[d.user_name] += (d.station_progress || 1);
+  });
+  Object.entries(countMap).forEach(([name, stations]) => {
     const chip = document.createElement('div');
     chip.className = 'member-chip';
-    chip.innerHTML = `${escapeHtml(name)}<span class="km-label">+${count * KM_PER_SESSION}km</span>`;
+    chip.innerHTML = `${escapeHtml(name)}<span class="km-label">+${stations}駅</span>`;
     chip.addEventListener('click', async () => {
-      const { data } = await sb.from('participations').select('id')
+      const { data } = await sb.from('participations').select('*')
         .eq('user_name', name).gte('date', EVENT_START);
-      showToast(`${name}さん 週間累計: ${(data||[]).length * KM_PER_SESSION}km（${(data||[]).length}回）`);
+      const totalStations = (data || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
+      showToast(`${name}さん 週間累計: ${totalStations}駅進行`);
     });
     el.appendChild(chip);
   });
@@ -1017,12 +1063,14 @@ function renderWeeklyRanking() {
   }
 
   const countMap = {};
-  allData.forEach(d => { countMap[d.user_name] = (countMap[d.user_name] || 0) + 1; });
+  allData.forEach(d => { 
+    if (!countMap[d.user_name]) countMap[d.user_name] = 0;
+    countMap[d.user_name] += (d.station_progress || 1);
+  });
 
-  // km降順ソート
   const sorted = Object.entries(countMap)
-    .map(([name, count]) => ({ name, km: count * KM_PER_SESSION }))
-    .sort((a, b) => b.km - a.km)
+    .map(([name, stations]) => ({ name, stations }))
+    .sort((a, b) => b.stations - a.stations)
     .slice(0, 10);
 
   el.innerHTML = '';
@@ -1030,8 +1078,7 @@ function renderWeeklyRanking() {
   let rank = 1;
 
   sorted.forEach((entry, i) => {
-    // 同率判定：前の人と同じkmなら同じ順位
-    if (i > 0 && entry.km < sorted[i - 1].km) rank = i + 1;
+    if (i > 0 && entry.stations < sorted[i - 1].stations) rank = i + 1;
 
     const item = document.createElement('div');
     item.className = 'rank-item';
@@ -1039,7 +1086,7 @@ function renderWeeklyRanking() {
     item.innerHTML = `
       <div class="rank-num">${rankDisplay}</div>
       <div class="rank-name">${escapeHtml(entry.name)}</div>
-      <div class="rank-km">${entry.km.toLocaleString()} km</div>
+      <div class="rank-km">${entry.stations}駅</div>
     `;
     el.appendChild(item);
   });
@@ -1067,10 +1114,11 @@ function renderMyStats() {
   if (!name) return;
   const myAll = allData.filter(d => d.user_name === name);
   if (!myAll.length) return;
+  const myStations = myAll.reduce((sum, r) => sum + (r.station_progress || 1), 0);
   document.getElementById('my-stats').style.display    = 'block';
   document.getElementById('my-stats-name').textContent  = `${name}さんの累計`;
-  document.getElementById('my-stats-km').textContent    = `${myAll.length * KM_PER_SESSION} km`;
-  document.getElementById('my-stats-count').textContent = `${myAll.length}回参加 (+${KM_PER_SESSION}km/回)`;
+  document.getElementById('my-stats-km').textContent    = `${myStations}駅`;
+  document.getElementById('my-stats-count').textContent = `${myAll.length}回参加`;
 }
 
 // ============================================================
@@ -1104,7 +1152,6 @@ function checkGoalReached(totalKm) {
       document.getElementById('goal-emoji').textContent = g.emoji;
       document.getElementById('goal-title').textContent = g.title;
       document.getElementById('goal-desc' ).textContent = g.desc;
-      // 獲得スタンプをポップアップに表示
       const stampsEl = document.getElementById('goal-stamps');
       stampsEl.innerHTML = g.stamps.map(e =>
         `<div class="goal-stamp-chip">${e}</div>`
@@ -1120,7 +1167,7 @@ function closeGoal() {
 }
 
 // ============================================================
-// 参加ボタン
+// 参加ボタン（駅ベース＆ドクターイエロー機能）
 // ============================================================
 async function participate() {
   const nameEl    = document.getElementById('input-name');
@@ -1134,15 +1181,24 @@ async function participate() {
     showToast('今日の参加は3回が上限です！'); return;
   }
 
+  // ドクターイエロー判定 🚄✨
+  const isDoctorYellow = Math.random() < DOCTOR_YELLOW_PROBABILITY;
+  const stationProgress = isDoctorYellow ? 2 : 1;
+
   const btn = document.getElementById('btn-participate');
-  btn.disabled = true; btn.textContent = '登録中…';
+  btn.disabled = true;
+  btn.textContent = isDoctorYellow ? '🚄 ドクターイエロー搭乗中…' : '登録中…';
 
   const { error } = await sb.from('participations').insert({
-    user_name: userName, date: getToday(),
-    comment: commentEl.value.trim() || null, participated: true,
+    user_name: userName,
+    date: getToday(),
+    comment: commentEl.value.trim() || null,
+    participated: true,
+    station_progress: stationProgress,
+    is_doctor_yellow: isDoctorYellow,
   });
 
-  btn.textContent = '🏃 ラジオ体操参加！ +20km';
+  btn.textContent = '🏃 ラジオ体操参加！ +1駅';
   if (error) {
     showToast('❌ エラーが発生しました'); console.error(error);
     btn.disabled = false; return;
@@ -1152,9 +1208,29 @@ async function participate() {
   localStorage.setItem('myName', userName);
   commentEl.value = '';
 
-  const { data: myAll } = await sb.from('participations').select('id')
+  // ドクターイエロー時のポップアップ表示
+  if (isDoctorYellow) {
+    document.getElementById('goal-emoji').textContent = '🚄';
+    document.getElementById('goal-title').textContent = 'ドクターイエロー搭乗！';
+    document.getElementById('goal-desc').textContent = 'ラッキー！2駅進めます！🎉';
+    document.getElementById('goal-stamps').innerHTML = '';
+    document.getElementById('goal-overlay').classList.add('show');
+    setTimeout(() => closeGoal(), 2500);
+  }
+
+  // トースト表示
+  if (isDoctorYellow) {
+    showToast('🚄✨ ラッキー！ドクターイエロー搭乗！ +2駅！🎉');
+  } else {
+    showToast('✅ 参加完了！ +1駅進みました！');
+  }
+
+  const { data: myAll } = await sb.from('participations').select('*')
     .eq('user_name', userName).gte('date', EVENT_START);
-  showToast(`✅ 参加完了！あなたの累計: ${(myAll||[]).length * KM_PER_SESSION}km 🎉`);
+  
+  const totalStations = (myAll || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
+  showToast(`あなたの累計: ${totalStations}駅進行中！`);
+  
   await loadData();
 }
 
@@ -1166,8 +1242,14 @@ function setupRealtime() {
     .on('postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'participations' },
       payload => {
-        if (payload.new?.user_name !== myName)
-          showToast(`🎉 ${payload.new.user_name}さんが参加しました！`);
+        const isDoctorYellow = payload.new?.is_doctor_yellow || false;
+        const stations = payload.new?.station_progress || 1;
+        if (payload.new?.user_name !== myName) {
+          const msg = isDoctorYellow 
+            ? `🚄✨ ${payload.new.user_name}さんがドクターイエロー搭乗！ +2駅！`
+            : `🎉 ${payload.new.user_name}さんが参加しました！ +${stations}駅`;
+          showToast(msg);
+        }
         loadData();
       })
     .subscribe();
