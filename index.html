@@ -268,6 +268,25 @@
 
     .form-group input:focus { border-color: #667eea; }
 
+    .btn-youtube {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, #ff6b6b, #ff8e53);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.05rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s, opacity 0.2s;
+      margin-bottom: 16px;
+      text-decoration: none;
+      display: block;
+    }
+
+    .btn-youtube:hover { opacity: 0.9; transform: scale(1.01); }
+    .btn-youtube:active { transform: scale(0.98); }
+
     .btn-participate {
       width: 100%;
       padding: 14px;
@@ -301,13 +320,6 @@
     }
 
     .session-dot.used { background: #667eea; }
-
-    #session-text {
-      text-align: center;
-      font-size: 0.85rem;
-      color: #888;
-      margin-bottom: 8px;
-    }
 
     #member-list {
       display: flex;
@@ -462,23 +474,6 @@
     #current-location-bar .loc-emoji { font-size: 1.5rem; }
     #current-location-bar .loc-name  { font-weight: bold; font-size: 1rem; }
     #current-location-bar .loc-next  { font-size: 0.78rem; opacity: 0.85; }
-
-    .doctor-yellow-badge {
-      display: inline-block;
-      background: #ffc107;
-      color: #333;
-      padding: 2px 8px;
-      border-radius: 999px;
-      font-size: 0.75rem;
-      font-weight: bold;
-      margin-left: 4px;
-      animation: pulse 1s infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.6; }
-    }
   </style>
 </head>
 <body>
@@ -504,7 +499,7 @@
       <!-- 地図 -->
       <div id="map-wrapper">
         <div id="map-svg-area"></div>
-        <div id="map-marker">🚶</div>
+        <div id="map-marker">🚄</div>
       </div>
       <!-- スタンプカード -->
       <div class="stamp-card">
@@ -537,9 +532,14 @@
     </div>
   </div>
 
-  <!-- 参加フォーム -->
+  <!-- 乗車報告フォーム -->
   <div class="card">
-    <h2>🏃 今日の参加</h2>
+    <h2>🚄 今日の乗車報告</h2>
+
+    <!-- YouTubeボタン -->
+    <a href="https://youtu.be/q91wVnUGcnk?si=8mDKoE7orh-Qt9CY" target="_blank" class="btn-youtube">
+      🔔 出発のベルを鳴らす（YouTube）
+    </a>
 
     <div id="my-stats">
       <div class="my-name"  id="my-stats-name">あなたの累計</div>
@@ -547,7 +547,6 @@
       <div class="my-count" id="my-stats-count">0駅進行</div>
     </div>
 
-    <div id="session-text">本日の参加残り: 3回</div>
     <div class="session-status">
       <div class="session-dot" id="dot-0"></div>
       <div class="session-dot" id="dot-1"></div>
@@ -555,7 +554,7 @@
     </div>
 
     <div class="form-group">
-      <label>お名前 *</label>
+      <label>運転手の名前 *</label>
       <input type="text" id="input-name" placeholder="例: 田中さん" maxlength="20">
     </div>
     <div class="form-group">
@@ -564,13 +563,13 @@
     </div>
 
     <button class="btn-participate" id="btn-participate" onclick="participate()">
-      🏃 ラジオ体操参加！ +1駅
+      👨‍✈️ 乗車報告
     </button>
 
     <div style="margin-top:20px">
-      <h2>👥 今日の参加者</h2>
+      <h2>👨‍✈️ 今日の運転手</h2>
       <div id="member-list">
-        <span style="color:#bbb;font-size:0.85rem;">まだ誰も参加していません</span>
+        <span style="color:#bbb;font-size:0.85rem;">まだ誰も乗務していません</span>
       </div>
     </div>
   </div>
@@ -604,8 +603,8 @@
 const SUPABASE_URL   = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
 const SUPABASE_KEY   = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
 const EVENT_START    = '2026-03-16';
-const STATIONS_PER_SESSION = 1;  // 1回につき1駅進む（デフォルト）
-const DOCTOR_YELLOW_PROBABILITY = 0.03;  // 3%の確率でドクターイエロー
+const STATIONS_PER_SESSION = 1;
+const DOCTOR_YELLOW_PROBABILITY = 0.03;
 const MAX_SESSIONS   = 3;
 const GOAL_BRONZE    = 1500;
 const GOAL_SILVER    = 2500;
@@ -632,16 +631,14 @@ const STAMPS = [
 ];
 
 // ============================================================
-// WAYPOINTS（km順・コメント付き）
+// WAYPOINTS
 // ============================================================
 const WAYPOINTS = [
-  // 【1】大阪 → 名古屋（東海道新幹線）
   { km:    0, name:'新大阪',   emoji:'🍜', prefCode:'27', mapX:54.5, mapY:51.5 },
   { km:   14, name:'京都',     emoji:'⛩️',  prefCode:'26', mapX:57.5, mapY:49.5 },
   { km:   64, name:'米原',     emoji:'🏔️',  prefCode:'25', mapX:62.0, mapY:48.0 },
   { km:   98, name:'岐阜羽島', emoji:'🦅', prefCode:'21', mapX:65.5, mapY:49.5 },
   { km:  123, name:'名古屋',   emoji:'🏯', prefCode:'23', mapX:67.5, mapY:50.5 },
-  // 【2】名古屋 → 金沢（北陸新幹線）
   { km:  153, name:'敦賀',           emoji:'⚓', prefCode:'18', mapX:57.0, mapY:44.0 },
   { km:  168, name:'越前たけふ',     emoji:'🌾', prefCode:'18', mapX:54.5, mapY:43.0 },
   { km:  183, name:'福井',           emoji:'🦕', prefCode:'18', mapX:55.5, mapY:42.5 },
@@ -649,7 +646,6 @@ const WAYPOINTS = [
   { km:  215, name:'加賀温泉',       emoji:'♨️',  prefCode:'17', mapX:57.5, mapY:41.5 },
   { km:  231, name:'小松',           emoji:'🔧', prefCode:'17', mapX:58.5, mapY:41.0 },
   { km:  248, name:'金沢',           emoji:'🥢', prefCode:'17', mapX:59.5, mapY:40.5 },
-  // 【3】金沢 → 新潟（北陸→上越新幹線）
   { km:  265, name:'新高岡',         emoji:'🌸', prefCode:'16', mapX:61.5, mapY:39.5 },
   { km:  282, name:'富山',           emoji:'💊', prefCode:'16', mapX:62.5, mapY:39.0 },
   { km:  305, name:'黒部宇奈月温泉', emoji:'♨️',  prefCode:'16', mapX:64.0, mapY:38.5 },
@@ -658,7 +654,6 @@ const WAYPOINTS = [
   { km:  393, name:'長岡',           emoji:'🎆', prefCode:'15', mapX:72.0, mapY:37.5 },
   { km:  417, name:'燕三条',         emoji:'🔨', prefCode:'15', mapX:71.5, mapY:36.5 },
   { km:  442, name:'新潟',           emoji:'🍚', prefCode:'15', mapX:71.0, mapY:35.5 },
-  // 【4】新潟 → 長野 → 東京（上越・北陸新幹線）
   { km:  472, name:'浦佐',           emoji:'🌿', prefCode:'15', mapX:73.0, mapY:38.5 },
   { km:  499, name:'越後湯沢',       emoji:'⛷️',  prefCode:'15', mapX:74.5, mapY:39.5 },
   { km:  524, name:'上毛高原',       emoji:'🏔️',  prefCode:'10', mapX:76.5, mapY:40.5 },
@@ -673,7 +668,6 @@ const WAYPOINTS = [
   { km:  650, name:'熊谷',           emoji:'🌺', prefCode:'11', mapX:79.5, mapY:43.5 },
   { km:  656, name:'大宮',           emoji:'🌸', prefCode:'11', mapX:81.0, mapY:44.0 },
   { km:  668, name:'東京',           emoji:'🗼', prefCode:'13', mapX:81.5, mapY:45.5 },
-  // 【5】東京 → 新青森（東北新幹線）
   { km:  670, name:'上野',           emoji:'🐼', prefCode:'13', mapX:81.5, mapY:45.0 },
   { km:  692, name:'大宮',           emoji:'🌸', prefCode:'11', mapX:81.0, mapY:44.0 },
   { km:  733, name:'小山',           emoji:'🏰', prefCode:'09', mapX:82.0, mapY:43.5 },
@@ -696,14 +690,12 @@ const WAYPOINTS = [
   { km: 1312, name:'八戸',           emoji:'🐙', prefCode:'02', mapX:82.0, mapY:23.5 },
   { km: 1348, name:'七戸十和田',     emoji:'🌊', prefCode:'02', mapX:80.5, mapY:22.5 },
   { km: 1379, name:'新青森',         emoji:'🍎', prefCode:'02', mapX:79.5, mapY:21.5 },
-  // 【6】新青森 → 稚内（北海道）
   { km: 1419, name:'奥津軽いまべつ', emoji:'🌊', prefCode:'02', mapX:77.5, mapY:20.5 },
   { km: 1470, name:'木古内',         emoji:'❄️',  prefCode:'01', mapX:75.0, mapY:20.0 },
   { km: 1512, name:'新函館北斗',     emoji:'🦑', prefCode:'01', mapX:73.5, mapY:19.5 },
   { km: 1643, name:'札幌',           emoji:'🦀', prefCode:'01', mapX:70.5, mapY:15.0 },
   { km: 1783, name:'旭川',           emoji:'❄️',  prefCode:'01', mapX:66.5, mapY:11.5 },
   { km: 1903, name:'稚内',           emoji:'🦭', prefCode:'01', mapX:62.5, mapY: 7.0 },
-  // 【7】折り返し → 東京
   { km: 2003, name:'旭川',           emoji:'🔄', prefCode:'01', mapX:66.5, mapY:11.5 },
   { km: 2103, name:'札幌',           emoji:'🔄', prefCode:'01', mapX:70.5, mapY:15.0 },
   { km: 2193, name:'新函館北斗',     emoji:'🔄', prefCode:'01', mapX:73.5, mapY:19.5 },
@@ -716,7 +708,6 @@ const WAYPOINTS = [
   { km: 2558, name:'宇都宮',         emoji:'🥟', prefCode:'09', mapX:82.5, mapY:42.5 },
   { km: 2598, name:'大宮',           emoji:'🌸', prefCode:'11', mapX:81.0, mapY:44.0 },
   { km: 2620, name:'東京',           emoji:'🗼', prefCode:'13', mapX:81.5, mapY:45.5 },
-  // 【8】東京 → 新大阪（東海道新幹線）
   { km: 2634, name:'品川',           emoji:'🐟', prefCode:'13', mapX:81.5, mapY:46.0 },
   { km: 2646, name:'新横浜',         emoji:'⚽', prefCode:'14', mapX:81.0, mapY:47.0 },
   { km: 2674, name:'小田原',         emoji:'🏯', prefCode:'14', mapX:79.5, mapY:48.5 },
@@ -732,7 +723,6 @@ const WAYPOINTS = [
   { km: 2966, name:'米原',           emoji:'🏔️',  prefCode:'25', mapX:62.0, mapY:48.0 },
   { km: 3016, name:'京都',           emoji:'⛩️',  prefCode:'26', mapX:57.5, mapY:49.5 },
   { km: 3030, name:'新大阪',         emoji:'🍜', prefCode:'27', mapX:54.5, mapY:51.5 },
-  // 【9】新大阪 → 博多（山陽新幹線）
   { km: 3043, name:'新神戸',         emoji:'🌉', prefCode:'28', mapX:52.0, mapY:52.0 },
   { km: 3075, name:'西明石',         emoji:'⚓', prefCode:'28', mapX:48.5, mapY:53.0 },
   { km: 3100, name:'姫路',           emoji:'🏯', prefCode:'28', mapX:46.0, mapY:52.5 },
@@ -751,7 +741,6 @@ const WAYPOINTS = [
   { km: 3467, name:'新下関',         emoji:'🐡', prefCode:'35', mapX:30.0, mapY:55.0 },
   { km: 3489, name:'小倉',           emoji:'🍜', prefCode:'40', mapX:29.5, mapY:55.5 },
   { km: 3528, name:'博多',           emoji:'🍜', prefCode:'40', mapX:27.5, mapY:57.0 },
-  // 【10】博多 → 鹿児島中央（九州新幹線）
   { km: 3561, name:'新鳥栖',         emoji:'⚽', prefCode:'41', mapX:26.5, mapY:58.5 },
   { km: 3591, name:'久留米',         emoji:'🎪', prefCode:'40', mapX:26.0, mapY:60.0 },
   { km: 3630, name:'筑後船小屋',     emoji:'🌾', prefCode:'40', mapX:26.5, mapY:61.5 },
@@ -763,7 +752,6 @@ const WAYPOINTS = [
   { km: 3890, name:'出水',           emoji:'🦩', prefCode:'46', mapX:29.5, mapY:71.5 },
   { km: 3936, name:'川内',           emoji:'⚡', prefCode:'46', mapX:30.0, mapY:73.5 },
   { km: 3990, name:'鹿児島中央',     emoji:'🌋', prefCode:'46', mapX:31.5, mapY:76.0 },
-  // 【ゴール】
   { km: 4200, name:'那覇',           emoji:'🌺', prefCode:'47', mapX:16.0, mapY:89.5 },
 ];
 
@@ -784,7 +772,7 @@ let prevKm     = 0;
 // 起動
 // ============================================================
 window.addEventListener('load', async () => {
-  renderStampGrid(0);   // スタンプ初期表示（全グレー）
+  renderStampGrid(0);
   await loadMap();
   await loadData();
   setupRealtime();
@@ -893,7 +881,6 @@ function renderStampGrid(totalKm) {
       <div class="stamp-km">${earned ? stamp.desc : stamp.km + 'km〜'}</div>
     `;
 
-    // 新規獲得トースト
     if (isNew) {
       stampShown[stamp.km] = true;
       localStorage.setItem('stampShown', JSON.stringify(stampShown));
@@ -941,7 +928,15 @@ function updateMarkerPosition(totalKm) {
   marker.style.left = pos.x + '%';
   marker.style.top  = pos.y + '%';
   const u = new Set(todayData.map(d => d.user_name)).size;
-  marker.textContent = u >= 15 ? '🚄🚄' : u >= 8 ? '🚄' : u >= 3 ? '🚄' : '🚄';
+  if (u >= 15) {
+    marker.textContent = '🚄🚄🚄';
+  } else if (u >= 10) {
+    marker.textContent = '🚄🚄';
+  } else if (u >= 1) {
+    marker.textContent = '🚄';
+  } else {
+    marker.textContent = '🚄';
+  }
 }
 
 function getPositionOnRoute(km) {
@@ -1024,12 +1019,12 @@ function renderWaypoints(totalKm) {
 }
 
 // ============================================================
-// 今日の参加者
+// 今日の運転手
 // ============================================================
 function renderMemberList() {
   const el = document.getElementById('member-list');
   if (!todayData.length) {
-    el.innerHTML = '<span style="color:#bbb;font-size:0.85rem;">まだ誰も参加していません</span>';
+    el.innerHTML = '<span style="color:#bbb;font-size:0.85rem;">まだ誰も乗務していません</span>';
     return;
   }
   el.innerHTML = '';
@@ -1053,7 +1048,7 @@ function renderMemberList() {
 }
 
 // ============================================================
-// 週間ランキング（同率順位対応）
+// 週間ランキング
 // ============================================================
 function renderWeeklyRanking() {
   const el = document.getElementById('weekly-ranking');
@@ -1093,17 +1088,26 @@ function renderWeeklyRanking() {
 }
 
 // ============================================================
-// セッション残り
+// セッション残り（削除済み）
 // ============================================================
 function renderSessionStatus() {
   const name = document.getElementById('input-name').value.trim() || myName;
   const used = todayData.filter(d => d.user_name === name).length;
   const rem  = MAX_SESSIONS - used;
-  document.getElementById('session-text').textContent =
-    rem > 0 ? `本日の参加残り: ${rem}回` : '本日の参加は3回完了しました！';
+  
+  // 3回乗車したら勤務終了！
+  if (rem <= 0) {
+    document.getElementById('btn-participate').disabled = true;
+    document.getElementById('btn-participate').textContent = '👨‍✈️ 勤務終了！お疲れ様でした！';
+    document.getElementById('btn-participate').style.background = '#ccc';
+  } else {
+    document.getElementById('btn-participate').disabled = false;
+    document.getElementById('btn-participate').textContent = '👨‍✈️ 乗車報告！ ';
+    document.getElementById('btn-participate').style.background = 'linear-gradient(135deg, #667eea, #764ba2)';
+  }
+  
   for (let i = 0; i < MAX_SESSIONS; i++)
     document.getElementById(`dot-${i}`).classList.toggle('used', i < used);
-  document.getElementById('btn-participate').disabled = rem <= 0;
 }
 
 // ============================================================
@@ -1167,21 +1171,20 @@ function closeGoal() {
 }
 
 // ============================================================
-// 参加ボタン（駅ベース＆ドクターイエロー機能）
+// 乗車報告（駅ベース＆ドクターイエロー機能）
 // ============================================================
 async function participate() {
   const nameEl    = document.getElementById('input-name');
   const commentEl = document.getElementById('input-comment');
   const userName  = nameEl.value.trim();
-  if (!userName) { showToast('⚠️ お名前を入力してください'); nameEl.focus(); return; }
+  if (!userName) { showToast('⚠️ 運転手の名前を入力してください'); nameEl.focus(); return; }
 
   const { data: chk } = await sb.from('participations').select('id')
     .eq('user_name', userName).eq('date', getToday());
   if ((chk || []).length >= MAX_SESSIONS) {
-    showToast('今日の参加は3回が上限です！'); return;
+    showToast('🎉 本日の勤務お疲れ様でした！'); return;  // メッセージ変更
   }
 
-  // ドクターイエロー判定 🚄✨
   const isDoctorYellow = Math.random() < DOCTOR_YELLOW_PROBABILITY;
   const stationProgress = isDoctorYellow ? 2 : 1;
 
@@ -1198,7 +1201,7 @@ async function participate() {
     is_doctor_yellow: isDoctorYellow,
   });
 
-  btn.textContent = '🏃 ラジオ体操参加！ +1駅';
+  btn.textContent = '👨‍✈️ 乗車報告';
   if (error) {
     showToast('❌ エラーが発生しました'); console.error(error);
     btn.disabled = false; return;
@@ -1208,7 +1211,6 @@ async function participate() {
   localStorage.setItem('myName', userName);
   commentEl.value = '';
 
-  // ドクターイエロー時のポップアップ表示
   if (isDoctorYellow) {
     document.getElementById('goal-emoji').textContent = '🚄';
     document.getElementById('goal-title').textContent = 'ドクターイエロー搭乗！';
@@ -1218,18 +1220,24 @@ async function participate() {
     setTimeout(() => closeGoal(), 2500);
   }
 
-  // トースト表示
   if (isDoctorYellow) {
     showToast('🚄✨ ラッキー！ドクターイエロー搭乗！ +2駅！🎉');
   } else {
-    showToast('✅ 参加完了！ +1駅進みました！');
+    showToast('✅ 乗車報告完了！ +1駅進みました！');
   }
 
   const { data: myAll } = await sb.from('participations').select('*')
     .eq('user_name', userName).gte('date', EVENT_START);
   
   const totalStations = (myAll || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
-  showToast(`あなたの累計: ${totalStations}駅進行中！`);
+  
+  // 3回目の乗車時にメッセージ表示
+  const remainingToday = MAX_SESSIONS - (todayData.filter(d => d.user_name === userName).length + 1);
+  if (remainingToday === 0) {
+    showToast(`🎉 本日の勤務完了！${totalStations}駅進行中！`);
+  } else {
+    showToast(`あなたの累計: ${totalStations}駅進行中！`);
+  }
   
   await loadData();
 }
@@ -1247,7 +1255,7 @@ function setupRealtime() {
         if (payload.new?.user_name !== myName) {
           const msg = isDoctorYellow 
             ? `🚄✨ ${payload.new.user_name}さんがドクターイエロー搭乗！ +2駅！`
-            : `🎉 ${payload.new.user_name}さんが参加しました！ +${stations}駅`;
+            : `🎉 ${payload.new.user_name}さんが乗車報告しました！ +${stations}駅`;
           showToast(msg);
         }
         loadData();
