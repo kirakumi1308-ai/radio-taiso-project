@@ -24,13 +24,36 @@
     .header { text-align: center; color: white; margin-bottom: 20px; }
     .header h1 { font-size: 22px; font-weight: bold; }
     .header p  { font-size: 13px; opacity: 0.85; margin-top: 4px; }
+
+    /* 地図エリア */
     .map-area { position: relative; width: 100%; }
-    #japan-map { width: 100%; height: auto; display: block; }
+    #map-container { width: 100%; }
+    #map-container svg {
+      width: 100%;
+      height: auto;
+      display: block;
+    }
+    /* Geolonia SVGの都道府県スタイル */
+    .geolonia-svg-map .prefecture {
+      fill: #a8d5a2;
+      stroke: white;
+      stroke-width: 1px;
+    }
+    /* 通過済み都道府県 */
+    .geolonia-svg-map .prefecture.visited {
+      fill: #FFD700;
+    }
+    /* 現在地の都道府県 */
+    .geolonia-svg-map .prefecture.current-pref {
+      fill: #FF6B6B;
+    }
+
+    /* マーカー */
     .map-marker {
       position: absolute;
       transform: translate(-50%, -100%);
       text-align: center;
-      transition: all 1s ease;
+      transition: all 0.8s ease;
       pointer-events: none;
       z-index: 10;
     }
@@ -39,7 +62,7 @@
       background: #FF6B6B;
       color: white;
       font-size: 10px;
-      padding: 2px 6px;
+      padding: 2px 8px;
       border-radius: 8px;
       white-space: nowrap;
       font-weight: bold;
@@ -48,167 +71,103 @@
       0%,100% { transform: translateY(0); }
       50%      { transform: translateY(-6px); }
     }
-    .progress-section { margin-bottom: 8px; }
-    .progress-label {
-      display: flex;
-      justify-content: space-between;
-      font-size: 13px;
-      margin-bottom: 6px;
-    }
-    .progress-bar {
-      background: #f0f0f0;
-      border-radius: 999px;
-      height: 16px;
-      overflow: hidden;
-    }
+
+    /* 進捗 */
+    .progress-label { display:flex; justify-content:space-between; font-size:13px; margin-bottom:6px; }
+    .progress-bar { background:#f0f0f0; border-radius:999px; height:16px; overflow:hidden; }
     .progress-fill {
-      height: 100%;
-      border-radius: 999px;
+      height:100%; border-radius:999px;
       background: linear-gradient(90deg, #FF6B6B, #FFD93D);
       transition: width 1s ease;
     }
-    .goal-badges { display: flex; gap: 8px; margin-top: 10px; }
+    .goal-badges { display:flex; gap:8px; margin-top:10px; }
     .goal-badge {
-      flex: 1;
-      text-align: center;
-      padding: 6px 4px;
-      border-radius: 10px;
-      font-size: 11px;
-      border: 2px solid #e0e0e0;
-      color: #aaa;
+      flex:1; text-align:center; padding:6px 4px;
+      border-radius:10px; font-size:11px;
+      border:2px solid #e0e0e0; color:#aaa;
     }
-    .goal-badge.reached {
-      border-color: #FFD700;
-      background: #FFF9E6;
-      color: #B8860B;
-      font-weight: bold;
-    }
-    .goal-badge .medal { font-size: 18px; }
+    .goal-badge.reached { border-color:#FFD700; background:#FFF9E6; color:#B8860B; font-weight:bold; }
+    .goal-badge .medal { font-size:18px; }
+
+    /* 参加ボタン */
     #participate-btn {
-      width: 100%;
-      padding: 18px;
-      font-size: 18px;
-      font-weight: bold;
-      border: none;
-      border-radius: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
+      width:100%; padding:18px; font-size:18px; font-weight:bold;
+      border:none; border-radius:16px; cursor:pointer; transition:all 0.2s;
       background: linear-gradient(135deg, #FF6B6B, #FF8E53);
-      color: white;
-      box-shadow: 0 4px 16px rgba(255,107,107,0.4);
+      color:white; box-shadow:0 4px 16px rgba(255,107,107,0.4);
     }
-    #participate-btn:active { transform: scale(0.97); }
     #participate-btn.done {
       background: linear-gradient(135deg, #43C6AC, #191654);
-      box-shadow: 0 4px 16px rgba(67,198,172,0.4);
     }
-    #participate-btn:disabled { opacity: 0.7; cursor: not-allowed; }
-    .input-group { margin-bottom: 12px; }
-    .input-group label { font-size: 13px; color: #666; margin-bottom: 4px; display: block; }
+    #participate-btn:disabled { opacity:0.7; cursor:not-allowed; }
+
+    /* 入力 */
+    .input-group { margin-bottom:12px; }
+    .input-group label { font-size:13px; color:#666; margin-bottom:4px; display:block; }
     .input-group input {
-      width: 100%;
-      padding: 12px;
-      border: 2px solid #e0e0e0;
-      border-radius: 12px;
-      font-size: 15px;
-      outline: none;
-      transition: border-color 0.2s;
-      font-family: inherit;
+      width:100%; padding:12px; border:2px solid #e0e0e0;
+      border-radius:12px; font-size:15px; outline:none; font-family:inherit;
     }
-    .input-group input:focus { border-color: #667eea; }
-    .member-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .input-group input:focus { border-color:#667eea; }
+
+    /* メンバー */
+    .member-list { display:flex; flex-wrap:wrap; gap:8px; }
     .member-chip {
-      background: #f0f4ff;
-      border-radius: 20px;
-      padding: 6px 12px;
-      font-size: 13px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      background:#f0f4ff; border-radius:20px; padding:6px 12px;
+      font-size:13px; display:flex; align-items:center; gap:4px;
     }
-    .member-chip .km { color: #667eea; font-weight: bold; font-size: 11px; }
-    .waypoint-list { display: flex; flex-wrap: wrap; gap: 6px; }
+    .member-chip .km { color:#667eea; font-weight:bold; font-size:11px; }
+
+    /* 通過した街 */
+    .waypoint-list { display:flex; flex-wrap:wrap; gap:6px; }
     .waypoint-chip {
-      padding: 4px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      background: #FFF3CD;
-      border: 1px solid #FFD700;
+      padding:4px 10px; border-radius:12px; font-size:12px;
+      background:#FFF3CD; border:1px solid #FFD700;
     }
-    .waypoint-chip.current {
-      background: #FF6B6B;
-      color: white;
-      border-color: #FF6B6B;
-    }
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      text-align: center;
-    }
-    .stat-item { padding: 10px; background: #f8f9ff; border-radius: 12px; }
-    .stat-num { font-size: 22px; font-weight: bold; color: #667eea; }
-    .stat-label { font-size: 11px; color: #888; margin-top: 2px; }
-    .section-title {
-      font-size: 15px;
-      font-weight: bold;
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .waypoint-chip.current { background:#FF6B6B; color:white; border-color:#FF6B6B; }
+
+    /* 統計 */
+    .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; text-align:center; }
+    .stat-item { padding:10px; background:#f8f9ff; border-radius:12px; }
+    .stat-num { font-size:22px; font-weight:bold; color:#667eea; }
+    .stat-label { font-size:11px; color:#888; margin-top:2px; }
+
+    .section-title { font-size:15px; font-weight:bold; margin-bottom:12px; }
+
+    /* トースト */
     #toast {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%) translateY(100px);
-      background: #333;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 999px;
-      font-size: 14px;
-      transition: transform 0.3s;
-      z-index: 999;
-      white-space: nowrap;
+      position:fixed; bottom:20px; left:50%;
+      transform:translateX(-50%) translateY(100px);
+      background:#333; color:white; padding:12px 24px;
+      border-radius:999px; font-size:14px; transition:transform 0.3s;
+      z-index:999; white-space:nowrap;
     }
-    #toast.show { transform: translateX(-50%) translateY(0); }
+    #toast.show { transform:translateX(-50%) translateY(0); }
+
+    /* ゴール */
     #goal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.7);
-      z-index: 100;
-      justify-content: center;
-      align-items: center;
+      display:none; position:fixed; inset:0;
+      background:rgba(0,0,0,0.7); z-index:100;
+      justify-content:center; align-items:center;
     }
-    #goal-overlay.show { display: flex; }
+    #goal-overlay.show { display:flex; }
     .goal-popup {
-      background: white;
-      border-radius: 24px;
-      padding: 32px 24px;
-      text-align: center;
-      max-width: 320px;
-      width: 90%;
+      background:white; border-radius:24px; padding:32px 24px;
+      text-align:center; max-width:320px; width:90%;
     }
-    .goal-popup h2 { font-size: 24px; margin: 12px 0; }
-    .goal-popup p  { color: #666; font-size: 14px; }
-    .firework { font-size: 48px; }
-    /* 都道府県ツールチップ */
-    .pref-label {
-      position: absolute;
-      background: rgba(0,0,0,0.75);
-      color: white;
-      font-size: 11px;
-      padding: 3px 8px;
-      border-radius: 6px;
-      pointer-events: none;
-      display: none;
-      z-index: 20;
+    .goal-popup h2 { font-size:24px; margin:12px 0; }
+    .goal-popup p  { color:#666; font-size:14px; }
+    .firework { font-size:48px; }
+
+    /* 読み込み中 */
+    #map-loading {
+      text-align:center; padding:40px; color:#aaa; font-size:14px;
     }
   </style>
 </head>
 <body>
 <div class="container">
+
   <div class="header">
     <h1>🗾 みんなで日本一周の旅</h1>
     <p id="week-label">読み込み中...</p>
@@ -216,276 +175,15 @@
 
   <div class="card">
     <div class="section-title">📍 現在地</div>
-    <div class="map-area" id="map-container">
-
-      <!-- ★ リアルな日本地図SVG ★ -->
-      <svg id="japan-map" viewBox="0 0 800 900"
-           xmlns="http://www.w3.org/2000/svg"
-           style="width:100%;height:auto;display:block;">
-
-        <!-- 海 -->
-        <rect width="800" height="900" fill="#c8e6f5"/>
-
-        <!-- 北海道 -->
-        <path id="p-hokkaido" d="
-          M 580,60 L 620,50 L 660,55 L 690,70 L 710,90 L 700,115
-          L 675,130 L 650,140 L 620,145 L 595,135 L 570,120
-          L 555,100 L 560,80 Z
-        " fill="#a8d5a2" stroke="white" stroke-width="1.5"/>
-        <text x="635" y="100" text-anchor="middle" font-size="13" fill="#2d5a27" font-weight="bold">北海道</text>
-
-        <!-- 青森 -->
-        <path d="M 530,175 L 555,165 L 575,170 L 585,185 L 575,200 L 555,205 L 535,195 Z"
-              fill="#b8dba8" stroke="white" stroke-width="1"/>
-        <text x="555" y="190" text-anchor="middle" font-size="8" fill="#333">青森</text>
-
-        <!-- 岩手 -->
-        <path d="M 560,205 L 585,200 L 600,215 L 598,240 L 580,255 L 558,248 L 548,230 Z"
-              fill="#b8dba8" stroke="white" stroke-width="1"/>
-        <text x="575" y="230" text-anchor="middle" font-size="8" fill="#333">岩手</text>
-
-        <!-- 秋田 -->
-        <path d="M 530,200 L 552,205 L 550,230 L 545,255 L 525,260 L 508,245 L 510,220 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="530" y="232" text-anchor="middle" font-size="8" fill="#333">秋田</text>
-
-        <!-- 宮城 -->
-        <path d="M 558,255 L 580,255 L 595,268 L 590,285 L 572,290 L 553,280 L 548,265 Z"
-              fill="#b8dba8" stroke="white" stroke-width="1"/>
-        <text x="572" y="275" text-anchor="middle" font-size="8" fill="#333">宮城</text>
-
-        <!-- 山形 -->
-        <path d="M 525,260 L 548,255 L 553,280 L 545,298 L 525,300 L 508,288 L 508,268 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="530" y="280" text-anchor="middle" font-size="8" fill="#333">山形</text>
-
-        <!-- 福島 -->
-        <path d="M 508,295 L 548,298 L 553,318 L 535,330 L 510,328 L 495,315 Z"
-              fill="#b8dba8" stroke="white" stroke-width="1"/>
-        <text x="525" y="315" text-anchor="middle" font-size="8" fill="#333">福島</text>
-
-        <!-- 新潟 -->
-        <path d="M 460,290 L 508,295 L 510,328 L 495,340 L 465,338 L 448,318 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="480" y="318" text-anchor="middle" font-size="8" fill="#333">新潟</text>
-
-        <!-- 栃木 -->
-        <path d="M 535,330 L 558,325 L 568,340 L 558,358 L 535,360 L 522,345 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="545" y="345" text-anchor="middle" font-size="8" fill="#333">栃木</text>
-
-        <!-- 群馬 -->
-        <path d="M 508,330 L 535,330 L 522,345 L 518,360 L 498,358 L 488,342 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="512" y="346" text-anchor="middle" font-size="8" fill="#333">群馬</text>
-
-        <!-- 茨城 -->
-        <path d="M 568,340 L 592,335 L 602,355 L 595,375 L 572,378 L 558,360 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="580" y="358" text-anchor="middle" font-size="8" fill="#333">茨城</text>
-
-        <!-- 埼玉 -->
-        <path d="M 518,360 L 540,358 L 548,372 L 535,382 L 515,378 L 508,365 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="528" y="372" text-anchor="middle" font-size="8" fill="#333">埼玉</text>
-
-        <!-- 千葉 -->
-        <path d="M 555,370 L 572,378 L 578,398 L 568,415 L 548,410 L 542,390 L 548,375 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="560" y="395" text-anchor="middle" font-size="8" fill="#333">千葉</text>
-
-        <!-- 東京 -->
-        <path id="p-tokyo" d="M 535,378 L 552,372 L 558,385 L 545,392 L 532,388 Z"
-              fill="#FFD700" stroke="white" stroke-width="1.5"/>
-        <text x="545" y="387" text-anchor="middle" font-size="8" fill="#333" font-weight="bold">東京</text>
-
-        <!-- 神奈川 -->
-        <path d="M 530,392 L 548,388 L 552,405 L 538,412 L 522,405 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="537" y="404" text-anchor="middle" font-size="7" fill="#333">神奈川</text>
-
-        <!-- 山梨 -->
-        <path d="M 495,378 L 518,375 L 522,392 L 508,402 L 490,395 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="506" y="390" text-anchor="middle" font-size="8" fill="#333">山梨</text>
-
-        <!-- 長野 -->
-        <path d="M 462,345 L 495,340 L 498,370 L 490,398 L 462,400 L 445,380 L 448,358 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="472" y="372" text-anchor="middle" font-size="8" fill="#333">長野</text>
-
-        <!-- 静岡 -->
-        <path d="M 490,402 L 522,408 L 525,428 L 505,438 L 480,432 L 472,415 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="500" y="422" text-anchor="middle" font-size="8" fill="#333">静岡</text>
-
-        <!-- 富山 -->
-        <path d="M 435,338 L 462,340 L 460,360 L 440,365 L 422,352 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="441" y="352" text-anchor="middle" font-size="8" fill="#333">富山</text>
-
-        <!-- 石川 -->
-        <path d="M 405,330 L 435,335 L 435,355 L 415,365 L 395,355 L 390,338 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="413" y="348" text-anchor="middle" font-size="8" fill="#333">石川</text>
-
-        <!-- 福井 -->
-        <path d="M 390,358 L 415,368 L 412,388 L 390,392 L 372,378 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="393" y="378" text-anchor="middle" font-size="8" fill="#333">福井</text>
-
-        <!-- 岐阜 -->
-        <path d="M 445,368 L 468,365 L 475,388 L 462,405 L 438,402 L 428,385 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="452" y="388" text-anchor="middle" font-size="8" fill="#333">岐阜</text>
-
-        <!-- 愛知 -->
-        <path d="M 462,408 L 485,405 L 490,425 L 475,438 L 452,432 L 448,415 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="468" y="422" text-anchor="middle" font-size="8" fill="#333">愛知</text>
-
-        <!-- 三重 -->
-        <path d="M 430,408 L 452,408 L 450,432 L 438,448 L 418,442 L 415,422 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="433" y="428" text-anchor="middle" font-size="8" fill="#333">三重</text>
-
-        <!-- 滋賀 -->
-        <path d="M 392,395 L 415,392 L 418,412 L 402,422 L 385,412 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="401" y="410" text-anchor="middle" font-size="8" fill="#333">滋賀</text>
-
-        <!-- 京都 -->
-        <path d="M 368,382 L 392,378 L 392,398 L 378,410 L 358,402 L 355,388 Z"
-              fill="#FFE4B5" stroke="white" stroke-width="1.5"/>
-        <text x="373" y="396" text-anchor="middle" font-size="8" fill="#333" font-weight="bold">京都</text>
-
-        <!-- 大阪 -->
-        <path id="p-osaka" d="M 355,408 L 378,408 L 380,425 L 362,430 L 348,420 Z"
-              fill="#FFD700" stroke="white" stroke-width="1.5"/>
-        <text x="363" y="420" text-anchor="middle" font-size="8" fill="#333" font-weight="bold">大阪</text>
-
-        <!-- 兵庫 -->
-        <path d="M 318,398 L 355,392 L 358,412 L 348,428 L 320,425 L 305,410 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="330" y="412" text-anchor="middle" font-size="8" fill="#333">兵庫</text>
-
-        <!-- 奈良 -->
-        <path d="M 362,428 L 382,428 L 382,448 L 365,455 L 350,445 L 350,430 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="366" y="442" text-anchor="middle" font-size="8" fill="#333">奈良</text>
-
-        <!-- 和歌山 -->
-        <path d="M 348,445 L 368,455 L 365,475 L 345,480 L 330,465 L 332,448 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="348" y="463" text-anchor="middle" font-size="7" fill="#333">和歌山</text>
-
-        <!-- 鳥取 -->
-        <path d="M 290,378 L 320,375 L 322,392 L 300,398 L 280,390 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="300" y="388" text-anchor="middle" font-size="8" fill="#333">鳥取</text>
-
-        <!-- 島根 -->
-        <path d="M 252,378 L 290,375 L 290,392 L 268,398 L 248,390 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="270" y="388" text-anchor="middle" font-size="8" fill="#333">島根</text>
-
-        <!-- 岡山 -->
-        <path d="M 285,398 L 318,398 L 318,418 L 298,425 L 278,418 L 278,402 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="298" y="412" text-anchor="middle" font-size="8" fill="#333">岡山</text>
-
-        <!-- 広島 -->
-        <path id="p-hiroshima" d="M 248,395 L 280,395 L 280,418 L 260,428 L 238,418 L 238,402 Z"
-              fill="#FFE4B5" stroke="white" stroke-width="1.5"/>
-        <text x="258" y="412" text-anchor="middle" font-size="8" fill="#333" font-weight="bold">広島</text>
-
-        <!-- 山口 -->
-        <path d="M 210,402 L 240,400 L 240,420 L 222,432 L 205,422 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="222" y="416" text-anchor="middle" font-size="8" fill="#333">山口</text>
-
-        <!-- 徳島 -->
-        <path d="M 330,455 L 355,448 L 358,468 L 340,478 L 320,470 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="338" y="465" text-anchor="middle" font-size="8" fill="#333">徳島</text>
-
-        <!-- 香川 -->
-        <path d="M 295,438 L 325,435 L 328,450 L 308,455 L 288,448 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="308" y="447" text-anchor="middle" font-size="8" fill="#333">香川</text>
-
-        <!-- 愛媛 -->
-        <path d="M 255,438 L 288,438 L 290,460 L 270,470 L 250,460 L 248,442 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="268" y="454" text-anchor="middle" font-size="8" fill="#333">愛媛</text>
-
-        <!-- 高知 -->
-        <path d="M 255,468 L 292,465 L 320,472 L 315,490 L 280,498 L 250,488 L 248,472 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="283" y="483" text-anchor="middle" font-size="8" fill="#333">高知</text>
-
-        <!-- 福岡 -->
-        <path id="p-fukuoka" d="M 168,438 L 205,432 L 208,452 L 188,462 L 165,455 Z"
-              fill="#FFD700" stroke="white" stroke-width="1.5"/>
-        <text x="186" y="449" text-anchor="middle" font-size="8" fill="#333" font-weight="bold">福岡</text>
-
-        <!-- 佐賀 -->
-        <path d="M 148,455 L 170,452 L 172,468 L 155,475 L 140,465 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="155" y="465" text-anchor="middle" font-size="8" fill="#333">佐賀</text>
-
-        <!-- 長崎 -->
-        <path d="M 125,462 L 150,458 L 152,478 L 135,488 L 118,478 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="135" y="474" text-anchor="middle" font-size="8" fill="#333">長崎</text>
-
-        <!-- 熊本 -->
-        <path d="M 160,465 L 188,462 L 192,485 L 175,498 L 155,490 L 152,472 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="171" y="480" text-anchor="middle" font-size="8" fill="#333">熊本</text>
-
-        <!-- 大分 -->
-        <path d="M 195,452 L 220,448 L 225,468 L 208,478 L 190,470 Z"
-              fill="#d4ebb8" stroke="white" stroke-width="1"/>
-        <text x="207" y="464" text-anchor="middle" font-size="8" fill="#333">大分</text>
-
-        <!-- 宮崎 -->
-        <path d="M 200,478 L 225,472 L 228,498 L 210,510 L 192,500 L 190,482 Z"
-              fill="#c5e0b4" stroke="white" stroke-width="1"/>
-        <text x="209" y="492" text-anchor="middle" font-size="8" fill="#333">宮崎</text>
-
-        <!-- 鹿児島 -->
-        <path id="p-kagoshima" d="M 168,498 L 195,495 L 198,518 L 178,528 L 158,518 L 155,502 Z"
-              fill="#FFE4B5" stroke="white" stroke-width="1.5"/>
-        <text x="176" y="512" text-anchor="middle" font-size="8" fill="#333" font-weight="bold">鹿児島</text>
-
-        <!-- 沖縄 -->
-        <path id="p-okinawa" d="M 120,620 L 155,615 L 160,635 L 140,645 L 115,638 Z"
-              fill="#FFB6C1" stroke="white" stroke-width="1.5"/>
-        <text x="137" y="632" text-anchor="middle" font-size="9" fill="#333" font-weight="bold">沖縄</text>
-
-        <!-- ルートライン -->
-        <polyline id="route-line"
-          points="545,383 500,420 468,420 363,418 258,410 222,414 186,447 176,510 137,628"
-          fill="none" stroke="#FF6B6B" stroke-width="3"
-          stroke-dasharray="10,5" opacity="0.8"/>
-
-        <!-- 通過済みのルートライン（JSで更新） -->
-        <polyline id="route-done"
-          points=""
-          fill="none" stroke="#FF6B6B" stroke-width="4"
-          opacity="1"/>
-
-      </svg>
-
-      <!-- 現在地マーカー -->
-      <div class="map-marker" id="map-marker">
+    <div class="map-area">
+      <div id="map-container">
+        <div id="map-loading">🗾 地図を読み込み中...</div>
+      </div>
+      <div class="map-marker" id="map-marker" style="display:none;">
         <div class="icon" id="marker-icon">🚶</div>
         <div class="label" id="marker-label">東京</div>
       </div>
-
     </div>
-
     <div style="margin-top:12px;">
       <div class="section-title" style="font-size:13px;">🏙️ 通過した街</div>
       <div class="waypoint-list" id="waypoint-list">
@@ -496,45 +194,22 @@
 
   <div class="card">
     <div class="section-title">🚀 今週の進捗</div>
-    <div class="progress-section">
-      <div class="progress-label">
-        <span id="current-km">0 km</span>
-        <span style="color:#FF6B6B;">ゴールド: 4,500 km</span>
-      </div>
-      <div class="progress-bar">
-        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-      </div>
+    <div class="progress-label">
+      <span id="current-km">0 km</span>
+      <span style="color:#FF6B6B;">ゴールド: 4,500 km</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
     </div>
     <div class="goal-badges">
-      <div class="goal-badge" id="badge-bronze">
-        <div class="medal">🥉</div>
-        <div>ブロンズ</div>
-        <div>2,500km</div>
-      </div>
-      <div class="goal-badge" id="badge-silver">
-        <div class="medal">🥈</div>
-        <div>シルバー</div>
-        <div>3,500km</div>
-      </div>
-      <div class="goal-badge" id="badge-gold">
-        <div class="medal">🥇</div>
-        <div>ゴールド</div>
-        <div>4,500km</div>
-      </div>
+      <div class="goal-badge" id="badge-bronze"><div class="medal">🥉</div><div>ブロンズ</div><div>2,500km</div></div>
+      <div class="goal-badge" id="badge-silver"><div class="medal">🥈</div><div>シルバー</div><div>3,500km</div></div>
+      <div class="goal-badge" id="badge-gold"><div class="medal">🥇</div><div>ゴールド</div><div>4,500km</div></div>
     </div>
     <div class="stats-grid" style="margin-top:16px;">
-      <div class="stat-item">
-        <div class="stat-num" id="stat-days">0</div>
-        <div class="stat-label">経過日数</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" id="stat-members">0</div>
-        <div class="stat-label">今日の参加者</div>
-      </div>
-      <div class="stat-item">
-        <div class="stat-num" id="stat-cities">0</div>
-        <div class="stat-label">訪問した街</div>
-      </div>
+      <div class="stat-item"><div class="stat-num" id="stat-days">0</div><div class="stat-label">経過日数</div></div>
+      <div class="stat-item"><div class="stat-num" id="stat-members">0</div><div class="stat-label">今日の参加者</div></div>
+      <div class="stat-item"><div class="stat-num" id="stat-cities">0</div><div class="stat-label">訪問した街</div></div>
     </div>
   </div>
 
@@ -546,7 +221,7 @@
     </div>
     <div class="input-group">
       <label>一言コメント（任意・20文字まで）</label>
-      <input type="text" id="comment-input" placeholder="例：今日は寒かった！" maxlength="20">
+      <input type="text" id="comment-input" placeholder="例：今日も元気！" maxlength="20">
     </div>
     <button id="participate-btn" onclick="participate()">
       🏃 ラジオ体操参加！+100km
@@ -559,6 +234,7 @@
       <div style="color:#aaa;font-size:13px;">まだ誰も参加していません</div>
     </div>
   </div>
+
 </div>
 
 <div id="toast"></div>
@@ -577,45 +253,167 @@
 </div>
 
 <script>
+// =============================================
+// 設定
+// =============================================
 const SUPABASE_URL = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
 const EVENT_START  = '2026-03-16';
 
+// ルート（都道府県コード付き）
+// data-code: 都道府県コード（Geolonia SVGのdata-code属性と対応）
 const ROUTE = {
   totalKm: 4500,
   waypoints: [
-    { km:0,    name:'東京',   emoji:'🗼', mapX:68.1, mapY:43.0 },
-    { km:200,  name:'静岡',   emoji:'🗻', mapX:62.5, mapY:47.8 },
-    { km:400,  name:'名古屋', emoji:'🏯', mapX:58.5, mapY:46.9 },
-    { km:600,  name:'京都',   emoji:'⛩️', mapX:46.6, mapY:44.0 },
-    { km:800,  name:'大阪',   emoji:'🍜', mapX:45.4, mapY:46.7 },
-    { km:1100, name:'広島',   emoji:'🕊️', mapX:32.3, mapY:45.8 },
-    { km:1500, name:'福岡',   emoji:'🍜', mapX:23.3, mapY:49.8 },
-    { km:2000, name:'鹿児島', emoji:'🌋', mapX:22.0, mapY:56.9 },
-    { km:2500, name:'那覇',   emoji:'🌺', mapX:17.1, mapY:70.0 },
-    { km:3000, name:'大阪',   emoji:'⬆️', mapX:45.4, mapY:46.7 },
-    { km:3500, name:'東京',   emoji:'🔄', mapX:68.1, mapY:43.0 },
-    { km:4000, name:'仙台',   emoji:'🌸', mapX:71.5, mapY:31.7 },
-    { km:4500, name:'札幌',   emoji:'🦀', mapX:79.4, mapY:11.1 },
+    { km:0,    name:'東京',   emoji:'🗼', prefCode:'13', mapX:80.5, mapY:42.5 },
+    { km:200,  name:'静岡',   emoji:'🗻', prefCode:'22', mapX:74.0, mapY:47.5 },
+    { km:400,  name:'名古屋', emoji:'🏯', prefCode:'23', mapX:68.0, mapY:46.5 },
+    { km:600,  name:'京都',   emoji:'⛩️', prefCode:'26', mapX:58.5, mapY:43.5 },
+    { km:800,  name:'大阪',   emoji:'🍜', prefCode:'27', mapX:57.0, mapY:46.5 },
+    { km:1100, name:'広島',   emoji:'🕊️', prefCode:'34', mapX:41.0, mapY:45.5 },
+    { km:1500, name:'福岡',   emoji:'🍜', prefCode:'40', mapX:28.5, mapY:49.5 },
+    { km:2000, name:'鹿児島', emoji:'🌋', prefCode:'46', mapX:30.0, mapY:62.0 },
+    { km:2500, name:'那覇',   emoji:'🌺', prefCode:'47', mapX:14.0, mapY:88.0 },
+    { km:3000, name:'大阪',   emoji:'⬆️', prefCode:'27', mapX:57.0, mapY:46.5 },
+    { km:3500, name:'東京',   emoji:'🔄', prefCode:'13', mapX:80.5, mapY:42.5 },
+    { km:4000, name:'仙台',   emoji:'🌸', prefCode:'04', mapX:83.0, mapY:31.5 },
+    { km:4500, name:'札幌',   emoji:'🦀', prefCode:'01', mapX:78.0, mapY:12.0 },
   ]
 };
 
+// =============================================
+// Supabase
+// =============================================
 const { createClient } = supabase;
 const db = createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let todayParticipations = [];
 let totalKm = 0;
+let mapLoaded = false;
+
+// =============================================
+// 地図の読み込み（Geolonia公式SVG）
+// =============================================
+async function loadMap() {
+  try {
+    const res = await fetch(
+      'https://raw.githubusercontent.com/geolonia/japanese-prefectures/master/map-polygon.svg'
+    );
+    if (!res.ok) throw new Error('地図の読み込み失敗');
+    const svgText = await res.text();
+    const container = document.getElementById('map-container');
+    container.innerHTML = svgText;
+
+    // SVGにスタイルを追加
+    const svg = container.querySelector('svg');
+    if (svg) {
+      svg.style.width = '100%';
+      svg.style.height = 'auto';
+      svg.style.display = 'block';
+    }
+
+    mapLoaded = true;
+    updateMapColors();
+    updateMarkerPosition();
+    document.getElementById('map-marker').style.display = 'block';
+  } catch (e) {
+    // 読み込み失敗時はシンプルな地図にフォールバック
+    document.getElementById('map-loading').textContent = '🗾 地図を表示中...';
+    document.getElementById('map-container').innerHTML = getFallbackMap();
+    mapLoaded = true;
+    updateMarkerPosition();
+    document.getElementById('map-marker').style.display = 'block';
+  }
+}
+
+// フォールバック用シンプル地図
+function getFallbackMap() {
+  return `<svg viewBox="0 0 500 600" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;">
+    <rect width="500" height="600" fill="#c8e6f5"/>
+    <ellipse cx="370" cy="80" rx="80" ry="50" fill="#a8d5a2" stroke="white" stroke-width="2"/>
+    <text x="370" y="85" text-anchor="middle" font-size="14" fill="#2d5a27" font-weight="bold">北海道</text>
+    <rect x="300" y="140" width="70" height="120" rx="15" fill="#b8dba8" stroke="white" stroke-width="2"/>
+    <text x="335" y="205" text-anchor="middle" font-size="11" fill="#333">東北</text>
+    <rect x="285" y="265" width="80" height="65" rx="10" fill="#c5e0b4" stroke="white" stroke-width="2"/>
+    <text x="325" y="300" text-anchor="middle" font-size="11" fill="#333">関東</text>
+    <rect x="220" y="280" width="65" height="60" rx="10" fill="#dce775" stroke="white" stroke-width="2"/>
+    <text x="252" y="313" text-anchor="middle" font-size="10" fill="#333">中部</text>
+    <rect x="175" y="300" width="60" height="55" rx="10" fill="#ffd54f" stroke="white" stroke-width="2"/>
+    <text x="205" y="330" text-anchor="middle" font-size="10" fill="#333">近畿</text>
+    <rect x="115" y="315" width="75" height="50" rx="10" fill="#ffb74d" stroke="white" stroke-width="2"/>
+    <text x="152" y="343" text-anchor="middle" font-size="10" fill="#333">中国四国</text>
+    <ellipse cx="130" cy="415" rx="55" ry="55" fill="#ff8a65" stroke="white" stroke-width="2"/>
+    <text x="130" y="419" text-anchor="middle" font-size="12" fill="#333">九州</text>
+    <ellipse cx="65" cy="545" rx="30" ry="16" fill="#f06292" stroke="white" stroke-width="2"/>
+    <text x="65" y="549" text-anchor="middle" font-size="9" fill="#333">沖縄</text>
+  </svg>`;
+}
+
+// 通過済み都道府県の色を変える
+function updateMapColors() {
+  if (!mapLoaded) return;
+  const visited = getVisitedWaypoints();
+  const visitedCodes = new Set(visited.map(w => w.prefCode));
+  const currentCode = visited.length > 0 ? visited[visited.length-1].prefCode : null;
+
+  // 全都道府県をリセット
+  document.querySelectorAll('.prefecture').forEach(el => {
+    el.classList.remove('visited', 'current-pref');
+  });
+
+  // 通過済みを色付け
+  visitedCodes.forEach(code => {
+    const el = document.querySelector(`[data-code="${code}"]`);
+    if (el) el.classList.add('visited');
+  });
+
+  // 現在地を強調
+  if (currentCode) {
+    const el = document.querySelector(`[data-code="${currentCode}"]`);
+    if (el) { el.classList.remove('visited'); el.classList.add('current-pref'); }
+  }
+}
+
+// マーカー位置の更新
+function updateMarkerPosition() {
+  const visited = getVisitedWaypoints();
+  if (visited.length === 0) return;
+
+  const cur  = visited[visited.length - 1];
+  const next = ROUTE.waypoints[visited.length] || cur;
+  const seg  = next.km - cur.km || 1;
+  const prog = (totalKm - cur.km) / seg;
+  const x = cur.mapX + (next.mapX - cur.mapX) * prog;
+  const y = cur.mapY + (next.mapY - cur.mapY) * prog;
+
+  const mapEl = document.getElementById('map-container');
+  const marker = document.getElementById('map-marker');
+  const rect = mapEl.getBoundingClientRect();
+
+  marker.style.left = (x / 100 * rect.width)  + 'px';
+  marker.style.top  = (y / 100 * rect.height) + 'px';
+
+  const count = todayParticipations.length;
+  document.getElementById('marker-icon').textContent =
+    count >= 15 ? '🎪' : count >= 10 ? '🚌' : count >= 5 ? '🚶‍♀️' : '🚶';
+  document.getElementById('marker-label').textContent = cur.name + cur.emoji;
+}
+
+// =============================================
+// Supabase データ処理
+// =============================================
+const { createClient: _c } = supabase;
 
 async function init() {
   updateWeekLabel();
+  await loadMap();
   await loadData();
   setupRealtimeSubscription();
 }
 
 function updateWeekLabel() {
-  const start = new Date(EVENT_START);
   const today = new Date();
-  const diffDays = Math.floor((today - start) / 86400000);
+  const diffDays = Math.floor((today - new Date(EVENT_START)) / 86400000);
   const week = Math.floor(diffDays / 7) + 1;
   document.getElementById('week-label').textContent =
     `第${week}週 · ${today.getMonth()+1}月${today.getDate()}日（${['日','月','火','水','木','金','土'][today.getDay()]}）`;
@@ -652,10 +450,15 @@ function calculateTotalKm(allData) {
 
 function renderAll() {
   renderProgress();
-  renderMapMarker();
+  updateMapColors();
+  updateMarkerPosition();
   renderMemberList();
   renderWaypoints();
   checkGoalReached();
+}
+
+function getVisitedWaypoints() {
+  return ROUTE.waypoints.filter(w => w.km <= totalKm);
 }
 
 function renderProgress() {
@@ -669,41 +472,6 @@ function renderProgress() {
   document.getElementById('stat-days').textContent = Math.min(diffDays, 7);
   document.getElementById('stat-members').textContent = todayParticipations.length;
   document.getElementById('stat-cities').textContent = getVisitedWaypoints().length;
-}
-
-function getVisitedWaypoints() {
-  return ROUTE.waypoints.filter(w => w.km <= totalKm);
-}
-
-function renderMapMarker() {
-  const visited = getVisitedWaypoints();
-  if (visited.length === 0) return;
-  const cur  = visited[visited.length - 1];
-  const next = ROUTE.waypoints[visited.length] || cur;
-  const seg  = next.km - cur.km || 1;
-  const prog = (totalKm - cur.km) / seg;
-  const x = cur.mapX + (next.mapX - cur.mapX) * prog;
-  const y = cur.mapY + (next.mapY - cur.mapY) * prog;
-
-  const mapEl = document.getElementById('japan-map');
-  const marker = document.getElementById('map-marker');
-  const rect = mapEl.getBoundingClientRect();
-  marker.style.left = (x / 100 * rect.width)  + 'px';
-  marker.style.top  = (y / 100 * rect.height) + 'px';
-
-  const count = todayParticipations.length;
-  document.getElementById('marker-icon').textContent =
-    count >= 15 ? '🎪' : count >= 10 ? '🚌' : count >= 5 ? '🚶‍♀️' : '🚶';
-  document.getElementById('marker-label').textContent = cur.name + cur.emoji;
-
-  // 通過済みルートを太線で描画
-  const done = document.getElementById('route-done');
-  const pts = visited.map(w => {
-    const px = w.mapX / 100 * 800;
-    const py = w.mapY / 100 * 900;
-    return `${px},${py}`;
-  }).join(' ');
-  done.setAttribute('points', pts);
 }
 
 function renderMemberList() {
@@ -793,7 +561,10 @@ function setupRealtimeSubscription() {
   db.channel('participations-channel')
     .on('postgres_changes',
       { event: 'INSERT', schema: 'public', table: 'participations' },
-      payload => { showToast(`🙋 ${payload.new.user_name}さんが参加！+100km`); loadData(); })
+      payload => {
+        showToast(`🙋 ${payload.new.user_name}さんが参加！+100km`);
+        loadData();
+      })
     .subscribe();
 }
 
@@ -816,7 +587,7 @@ function escapeHtml(str) {
 }
 
 window.addEventListener('load', init);
-window.addEventListener('resize', renderMapMarker);
+window.addEventListener('resize', updateMarkerPosition);
 </script>
 </body>
 </html>
