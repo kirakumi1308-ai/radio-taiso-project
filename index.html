@@ -56,7 +56,6 @@
       gap: 6px;
     }
 
-    /* マップ */
     .map-card { grid-column: 1 / -1; }
 
     #map-wrapper {
@@ -73,7 +72,6 @@
       height: 100%;
     }
 
-    /* geolonia SVG スタイル */
     #map-svg-area .geolonia-svg-map {
       width: 100%;
       height: 100%;
@@ -94,7 +92,6 @@
       fill: #ff7043;
     }
 
-    /* マーカー：SVGの上に絶対配置 */
     #map-marker {
       position: absolute;
       font-size: 2.2rem;
@@ -106,7 +103,6 @@
       line-height: 1;
     }
 
-    /* 進捗 */
     .progress-bar-bg {
       background: #eee;
       border-radius: 999px;
@@ -141,7 +137,6 @@
 
     .progress-km span { font-size: 1rem; color: #888; }
 
-    /* バッジ */
     .badges {
       display: flex;
       gap: 10px;
@@ -166,7 +161,6 @@
     .badge.silver.reached { background: linear-gradient(135deg, #9e9e9e, #bdbdbd); }
     .badge.gold.reached   { background: linear-gradient(135deg, #f9a825, #ffd54f); color: #333; }
 
-    /* フォーム */
     .form-group { margin-bottom: 12px; }
 
     .form-group label {
@@ -209,7 +203,6 @@
       transform: none;
     }
 
-    /* セッションドット */
     .session-status {
       display: flex;
       gap: 8px;
@@ -234,7 +227,6 @@
       margin-bottom: 8px;
     }
 
-    /* 参加者チップ */
     #member-list {
       display: flex;
       flex-wrap: wrap;
@@ -255,7 +247,6 @@
     .member-chip:hover { background: #dde6ff; }
     .member-chip .km-label { color: #ff6b35; font-weight: bold; margin-left: 4px; }
 
-    /* 週間ランキング */
     #weekly-ranking { display: flex; flex-direction: column; gap: 8px; }
 
     .rank-item {
@@ -272,21 +263,28 @@
     .rank-km   { font-size: 0.9rem; color: #ff6b35; font-weight: bold; }
 
     /* 通過地点 */
-    #waypoint-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    #waypoint-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
 
     .wp-chip {
-      padding: 5px 12px;
+      padding: 4px 10px;
       border-radius: 999px;
-      font-size: 0.82rem;
+      font-size: 0.78rem;
       background: #eee;
       color: #aaa;
       transition: all 0.3s;
+      white-space: nowrap;
     }
 
     .wp-chip.visited { background: #e8f5e9; color: #388e3c; border: 1px solid #a5d6a7; }
-    .wp-chip.current { background: #ff7043; color: white; font-weight: bold; }
+    .wp-chip.current { background: #ff7043; color: white; font-weight: bold; border: none; }
+    .wp-chip.upcoming { background: #fff8e1; color: #f57f17; border: 1px solid #ffe082; }
 
-    /* トースト */
     #toast {
       position: fixed;
       bottom: 30px;
@@ -304,7 +302,6 @@
 
     #toast.show { transform: translateX(-50%) translateY(0); }
 
-    /* ゴールオーバーレイ */
     #goal-overlay {
       display: none;
       position: fixed;
@@ -340,7 +337,6 @@
       cursor: pointer;
     }
 
-    /* 個人累積カード */
     #my-stats {
       background: linear-gradient(135deg, #f093fb, #f5576c);
       border-radius: 12px;
@@ -353,6 +349,23 @@
     #my-stats .my-name  { font-size: 0.85rem; opacity: 0.85; margin-bottom: 4px; }
     #my-stats .my-km    { font-size: 1.8rem; font-weight: bold; }
     #my-stats .my-count { font-size: 0.82rem; opacity: 0.85; margin-top: 2px; }
+
+    /* 現在地情報バー */
+    #current-location-bar {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-radius: 10px;
+      padding: 10px 16px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.9rem;
+    }
+
+    #current-location-bar .loc-emoji { font-size: 1.5rem; }
+    #current-location-bar .loc-name  { font-weight: bold; font-size: 1rem; }
+    #current-location-bar .loc-next  { font-size: 0.78rem; opacity: 0.85; }
   </style>
 </head>
 <body>
@@ -367,10 +380,16 @@
   <!-- 地図カード -->
   <div class="card map-card">
     <h2>📍 現在地</h2>
+    <!-- 現在地バー -->
+    <div id="current-location-bar">
+      <div class="loc-emoji" id="loc-emoji">🚶</div>
+      <div>
+        <div class="loc-name" id="loc-name">新大阪</div>
+        <div class="loc-next" id="loc-next">次の駅: 新神戸 →</div>
+      </div>
+    </div>
     <div id="map-wrapper">
-      <!-- SVGはここに動的挿入 -->
       <div id="map-svg-area"></div>
-      <!-- マーカーは wrapper 直下に絶対配置 -->
       <div id="map-marker">🚶</div>
     </div>
   </div>
@@ -389,11 +408,11 @@
     <div class="badges">
       <div class="badge bronze" id="badge-bronze">🥉 ブロンズ 1,500km</div>
       <div class="badge silver" id="badge-silver">🥈 シルバー 2,500km</div>
-      <div class="badge gold"   id="badge-gold"  >🥇 ゴールド 3,500km</div>
+      <div class="badge gold"   id="badge-gold"  >🥇 ゴールド 4,200km</div>
     </div>
 
     <div style="margin-top:16px">
-      <h2>🏙️ 通過地点</h2>
+      <h2>🚄 通過駅</h2>
       <div id="waypoint-list"></div>
     </div>
   </div>
@@ -446,10 +465,8 @@
 
 </div>
 
-<!-- トースト -->
 <div id="toast"></div>
 
-<!-- ゴールオーバーレイ -->
 <div id="goal-overlay">
   <div class="goal-box">
     <div class="goal-emoji" id="goal-emoji">🎉</div>
@@ -463,47 +480,160 @@
 // ============================================================
 // 設定
 // ============================================================
-const SUPABASE_URL    = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
-const SUPABASE_KEY    = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
-const EVENT_START     = '2026-03-16';
-const KM_PER_SESSION  = 20;
-const MAX_SESSIONS    = 3;
-const GOAL_BRONZE     = 1500;
-const GOAL_SILVER     = 2500;
-const GOAL_GOLD       = 3500;
+const SUPABASE_URL   = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
+const SUPABASE_KEY   = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
+const EVENT_START    = '2026-03-16';
+const KM_PER_SESSION = 20;
+const MAX_SESSIONS   = 3;
+const GOAL_BRONZE    = 1500;
+const GOAL_SILVER    = 2500;
+const GOAL_GOLD      = 4200;
 
-// ウェイポイント（大阪発→東回り→北海道→山陽→九州→那覇）
-// mapX / mapY は #map-wrapper に対する % 座標
+// ============================================================
+// 全新幹線駅 WAYPOINTS
+// 大阪発→東海道→北陸→上越→東北→北海道→折り返し→山陽→九州→那覇
+// ============================================================
 const WAYPOINTS = [
-  { km:    0, name:'大阪',   emoji:'🍜', prefCode:'27', mapX:54.0, mapY:52.0 },
-  { km:   60, name:'京都',   emoji:'⛩️',  prefCode:'26', mapX:56.5, mapY:49.5 },
-  { km:  120, name:'名古屋', emoji:'🏯', prefCode:'23', mapX:63.5, mapY:50.0 },
-  { km:  220, name:'金沢',   emoji:'🌊', prefCode:'17', mapX:58.0, mapY:41.5 },
-  { km:  320, name:'富山',   emoji:'⛰️',  prefCode:'16', mapX:61.0, mapY:40.5 },
-  { km:  420, name:'新潟',   emoji:'🍚', prefCode:'15', mapX:68.5, mapY:37.0 },
-  { km:  520, name:'長野',   emoji:'🏔️',  prefCode:'20', mapX:67.0, mapY:44.5 },
-  { km:  620, name:'静岡',   emoji:'🗻', prefCode:'22', mapX:70.5, mapY:51.5 },
-  { km:  720, name:'東京',   emoji:'🗼', prefCode:'13', mapX:76.5, mapY:47.5 },
-  { km:  820, name:'仙台',   emoji:'🌸', prefCode:'04', mapX:78.5, mapY:36.0 },
-  { km:  940, name:'盛岡',   emoji:'🍲', prefCode:'03', mapX:80.0, mapY:30.0 },
-  { km: 1060, name:'青森',   emoji:'🍎', prefCode:'02', mapX:77.5, mapY:24.0 },
-  { km: 1180, name:'函館',   emoji:'🦑', prefCode:'01', mapX:73.0, mapY:22.0 },
-  { km: 1360, name:'札幌',   emoji:'🦀', prefCode:'01', mapX:69.0, mapY:16.0 },
-  { km: 1520, name:'旭川',   emoji:'❄️',  prefCode:'01', mapX:65.5, mapY:12.0 },
-  { km: 1660, name:'稚内',   emoji:'🦭', prefCode:'01', mapX:61.5, mapY: 7.0 },
-  { km: 1780, name:'札幌',   emoji:'🔄', prefCode:'01', mapX:69.0, mapY:16.0 },
-  { km: 1940, name:'東京',   emoji:'🗼', prefCode:'13', mapX:76.5, mapY:47.5 },
-  { km: 2060, name:'名古屋', emoji:'🏯', prefCode:'23', mapX:63.5, mapY:50.0 },
-  { km: 2160, name:'京都',   emoji:'⛩️',  prefCode:'26', mapX:56.5, mapY:49.5 },
-  { km: 2220, name:'大阪',   emoji:'🍜', prefCode:'27', mapX:54.0, mapY:52.0 },
-  { km: 2300, name:'神戸',   emoji:'🌉', prefCode:'28', mapX:51.5, mapY:52.5 },
-  { km: 2400, name:'岡山',   emoji:'🍑', prefCode:'33', mapX:45.5, mapY:52.0 },
-  { km: 2500, name:'広島',   emoji:'🕊️',  prefCode:'34', mapX:40.5, mapY:52.5 },
-  { km: 2620, name:'山口',   emoji:'🐡', prefCode:'35', mapX:35.0, mapY:54.0 },
-  { km: 2720, name:'博多',   emoji:'🍜', prefCode:'40', mapX:30.0, mapY:57.0 },
-  { km: 2860, name:'熊本',   emoji:'🏯', prefCode:'43', mapX:30.0, mapY:62.5 },
-  { km: 3000, name:'鹿児島', emoji:'🌋', prefCode:'46', mapX:31.5, mapY:69.5 },
-  { km: 3200, name:'那覇',   emoji:'🌺', prefCode:'47', mapX:17.0, mapY:90.5 },
+  // ── 出発：新大阪 ──
+  { km:    0, name:'新大阪',         emoji:'🍜', prefCode:'27', mapX:54.5, mapY:51.5 },
+
+  // ── 東海道新幹線（新大阪→東京）──
+  { km:   13, name:'新神戸',         emoji:'🌉', prefCode:'28', mapX:52.0, mapY:52.0 },
+  { km:   61, name:'西明石',         emoji:'⚓', prefCode:'28', mapX:48.5, mapY:53.0 },
+  { km:   99, name:'姫路',           emoji:'🏯', prefCode:'28', mapX:46.0, mapY:52.5 },
+  { km:  151, name:'相生',           emoji:'🌿', prefCode:'28', mapX:43.5, mapY:53.5 },
+  { km:  181, name:'岡山',           emoji:'🍑', prefCode:'33', mapX:41.0, mapY:52.0 },
+  { km:  220, name:'新大阪',         emoji:'🔁', prefCode:'27', mapX:54.5, mapY:51.5 },
+  { km:  257, name:'京都',           emoji:'⛩️',  prefCode:'26', mapX:57.5, mapY:49.5 },
+  { km:  307, name:'米原',           emoji:'🏔️',  prefCode:'25', mapX:62.0, mapY:48.0 },
+  { km:  341, name:'岐阜羽島',       emoji:'🦅', prefCode:'21', mapX:65.5, mapY:49.5 },
+  { km:  366, name:'名古屋',         emoji:'🏯', prefCode:'23', mapX:67.5, mapY:50.5 },
+  { km:  396, name:'三河安城',       emoji:'🌸', prefCode:'23', mapX:69.5, mapY:51.0 },
+  { km:  438, name:'豊橋',           emoji:'🍊', prefCode:'23', mapX:71.5, mapY:51.5 },
+  { km:  477, name:'掛川',           emoji:'🍵', prefCode:'22', mapX:73.5, mapY:52.0 },
+  { km:  507, name:'静岡',           emoji:'🗻', prefCode:'22', mapX:75.0, mapY:51.5 },
+  { km:  537, name:'新富士',         emoji:'🗻', prefCode:'22', mapX:76.5, mapY:50.5 },
+  { km:  558, name:'三島',           emoji:'♨️',  prefCode:'22', mapX:77.5, mapY:50.0 },
+  { km:  577, name:'熱海',           emoji:'♨️',  prefCode:'22', mapX:78.5, mapY:49.5 },
+  { km:  611, name:'小田原',         emoji:'🏯', prefCode:'14', mapX:79.5, mapY:48.5 },
+  { km:  639, name:'新横浜',         emoji:'⚽', prefCode:'14', mapX:81.0, mapY:47.0 },
+  { km:  664, name:'品川',           emoji:'🐟', prefCode:'13', mapX:81.5, mapY:46.0 },
+  { km:  676, name:'東京',           emoji:'🗼', prefCode:'13', mapX:81.5, mapY:45.5 },
+
+  // ── 北陸新幹線（東京→敦賀）──
+  { km:  690, name:'上野',           emoji:'🐼', prefCode:'13', mapX:81.5, mapY:45.0 },
+  { km:  712, name:'大宮',           emoji:'🌸', prefCode:'11', mapX:81.0, mapY:44.0 },
+  { km:  753, name:'熊谷',           emoji:'🌺', prefCode:'11', mapX:79.5, mapY:43.5 },
+  { km:  775, name:'本庄早稲田',     emoji:'📚', prefCode:'11', mapX:78.5, mapY:43.0 },
+  { km:  807, name:'高崎',           emoji:'🥊', prefCode:'10', mapX:77.5, mapY:42.0 },
+  { km:  825, name:'安中榛名',       emoji:'♨️',  prefCode:'10', mapX:76.0, mapY:42.0 },
+  { km:  849, name:'軽井沢',         emoji:'🏔️',  prefCode:'20', mapX:74.5, mapY:41.5 },
+  { km:  868, name:'佐久平',         emoji:'🌾', prefCode:'20', mapX:73.0, mapY:41.5 },
+  { km:  888, name:'上田',           emoji:'🏯', prefCode:'20', mapX:71.5, mapY:41.5 },
+  { km:  922, name:'長野',           emoji:'🏔️',  prefCode:'20', mapX:70.0, mapY:40.0 },
+  { km:  957, name:'飯山',           emoji:'⛷️',  prefCode:'20', mapX:68.5, mapY:39.0 },
+  { km:  983, name:'上越妙高',       emoji:'🌊', prefCode:'15', mapX:67.0, mapY:38.5 },
+  { km: 1009, name:'糸魚川',         emoji:'🦕', prefCode:'15', mapX:65.5, mapY:38.0 },
+  { km: 1035, name:'黒部宇奈月温泉', emoji:'♨️',  prefCode:'16', mapX:64.0, mapY:38.5 },
+  { km: 1058, name:'富山',           emoji:'💊', prefCode:'16', mapX:62.5, mapY:39.0 },
+  { km: 1075, name:'新高岡',         emoji:'🌸', prefCode:'16', mapX:61.5, mapY:39.5 },
+  { km: 1097, name:'金沢',           emoji:'🥢', prefCode:'17', mapX:59.5, mapY:40.5 },
+  { km: 1114, name:'小松',           emoji:'🔧', prefCode:'17', mapX:58.5, mapY:41.0 },
+  { km: 1130, name:'加賀温泉',       emoji:'♨️',  prefCode:'17', mapX:57.5, mapY:41.5 },
+  { km: 1146, name:'芦原温泉',       emoji:'♨️',  prefCode:'18', mapX:56.5, mapY:42.0 },
+  { km: 1161, name:'福井',           emoji:'🦕', prefCode:'18', mapX:55.5, mapY:42.5 },
+  { km: 1178, name:'越前たけふ',     emoji:'🌾', prefCode:'18', mapX:54.5, mapY:43.0 },
+  { km: 1196, name:'敦賀',           emoji:'⚓', prefCode:'18', mapX:57.0, mapY:44.0 },
+
+  // ── 上越新幹線（高崎→新潟）──
+  { km: 1230, name:'上毛高原',       emoji:'🏔️',  prefCode:'10', mapX:76.5, mapY:40.5 },
+  { km: 1261, name:'越後湯沢',       emoji:'⛷️',  prefCode:'15', mapX:74.5, mapY:39.5 },
+  { km: 1284, name:'浦佐',           emoji:'🌿', prefCode:'15', mapX:73.0, mapY:38.5 },
+  { km: 1311, name:'長岡',           emoji:'🎆', prefCode:'15', mapX:72.0, mapY:37.5 },
+  { km: 1335, name:'燕三条',         emoji:'🔨', prefCode:'15', mapX:71.5, mapY:36.5 },
+  { km: 1360, name:'新潟',           emoji:'🍚', prefCode:'15', mapX:71.0, mapY:35.5 },
+
+  // ── 東北新幹線（東京→新青森）──
+  { km: 1400, name:'小山',           emoji:'🏰', prefCode:'09', mapX:82.0, mapY:43.5 },
+  { km: 1427, name:'宇都宮',         emoji:'🥟', prefCode:'09', mapX:82.5, mapY:42.5 },
+  { km: 1458, name:'那須塩原',       emoji:'♨️',  prefCode:'09', mapX:82.5, mapY:41.5 },
+  { km: 1491, name:'新白河',         emoji:'⛩️',  prefCode:'07', mapX:82.5, mapY:40.5 },
+  { km: 1531, name:'郡山',           emoji:'🌸', prefCode:'07', mapX:83.0, mapY:39.5 },
+  { km: 1572, name:'福島',           emoji:'🍑', prefCode:'07', mapX:83.0, mapY:38.0 },
+  { km: 1604, name:'白石蔵王',       emoji:'⛷️',  prefCode:'04', mapX:82.5, mapY:37.0 },
+  { km: 1634, name:'仙台',           emoji:'🌸', prefCode:'04', mapX:82.0, mapY:36.0 },
+  { km: 1673, name:'古川',           emoji:'🌾', prefCode:'04', mapX:82.0, mapY:34.5 },
+  { km: 1694, name:'くりこま高原',   emoji:'🦌', prefCode:'04', mapX:82.5, mapY:33.5 },
+  { km: 1722, name:'一ノ関',         emoji:'⛩️',  prefCode:'03', mapX:83.0, mapY:32.0 },
+  { km: 1753, name:'水沢江刺',       emoji:'🌿', prefCode:'03', mapX:83.0, mapY:31.0 },
+  { km: 1774, name:'北上',           emoji:'🌸', prefCode:'03', mapX:83.0, mapY:30.0 },
+  { km: 1796, name:'新花巻',         emoji:'🌸', prefCode:'03', mapX:83.0, mapY:29.0 },
+  { km: 1834, name:'盛岡',           emoji:'🍲', prefCode:'03', mapX:83.0, mapY:28.0 },
+  { km: 1874, name:'いわて沼宮内',   emoji:'🌿', prefCode:'03', mapX:82.5, mapY:26.5 },
+  { km: 1909, name:'二戸',           emoji:'🌿', prefCode:'03', mapX:82.0, mapY:25.0 },
+  { km: 1949, name:'八戸',           emoji:'🐙', prefCode:'02', mapX:82.0, mapY:23.5 },
+  { km: 1985, name:'七戸十和田',     emoji:'🌊', prefCode:'02', mapX:80.5, mapY:22.5 },
+  { km: 2016, name:'新青森',         emoji:'🍎', prefCode:'02', mapX:79.5, mapY:21.5 },
+
+  // ── 北海道新幹線（新青森→新函館北斗）──
+  { km: 2056, name:'奥津軽いまべつ', emoji:'🌊', prefCode:'02', mapX:77.5, mapY:20.5 },
+  { km: 2107, name:'木古内',         emoji:'❄️',  prefCode:'01', mapX:75.0, mapY:20.0 },
+  { km: 2149, name:'新函館北斗',     emoji:'🦑', prefCode:'01', mapX:73.5, mapY:19.5 },
+
+  // ── 北海道内（演出区間）──
+  { km: 2280, name:'札幌',           emoji:'🦀', prefCode:'01', mapX:70.5, mapY:15.0 },
+  { km: 2420, name:'旭川',           emoji:'❄️',  prefCode:'01', mapX:66.5, mapY:11.5 },
+  { km: 2540, name:'稚内',           emoji:'🦭', prefCode:'01', mapX:62.5, mapY: 7.0 },
+
+  // ── 折り返し南下 ──
+  { km: 2640, name:'札幌',           emoji:'🔄', prefCode:'01', mapX:70.5, mapY:15.0 },
+  { km: 2730, name:'新函館北斗',     emoji:'🔄', prefCode:'01', mapX:73.5, mapY:19.5 },
+  { km: 2800, name:'新青森',         emoji:'🍎', prefCode:'02', mapX:79.5, mapY:21.5 },
+  { km: 2840, name:'盛岡',           emoji:'🍲', prefCode:'03', mapX:83.0, mapY:28.0 },
+
+  // ── 秋田新幹線（盛岡→秋田）──
+  { km: 2880, name:'雫石',           emoji:'💧', prefCode:'03', mapX:81.5, mapY:28.5 },
+  { km: 2910, name:'田沢湖',         emoji:'🏞️',  prefCode:'05', mapX:79.5, mapY:28.5 },
+  { km: 2940, name:'角館',           emoji:'🌸', prefCode:'05', mapX:78.5, mapY:29.5 },
+  { km: 2970, name:'大曲',           emoji:'🎆', prefCode:'05', mapX:77.5, mapY:30.0 },
+  { km: 3000, name:'秋田',           emoji:'🍶', prefCode:'05', mapX:76.0, mapY:30.0 },
+
+  // ── 山陽新幹線（新大阪→博多）──
+  { km: 3060, name:'新大阪',         emoji:'🔁', prefCode:'27', mapX:54.5, mapY:51.5 },
+  { km: 3073, name:'新神戸',         emoji:'🌉', prefCode:'28', mapX:52.0, mapY:52.0 },
+  { km: 3105, name:'西明石',         emoji:'⚓', prefCode:'28', mapX:48.5, mapY:53.0 },
+  { km: 3130, name:'姫路',           emoji:'🏯', prefCode:'28', mapX:46.0, mapY:52.5 },
+  { km: 3173, name:'相生',           emoji:'🌿', prefCode:'28', mapX:43.5, mapY:53.5 },
+  { km: 3203, name:'岡山',           emoji:'🍑', prefCode:'33', mapX:41.0, mapY:52.0 },
+  { km: 3230, name:'新倉敷',         emoji:'🎨', prefCode:'33', mapX:39.5, mapY:52.5 },
+  { km: 3256, name:'福山',           emoji:'🌹', prefCode:'34', mapX:38.0, mapY:52.5 },
+  { km: 3268, name:'新尾道',         emoji:'🌊', prefCode:'34', mapX:37.0, mapY:52.5 },
+  { km: 3284, name:'三原',           emoji:'🐙', prefCode:'34', mapX:36.0, mapY:52.5 },
+  { km: 3305, name:'東広島',         emoji:'🍺', prefCode:'34', mapX:35.0, mapY:52.0 },
+  { km: 3341, name:'広島',           emoji:'🕊️',  prefCode:'34', mapX:40.5, mapY:52.5 },
+  { km: 3377, name:'新岩国',         emoji:'🌉', prefCode:'35', mapX:38.0, mapY:53.5 },
+  { km: 3409, name:'徳山',           emoji:'🏭', prefCode:'35', mapX:36.0, mapY:54.0 },
+  { km: 3438, name:'新山口',         emoji:'🐡', prefCode:'35', mapX:33.5, mapY:54.5 },
+  { km: 3469, name:'厚狭',           emoji:'🌿', prefCode:'35', mapX:31.5, mapY:54.5 },
+  { km: 3497, name:'新下関',         emoji:'🐡', prefCode:'35', mapX:30.0, mapY:55.0 },
+  { km: 3519, name:'小倉',           emoji:'🍜', prefCode:'40', mapX:29.5, mapY:55.5 },
+  { km: 3558, name:'博多',           emoji:'🍜', prefCode:'40', mapX:27.5, mapY:57.0 },
+
+  // ── 九州新幹線（博多→鹿児島中央）──
+  { km: 3591, name:'新鳥栖',         emoji:'⚽', prefCode:'41', mapX:26.5, mapY:58.5 },
+  { km: 3621, name:'久留米',         emoji:'🎪', prefCode:'40', mapX:26.0, mapY:60.0 },
+  { km: 3660, name:'筑後船小屋',     emoji:'🌾', prefCode:'40', mapX:26.5, mapY:61.5 },
+  { km: 3695, name:'新大牟田',       emoji:'🏭', prefCode:'40', mapX:27.0, mapY:63.0 },
+  { km: 3737, name:'新玉名',         emoji:'♨️',  prefCode:'43', mapX:28.5, mapY:64.5 },
+  { km: 3793, name:'熊本',           emoji:'🏯', prefCode:'43', mapX:29.5, mapY:66.5 },
+  { km: 3852, name:'新八代',         emoji:'🥁', prefCode:'43', mapX:30.0, mapY:68.5 },
+  { km: 3885, name:'新水俣',         emoji:'🌊', prefCode:'43', mapX:29.0, mapY:70.0 },
+  { km: 3920, name:'出水',           emoji:'🦩', prefCode:'46', mapX:29.5, mapY:71.5 },
+  { km: 3966, name:'川内',           emoji:'⚡', prefCode:'46', mapX:30.0, mapY:73.5 },
+  { km: 4020, name:'鹿児島中央',     emoji:'🌋', prefCode:'46', mapX:31.5, mapY:76.0 },
+
+  // ── ゴール：那覇 ──
+  { km: 4200, name:'那覇',           emoji:'🌺', prefCode:'47', mapX:16.0, mapY:89.5 },
 ];
 
 // ============================================================
@@ -525,8 +655,8 @@ let goalShown = JSON.parse(localStorage.getItem('goalShown') || '{}');
 // ============================================================
 window.addEventListener('load', async () => {
   updateWeekLabel();
-  await loadMap();      // 地図SVGを読み込む
-  await loadData();     // Supabaseからデータ取得
+  await loadMap();
+  await loadData();
   setupRealtime();
   if (myName) document.getElementById('input-name').value = myName;
 });
@@ -541,7 +671,7 @@ function updateWeekLabel() {
 }
 
 // ============================================================
-// 地図読み込み（geolonia SVG）
+// 地図読み込み
 // ============================================================
 async function loadMap() {
   const area = document.getElementById('map-svg-area');
@@ -551,11 +681,7 @@ async function loadMap() {
     );
     if (!res.ok) throw new Error('SVG fetch failed');
     const svgText = await res.text();
-
-    // SVGをそのまま innerHTML に展開（geoloniaの構造を維持）
     area.innerHTML = svgText;
-
-    // サイズを wrapper に合わせる
     const svgEl = area.querySelector('svg');
     if (svgEl) {
       svgEl.style.width  = '100%';
@@ -563,21 +689,15 @@ async function loadMap() {
       svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     }
   } catch (e) {
-    console.warn('SVG読み込み失敗、フォールバック使用', e);
-    // フォールバック：シンプルな日本地図
+    console.warn('SVG読み込み失敗', e);
     area.innerHTML = `
       <svg viewBox="0 0 200 200" style="width:100%;height:100%">
         <rect width="200" height="200" fill="#e8f4fd"/>
-        <!-- 本州 -->
-        <ellipse cx="110" cy="105" rx="55" ry="22" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="honshu"/>
-        <!-- 北海道 -->
-        <ellipse cx="130" cy="55" rx="30" ry="18" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="hokkaido"/>
-        <!-- 九州 -->
-        <ellipse cx="62" cy="130" rx="16" ry="14" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="kyushu"/>
-        <!-- 四国 -->
-        <ellipse cx="93" cy="130" rx="14" ry="8" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="shikoku"/>
-        <!-- 沖縄 -->
-        <ellipse cx="35" cy="170" rx="10" ry="5" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="okinawa"/>
+        <ellipse cx="110" cy="105" rx="55" ry="22" fill="#c8e6c9" stroke="#fff" stroke-width="1"/>
+        <ellipse cx="130" cy="55"  rx="30" ry="18" fill="#c8e6c9" stroke="#fff" stroke-width="1"/>
+        <ellipse cx="62"  cy="130" rx="16" ry="14" fill="#c8e6c9" stroke="#fff" stroke-width="1"/>
+        <ellipse cx="93"  cy="130" rx="14" ry="8"  fill="#c8e6c9" stroke="#fff" stroke-width="1"/>
+        <ellipse cx="35"  cy="170" rx="10" ry="5"  fill="#c8e6c9" stroke="#fff" stroke-width="1"/>
         <text x="100" y="195" text-anchor="middle" font-size="8" fill="#888">🗾 日本地図</text>
       </svg>`;
   }
@@ -587,13 +707,10 @@ async function loadMap() {
 // 都道府県の色更新
 // ============================================================
 function updateMapColors(totalKm) {
-  const area = document.getElementById('map-svg-area');
-
-  // geoloniaの.prefecture クラスを使う
+  const area  = document.getElementById('map-svg-area');
   const prefs = area.querySelectorAll('.prefecture');
-  if (prefs.length === 0) return; // フォールバック時はスキップ
+  if (!prefs.length) return;
 
-  // 訪問済みコードを収集
   const visitedCodes = new Set();
   let   currentCode  = null;
 
@@ -616,26 +733,23 @@ function updateMapColors(totalKm) {
 }
 
 // ============================================================
-// マーカー位置更新
+// マーカー位置
 // ============================================================
 function updateMarkerPosition(totalKm) {
   const pos    = getPositionOnRoute(totalKm);
   const marker = document.getElementById('map-marker');
-
   marker.style.left = pos.x + '%';
   marker.style.top  = pos.y + '%';
 
-  // 参加人数に応じてアイコン変化
   const users = new Set(todayData.map(d => d.user_name)).size;
   if      (users >= 15) marker.textContent = '🚌';
-  else if (users >= 8)  marker.textContent = '🚶‍♀️';
+  else if (users >= 8)  marker.textContent = '🚆';
   else if (users >= 3)  marker.textContent = '🏃';
   else                  marker.textContent = '🚶';
 }
 
-// ルート上の座標補間
 function getPositionOnRoute(km) {
-  const wps = WAYPOINTS;
+  const wps  = WAYPOINTS;
   if (km <= 0) return { x: wps[0].mapX, y: wps[0].mapY };
   const last = wps[wps.length - 1];
   if (km >= last.km) return { x: last.mapX, y: last.mapY };
@@ -653,10 +767,24 @@ function getPositionOnRoute(km) {
 }
 
 // ============================================================
+// 現在地バー更新
+// ============================================================
+function updateLocationBar(totalKm) {
+  const currentWp = [...WAYPOINTS].reverse().find(w => w.km <= totalKm) || WAYPOINTS[0];
+  const nextWp    = WAYPOINTS.find(w => w.km > totalKm);
+
+  document.getElementById('loc-emoji').textContent = currentWp.emoji;
+  document.getElementById('loc-name').textContent  = currentWp.name;
+  document.getElementById('loc-next').textContent  = nextWp
+    ? `次の駅: ${nextWp.emoji} ${nextWp.name} (あと${nextWp.km - totalKm}km)`
+    : '🎉 ゴール達成！';
+}
+
+// ============================================================
 // データ読み込み
 // ============================================================
 async function loadData() {
-  const today = getToday();
+  const today  = getToday();
   const [r1, r2] = await Promise.all([
     sb.from('participations').select('*').eq('date', today),
     sb.from('participations').select('*').gte('date', EVENT_START),
@@ -672,8 +800,9 @@ async function loadData() {
 function renderAll() {
   const totalKm = calculateTotalKm();
   renderProgress(totalKm);
-  updateMarkerPosition(totalKm);   // ← マーカー位置
-  updateMapColors(totalKm);        // ← 都道府県色
+  updateMarkerPosition(totalKm);
+  updateMapColors(totalKm);
+  updateLocationBar(totalKm);
   renderMemberList();
   renderWaypoints(totalKm);
   renderWeeklyRanking();
@@ -708,31 +837,47 @@ function renderProgress(totalKm) {
 }
 
 // ============================================================
-// 通過地点チップ
+// 通過駅チップ（全駅表示・スクロール対応）
 // ============================================================
 function renderWaypoints(totalKm) {
   const el = document.getElementById('waypoint-list');
   el.innerHTML = '';
 
-  // 重複名を除いてユニーク表示
-  const seen    = new Set();
-  const unique  = [];
+  // 重複除去
+  const seen   = new Set();
+  const unique = [];
   for (const wp of WAYPOINTS) {
-    const key = wp.name + wp.km;
+    const key = wp.name + '_' + wp.km;
     if (!seen.has(key)) { seen.add(key); unique.push(wp); }
   }
 
-  // 現在地ウェイポイント（通過済みの最後）
-  const currentWp = [...WAYPOINTS].reverse().find(w => w.km <= totalKm);
+  // 現在地ウェイポイント
+  const currentWp = [...WAYPOINTS].reverse().find(w => w.km <= totalKm) || WAYPOINTS[0];
 
-  unique.forEach(wp => {
+  // 通過済み + 現在地 + 次の5駅を表示
+  const display = unique.filter(wp => {
+    if (wp.km <= totalKm) return true;
+    if (wp.km > totalKm && wp.km <= totalKm + 100) return true;
+    return false;
+  });
+
+  const list = display.length > 0 ? display : unique.slice(0, 6);
+
+  list.forEach(wp => {
     const chip = document.createElement('div');
     chip.className = 'wp-chip';
-    if (wp.km <= totalKm) chip.classList.add('visited');
-    if (currentWp && wp.name === currentWp.name && wp.km === currentWp.km) {
-      chip.classList.add('current');
-    }
+
+    const isCurrent  = wp.name === currentWp.name && wp.km === currentWp.km;
+    const isUpcoming = wp.km > totalKm;
+
+    if (isCurrent)       chip.classList.add('current');
+    else if (isUpcoming) chip.classList.add('upcoming');
+    else                 chip.classList.add('visited');
+
     chip.textContent = `${wp.emoji} ${wp.name}`;
+
+    // クリックで距離情報
+    chip.title = `${wp.name}（${wp.km.toLocaleString()}km地点）`;
     el.appendChild(chip);
   });
 }
@@ -847,9 +992,9 @@ function renderMyStats() {
 // ============================================================
 function checkGoalReached(totalKm) {
   const goals = [
-    { km: GOAL_GOLD,   key:'gold',   emoji:'🥇', title:'ゴール達成！',   desc:`チームで${GOAL_GOLD.toLocaleString()}km 達成！おめでとう🎉` },
-    { km: GOAL_SILVER, key:'silver', emoji:'🥈', title:'シルバー達成！', desc:`チームで${GOAL_SILVER.toLocaleString()}km 達成！この調子で！` },
-    { km: GOAL_BRONZE, key:'bronze', emoji:'🥉', title:'ブロンズ達成！', desc:`チームで${GOAL_BRONZE.toLocaleString()}km 達成！よくやった！` },
+    { km: GOAL_GOLD,   key:'gold',   emoji:'🥇', title:'ゴール！那覇に到着！',  desc:`チームで${GOAL_GOLD.toLocaleString()}km 達成！日本一周完走🎉` },
+    { km: GOAL_SILVER, key:'silver', emoji:'🥈', title:'シルバー達成！',        desc:`チームで${GOAL_SILVER.toLocaleString()}km 達成！この調子で！` },
+    { km: GOAL_BRONZE, key:'bronze', emoji:'🥉', title:'ブロンズ達成！',        desc:`チームで${GOAL_BRONZE.toLocaleString()}km 達成！よくやった！` },
   ];
   for (const g of goals) {
     if (totalKm >= g.km && !goalShown[g.key]) {
@@ -883,7 +1028,6 @@ async function participate() {
     return;
   }
 
-  // 今日の回数チェック
   const { data: todayCheck } = await sb
     .from('participations')
     .select('id')
@@ -915,12 +1059,10 @@ async function participate() {
     return;
   }
 
-  // 名前をローカルストレージへ
   myName = userName;
   localStorage.setItem('myName', userName);
   commentEl.value = '';
 
-  // 週間累計トースト
   const { data: myAllData } = await sb
     .from('participations')
     .select('id')
@@ -933,7 +1075,7 @@ async function participate() {
 }
 
 // ============================================================
-// リアルタイム購読
+// リアルタイム
 // ============================================================
 function setupRealtime() {
   sb.channel('participations-channel')
@@ -970,7 +1112,6 @@ function escapeHtml(str) {
   );
 }
 
-// 名前入力変更でセッション状態を再描画
 document.getElementById('input-name').addEventListener('input', renderSessionStatus);
 </script>
 </body>
