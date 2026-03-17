@@ -59,38 +59,51 @@
     /* マップ */
     .map-card { grid-column: 1 / -1; }
 
-    #map-container {
-      width: 100%;
-      height: 420px;
+    #map-wrapper {
       position: relative;
+      width: 100%;
+      height: 440px;
       background: #e8f4fd;
       border-radius: 12px;
       overflow: hidden;
     }
 
-    #map-container svg {
+    #map-svg-area {
       width: 100%;
       height: 100%;
     }
 
-    #map-container svg path {
+    /* geolonia SVG スタイル */
+    #map-svg-area .geolonia-svg-map {
+      width: 100%;
+      height: 100%;
+    }
+
+    #map-svg-area .prefecture {
       fill: #c8e6c9;
-      stroke: #fff;
+      stroke: #ffffff;
       stroke-width: 0.5;
       transition: fill 0.4s;
     }
 
-    #map-container svg path.visited  { fill: #66bb6a; }
-    #map-container svg path.current-pref { fill: #ff7043; }
+    #map-svg-area .prefecture.visited {
+      fill: #66bb6a;
+    }
 
-    .map-marker {
+    #map-svg-area .prefecture.current-pref {
+      fill: #ff7043;
+    }
+
+    /* マーカー：SVGの上に絶対配置 */
+    #map-marker {
       position: absolute;
-      transform: translate(-50%, -50%);
-      font-size: 2rem;
-      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
-      transition: left 0.8s ease, top 0.8s ease;
-      z-index: 10;
+      font-size: 2.2rem;
+      transform: translate(-50%, -100%);
+      filter: drop-shadow(0 3px 6px rgba(0,0,0,0.5));
+      transition: left 1s ease, top 1s ease;
+      z-index: 20;
       pointer-events: none;
+      line-height: 1;
     }
 
     /* 進捗 */
@@ -148,16 +161,12 @@
       transition: all 0.4s;
     }
 
-    .badge.reached {
-      border-color: transparent;
-      color: white;
-    }
+    .badge.reached { border-color: transparent; color: white; }
+    .badge.bronze.reached { background: linear-gradient(135deg, #cd7f32, #e8a96b); }
+    .badge.silver.reached { background: linear-gradient(135deg, #9e9e9e, #bdbdbd); }
+    .badge.gold.reached   { background: linear-gradient(135deg, #f9a825, #ffd54f); color: #333; }
 
-    .badge.bronze.reached  { background: linear-gradient(135deg, #cd7f32, #e8a96b); }
-    .badge.silver.reached  { background: linear-gradient(135deg, #9e9e9e, #bdbdbd); }
-    .badge.gold.reached    { background: linear-gradient(135deg, #f9a825, #ffd54f); color: #333; }
-
-    /* 参加フォーム */
+    /* フォーム */
     .form-group { margin-bottom: 12px; }
 
     .form-group label {
@@ -167,8 +176,7 @@
       margin-bottom: 4px;
     }
 
-    .form-group input,
-    .form-group textarea {
+    .form-group input {
       width: 100%;
       padding: 10px 12px;
       border: 2px solid #e0e0e0;
@@ -178,8 +186,7 @@
       transition: border-color 0.2s;
     }
 
-    .form-group input:focus,
-    .form-group textarea:focus { border-color: #667eea; }
+    .form-group input:focus { border-color: #667eea; }
 
     .btn-participate {
       width: 100%;
@@ -202,7 +209,7 @@
       transform: none;
     }
 
-    /* セッション残り表示 */
+    /* セッションドット */
     .session-status {
       display: flex;
       gap: 8px;
@@ -227,7 +234,7 @@
       margin-bottom: 8px;
     }
 
-    /* 参加者リスト */
+    /* 参加者チップ */
     #member-list {
       display: flex;
       flex-wrap: wrap;
@@ -246,11 +253,7 @@
     }
 
     .member-chip:hover { background: #dde6ff; }
-    .member-chip .km-label {
-      color: #ff6b35;
-      font-weight: bold;
-      margin-left: 4px;
-    }
+    .member-chip .km-label { color: #ff6b35; font-weight: bold; margin-left: 4px; }
 
     /* 週間ランキング */
     #weekly-ranking { display: flex; flex-direction: column; gap: 8px; }
@@ -264,22 +267,12 @@
       border-radius: 10px;
     }
 
-    .rank-num {
-      font-size: 1rem;
-      font-weight: bold;
-      width: 24px;
-      text-align: center;
-    }
-
+    .rank-num  { font-size: 1rem; font-weight: bold; width: 24px; text-align: center; }
     .rank-name { flex: 1; font-size: 0.9rem; }
     .rank-km   { font-size: 0.9rem; color: #ff6b35; font-weight: bold; }
 
     /* 通過地点 */
-    #waypoint-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-    }
+    #waypoint-list { display: flex; flex-wrap: wrap; gap: 8px; }
 
     .wp-chip {
       padding: 5px 12px;
@@ -299,7 +292,7 @@
       bottom: 30px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: rgba(0,0,0,0.8);
+      background: rgba(0,0,0,0.82);
       color: white;
       padding: 12px 24px;
       border-radius: 999px;
@@ -347,7 +340,7 @@
       cursor: pointer;
     }
 
-    /* 個人累積情報 */
+    /* 個人累積カード */
     #my-stats {
       background: linear-gradient(135deg, #f093fb, #f5576c);
       border-radius: 12px;
@@ -371,15 +364,18 @@
 
 <div class="container">
 
-  <!-- 地図 -->
+  <!-- 地図カード -->
   <div class="card map-card">
     <h2>📍 現在地</h2>
-    <div id="map-container">
-      <div class="map-marker" id="map-marker">🚶</div>
+    <div id="map-wrapper">
+      <!-- SVGはここに動的挿入 -->
+      <div id="map-svg-area"></div>
+      <!-- マーカーは wrapper 直下に絶対配置 -->
+      <div id="map-marker">🚶</div>
     </div>
   </div>
 
-  <!-- 進捗 -->
+  <!-- 進捗カード -->
   <div class="card">
     <h2>📊 チーム進捗</h2>
     <div class="progress-km" id="current-km">0 <span>km</span></div>
@@ -387,13 +383,13 @@
       <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
     </div>
     <div class="progress-stats">
-      <span id="stat-today">今日: 0人参加</span>
+      <span id="stat-today">今日: 0回参加</span>
       <span id="stat-total">合計: 0回</span>
     </div>
     <div class="badges">
       <div class="badge bronze" id="badge-bronze">🥉 ブロンズ 1,500km</div>
       <div class="badge silver" id="badge-silver">🥈 シルバー 2,500km</div>
-      <div class="badge gold"   id="badge-gold">🥇 ゴールド 3,500km</div>
+      <div class="badge gold"   id="badge-gold"  >🥇 ゴールド 3,500km</div>
     </div>
 
     <div style="margin-top:16px">
@@ -406,15 +402,14 @@
   <div class="card">
     <h2>🏃 今日の参加</h2>
 
-    <!-- 個人累積 -->
     <div id="my-stats">
-      <div class="my-name" id="my-stats-name">あなたの累計</div>
-      <div class="my-km"   id="my-stats-km">0 km</div>
-      <div class="my-count" id="my-stats-count">0回参加 (+20km/回)</div>
+      <div class="my-name"  id="my-stats-name" >あなたの累計</div>
+      <div class="my-km"    id="my-stats-km"   >0 km</div>
+      <div class="my-count" id="my-stats-count">0回参加</div>
     </div>
 
     <div id="session-text">本日の参加残り: 3回</div>
-    <div class="session-status" id="session-dots">
+    <div class="session-status">
       <div class="session-dot" id="dot-0"></div>
       <div class="session-dot" id="dot-1"></div>
       <div class="session-dot" id="dot-2"></div>
@@ -436,7 +431,7 @@
     <div style="margin-top:20px">
       <h2>👥 今日の参加者</h2>
       <div id="member-list">
-        <span style="color:#bbb; font-size:0.85rem;">まだ誰も参加していません</span>
+        <span style="color:#bbb;font-size:0.85rem;">まだ誰も参加していません</span>
       </div>
     </div>
   </div>
@@ -445,7 +440,7 @@
   <div class="card">
     <h2>🏆 週間ランキング</h2>
     <div id="weekly-ranking">
-      <span style="color:#bbb; font-size:0.85rem;">データを読み込み中…</span>
+      <span style="color:#bbb;font-size:0.85rem;">データを読み込み中…</span>
     </div>
   </div>
 
@@ -459,242 +454,158 @@
   <div class="goal-box">
     <div class="goal-emoji" id="goal-emoji">🎉</div>
     <h2 id="goal-title">目標達成！</h2>
-    <p  id="goal-desc">チームで協力して達成しました！</p>
+    <p  id="goal-desc" >チームで目標を達成しました！</p>
     <button class="btn-close-goal" onclick="closeGoal()">閉じる</button>
   </div>
 </div>
 
 <script>
-// =============================================
+// ============================================================
 // 設定
-// =============================================
-const SUPABASE_URL = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
-const EVENT_START  = '2026-03-16';
-const KM_PER_SESSION = 20;
-const MAX_SESSIONS   = 3;
-const GOAL_BRONZE    = 1500;
-const GOAL_SILVER    = 2500;
-const GOAL_GOLD      = 3500;
+// ============================================================
+const SUPABASE_URL    = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
+const SUPABASE_KEY    = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
+const EVENT_START     = '2026-03-16';
+const KM_PER_SESSION  = 20;
+const MAX_SESSIONS    = 3;
+const GOAL_BRONZE     = 1500;
+const GOAL_SILVER     = 2500;
+const GOAL_GOLD       = 3500;
 
 // ウェイポイント（大阪発→東回り→北海道→山陽→九州→那覇）
+// mapX / mapY は #map-wrapper に対する % 座標
 const WAYPOINTS = [
-  { km:   0, name:'大阪',     emoji:'🍜', prefCode:'27', mapX:57.0, mapY:46.5 },
-  { km:  60, name:'京都',     emoji:'⛩️',  prefCode:'26', mapX:59.5, mapY:44.0 },
-  { km: 120, name:'名古屋',   emoji:'🏯', prefCode:'23', mapX:67.0, mapY:44.5 },
-  { km: 220, name:'金沢',     emoji:'🌊', prefCode:'17', mapX:61.5, mapY:37.0 },
-  { km: 320, name:'富山',     emoji:'⛰️',  prefCode:'16', mapX:64.5, mapY:35.5 },
-  { km: 420, name:'新潟',     emoji:'🍚', prefCode:'15', mapX:72.0, mapY:32.5 },
-  { km: 520, name:'長野',     emoji:'🏔️',  prefCode:'20', mapX:70.0, mapY:39.5 },
-  { km: 620, name:'静岡',     emoji:'🗻', prefCode:'22', mapX:73.5, mapY:46.0 },
-  { km: 720, name:'東京',     emoji:'🗼', prefCode:'13', mapX:80.5, mapY:42.5 },
-  { km: 820, name:'仙台',     emoji:'🌸', prefCode:'04', mapX:83.0, mapY:31.5 },
-  { km: 940, name:'盛岡',     emoji:'🍲', prefCode:'03', mapX:84.0, mapY:26.0 },
-  { km:1060, name:'青森',     emoji:'🍎', prefCode:'02', mapX:81.0, mapY:20.5 },
-  { km:1180, name:'函館',     emoji:'🦑', prefCode:'01', mapX:76.0, mapY:18.5 },
-  { km:1360, name:'札幌',     emoji:'🦀', prefCode:'01', mapX:72.0, mapY:13.0 },
-  { km:1520, name:'旭川',     emoji:'❄️',  prefCode:'01', mapX:68.0, mapY:10.0 },
-  { km:1660, name:'稚内',     emoji:'🦭', prefCode:'01', mapX:63.0, mapY:5.5  },
-  { km:1780, name:'札幌',     emoji:'🔄', prefCode:'01', mapX:72.0, mapY:13.0 },
-  { km:1940, name:'東京',     emoji:'🗼', prefCode:'13', mapX:80.5, mapY:42.5 },
-  { km:2060, name:'名古屋',   emoji:'🏯', prefCode:'23', mapX:67.0, mapY:44.5 },
-  { km:2160, name:'京都',     emoji:'⛩️',  prefCode:'26', mapX:59.5, mapY:44.0 },
-  { km:2220, name:'大阪',     emoji:'🍜', prefCode:'27', mapX:57.0, mapY:46.5 },
-  { km:2300, name:'神戸',     emoji:'🌉', prefCode:'28', mapX:53.5, mapY:46.5 },
-  { km:2400, name:'岡山',     emoji:'🍑', prefCode:'33', mapX:46.0, mapY:45.5 },
-  { km:2500, name:'広島',     emoji:'🕊️',  prefCode:'34', mapX:41.0, mapY:46.0 },
-  { km:2620, name:'山口',     emoji:'🐡', prefCode:'35', mapX:35.5, mapY:47.5 },
-  { km:2720, name:'博多',     emoji:'🍜', prefCode:'40', mapX:28.5, mapY:50.0 },
-  { km:2860, name:'熊本',     emoji:'🏯', prefCode:'43', mapX:28.5, mapY:55.5 },
-  { km:3000, name:'鹿児島',   emoji:'🌋', prefCode:'46', mapX:30.0, mapY:62.5 },
-  { km:3200, name:'那覇',     emoji:'🌺', prefCode:'47', mapX:14.0, mapY:86.0 },
+  { km:    0, name:'大阪',   emoji:'🍜', prefCode:'27', mapX:54.0, mapY:52.0 },
+  { km:   60, name:'京都',   emoji:'⛩️',  prefCode:'26', mapX:56.5, mapY:49.5 },
+  { km:  120, name:'名古屋', emoji:'🏯', prefCode:'23', mapX:63.5, mapY:50.0 },
+  { km:  220, name:'金沢',   emoji:'🌊', prefCode:'17', mapX:58.0, mapY:41.5 },
+  { km:  320, name:'富山',   emoji:'⛰️',  prefCode:'16', mapX:61.0, mapY:40.5 },
+  { km:  420, name:'新潟',   emoji:'🍚', prefCode:'15', mapX:68.5, mapY:37.0 },
+  { km:  520, name:'長野',   emoji:'🏔️',  prefCode:'20', mapX:67.0, mapY:44.5 },
+  { km:  620, name:'静岡',   emoji:'🗻', prefCode:'22', mapX:70.5, mapY:51.5 },
+  { km:  720, name:'東京',   emoji:'🗼', prefCode:'13', mapX:76.5, mapY:47.5 },
+  { km:  820, name:'仙台',   emoji:'🌸', prefCode:'04', mapX:78.5, mapY:36.0 },
+  { km:  940, name:'盛岡',   emoji:'🍲', prefCode:'03', mapX:80.0, mapY:30.0 },
+  { km: 1060, name:'青森',   emoji:'🍎', prefCode:'02', mapX:77.5, mapY:24.0 },
+  { km: 1180, name:'函館',   emoji:'🦑', prefCode:'01', mapX:73.0, mapY:22.0 },
+  { km: 1360, name:'札幌',   emoji:'🦀', prefCode:'01', mapX:69.0, mapY:16.0 },
+  { km: 1520, name:'旭川',   emoji:'❄️',  prefCode:'01', mapX:65.5, mapY:12.0 },
+  { km: 1660, name:'稚内',   emoji:'🦭', prefCode:'01', mapX:61.5, mapY: 7.0 },
+  { km: 1780, name:'札幌',   emoji:'🔄', prefCode:'01', mapX:69.0, mapY:16.0 },
+  { km: 1940, name:'東京',   emoji:'🗼', prefCode:'13', mapX:76.5, mapY:47.5 },
+  { km: 2060, name:'名古屋', emoji:'🏯', prefCode:'23', mapX:63.5, mapY:50.0 },
+  { km: 2160, name:'京都',   emoji:'⛩️',  prefCode:'26', mapX:56.5, mapY:49.5 },
+  { km: 2220, name:'大阪',   emoji:'🍜', prefCode:'27', mapX:54.0, mapY:52.0 },
+  { km: 2300, name:'神戸',   emoji:'🌉', prefCode:'28', mapX:51.5, mapY:52.5 },
+  { km: 2400, name:'岡山',   emoji:'🍑', prefCode:'33', mapX:45.5, mapY:52.0 },
+  { km: 2500, name:'広島',   emoji:'🕊️',  prefCode:'34', mapX:40.5, mapY:52.5 },
+  { km: 2620, name:'山口',   emoji:'🐡', prefCode:'35', mapX:35.0, mapY:54.0 },
+  { km: 2720, name:'博多',   emoji:'🍜', prefCode:'40', mapX:30.0, mapY:57.0 },
+  { km: 2860, name:'熊本',   emoji:'🏯', prefCode:'43', mapX:30.0, mapY:62.5 },
+  { km: 3000, name:'鹿児島', emoji:'🌋', prefCode:'46', mapX:31.5, mapY:69.5 },
+  { km: 3200, name:'那覇',   emoji:'🌺', prefCode:'47', mapX:17.0, mapY:90.5 },
 ];
 
-const TOTAL_KM = GOAL_GOLD; // 3500kmゴール
-
-// =============================================
-// Supabase 初期化
-// =============================================
+// ============================================================
+// Supabase
+// ============================================================
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// =============================================
+// ============================================================
 // 状態
-// =============================================
-let todayData   = [];
-let allData     = [];
-let myName      = localStorage.getItem('myName') || '';
-let goalShown   = JSON.parse(localStorage.getItem('goalShown') || '{}');
+// ============================================================
+let todayData = [];
+let allData   = [];
+let myName    = localStorage.getItem('myName') || '';
+let goalShown = JSON.parse(localStorage.getItem('goalShown') || '{}');
 
-// =============================================
-// 初期化
-// =============================================
+// ============================================================
+// 起動
+// ============================================================
 window.addEventListener('load', async () => {
   updateWeekLabel();
-  await loadMap();
-  await loadData();
-  setupRealtimeSubscription();
+  await loadMap();      // 地図SVGを読み込む
+  await loadData();     // Supabaseからデータ取得
+  setupRealtime();
   if (myName) document.getElementById('input-name').value = myName;
 });
 
+// ============================================================
+// 週ラベル
+// ============================================================
 function updateWeekLabel() {
-  const start = new Date(EVENT_START);
-  const today = new Date();
-  const diff  = Math.floor((today - start) / 86400000);
-  const week  = Math.floor(diff / 7) + 1;
-  document.getElementById('week-label').textContent =
-    `第${week}週 ラジオ体操チャレンジ`;
+  const diff = Math.floor((new Date() - new Date(EVENT_START)) / 86400000);
+  const week = Math.max(1, Math.floor(diff / 7) + 1);
+  document.getElementById('week-label').textContent = `第${week}週 ラジオ体操チャレンジ`;
 }
 
-// =============================================
-// 地図読み込み
-// =============================================
+// ============================================================
+// 地図読み込み（geolonia SVG）
+// ============================================================
 async function loadMap() {
-  const container = document.getElementById('map-container');
+  const area = document.getElementById('map-svg-area');
   try {
     const res = await fetch(
       'https://raw.githubusercontent.com/geolonia/japanese-prefectures/master/map-polygon.svg'
     );
-    if (!res.ok) throw new Error();
-    const text = await res.text();
-    const parser = new DOMParser();
-    const doc    = parser.parseFromString(text, 'image/svg+xml');
-    const svg    = doc.querySelector('svg');
-    if (svg) {
-      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
-      svg.style.width  = '100%';
-      svg.style.height = '100%';
-      container.insertBefore(svg, container.querySelector('.map-marker'));
+    if (!res.ok) throw new Error('SVG fetch failed');
+    const svgText = await res.text();
+
+    // SVGをそのまま innerHTML に展開（geoloniaの構造を維持）
+    area.innerHTML = svgText;
+
+    // サイズを wrapper に合わせる
+    const svgEl = area.querySelector('svg');
+    if (svgEl) {
+      svgEl.style.width  = '100%';
+      svgEl.style.height = '100%';
+      svgEl.setAttribute('preserveAspectRatio', 'xMidYMid meet');
     }
-  } catch {
-    // フォールバック
-    const fallback = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    fallback.setAttribute('viewBox', '0 0 100 100');
-    fallback.style.width  = '100%';
-    fallback.style.height = '100%';
-    fallback.innerHTML = `
-      <rect x="5"  y="5"  width="90" height="90" fill="#c8e6c9" rx="4"/>
-      <text x="50" y="55" text-anchor="middle" font-size="12" fill="#388e3c">🗾 日本</text>
-    `;
-    container.insertBefore(fallback, container.querySelector('.map-marker'));
+  } catch (e) {
+    console.warn('SVG読み込み失敗、フォールバック使用', e);
+    // フォールバック：シンプルな日本地図
+    area.innerHTML = `
+      <svg viewBox="0 0 200 200" style="width:100%;height:100%">
+        <rect width="200" height="200" fill="#e8f4fd"/>
+        <!-- 本州 -->
+        <ellipse cx="110" cy="105" rx="55" ry="22" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="honshu"/>
+        <!-- 北海道 -->
+        <ellipse cx="130" cy="55" rx="30" ry="18" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="hokkaido"/>
+        <!-- 九州 -->
+        <ellipse cx="62" cy="130" rx="16" ry="14" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="kyushu"/>
+        <!-- 四国 -->
+        <ellipse cx="93" cy="130" rx="14" ry="8" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="shikoku"/>
+        <!-- 沖縄 -->
+        <ellipse cx="35" cy="170" rx="10" ry="5" fill="#c8e6c9" stroke="#fff" stroke-width="1" id="okinawa"/>
+        <text x="100" y="195" text-anchor="middle" font-size="8" fill="#888">🗾 日本地図</text>
+      </svg>`;
   }
 }
 
-// =============================================
-// データ読み込み
-// =============================================
-async function loadData() {
-  const today = getToday();
-
-  const [todayRes, allRes] = await Promise.all([
-    sb.from('participations').select('*').eq('date', today),
-    sb.from('participations').select('*').gte('date', EVENT_START),
-  ]);
-
-  todayData = todayRes.data || [];
-  allData   = allRes.data   || [];
-
-  renderAll();
-}
-
-// =============================================
-// 描画（全体）
-// =============================================
-function renderAll() {
-  const totalKm = calculateTotalKm();
-  renderProgress(totalKm);
-  renderMapMarker(totalKm);
-  updateMapColors(totalKm);
-  renderMemberList();
-  renderWaypoints(totalKm);
-  renderWeeklyRanking();
-  renderSessionStatus();
-  renderMyStats();
-  checkGoalReached(totalKm);
-}
-
-// =============================================
-// 距離計算
-// =============================================
-function calculateTotalKm() {
-  return Math.min(allData.length * KM_PER_SESSION, TOTAL_KM);
-}
-
-// =============================================
-// 進捗バー
-// =============================================
-function renderProgress(totalKm) {
-  document.getElementById('current-km').innerHTML =
-    `${totalKm.toLocaleString()} <span>km / ${TOTAL_KM.toLocaleString()}km</span>`;
-
-  const pct = Math.min((totalKm / TOTAL_KM) * 100, 100);
-  document.getElementById('progress-bar').style.width = pct + '%';
-
-  const todayCount = todayData.length;
-  const totalCount = allData.length;
-  document.getElementById('stat-today').textContent = `今日: ${todayCount}回参加`;
-  document.getElementById('stat-total').textContent = `合計: ${totalCount}回`;
-
-  document.getElementById('badge-bronze').classList.toggle('reached', totalKm >= GOAL_BRONZE);
-  document.getElementById('badge-silver').classList.toggle('reached', totalKm >= GOAL_SILVER);
-  document.getElementById('badge-gold').classList.toggle('reached',   totalKm >= GOAL_GOLD);
-}
-
-// =============================================
-// マーカー位置
-// =============================================
-function renderMapMarker(totalKm) {
-  const pos    = getPositionOnRoute(totalKm);
-  const marker = document.getElementById('map-marker');
-  marker.style.left = pos.x + '%';
-  marker.style.top  = pos.y + '%';
-
-  // 参加人数でアイコン変化
-  const todayUsers = new Set(todayData.map(d => d.user_name)).size;
-  if      (todayUsers >= 15) marker.textContent = '🚌';
-  else if (todayUsers >= 8)  marker.textContent = '🚶‍♀️';
-  else if (todayUsers >= 3)  marker.textContent = '🏃';
-  else                       marker.textContent = '🚶';
-}
-
-function getPositionOnRoute(km) {
-  const wps = WAYPOINTS;
-  if (km <= 0)             return { x: wps[0].mapX, y: wps[0].mapY };
-  if (km >= wps[wps.length-1].km) {
-    const last = wps[wps.length-1];
-    return { x: last.mapX, y: last.mapY };
-  }
-  for (let i = 0; i < wps.length - 1; i++) {
-    if (km >= wps[i].km && km < wps[i+1].km) {
-      const ratio = (km - wps[i].km) / (wps[i+1].km - wps[i].km);
-      return {
-        x: wps[i].mapX + (wps[i+1].mapX - wps[i].mapX) * ratio,
-        y: wps[i].mapY + (wps[i+1].mapY - wps[i].mapY) * ratio,
-      };
-    }
-  }
-  return { x: wps[0].mapX, y: wps[0].mapY };
-}
-
-// =============================================
-// 地図の色更新
-// =============================================
+// ============================================================
+// 都道府県の色更新
+// ============================================================
 function updateMapColors(totalKm) {
-  const svgEl = document.querySelector('#map-container svg');
-  if (!svgEl) return;
+  const area = document.getElementById('map-svg-area');
 
-  // 訪問済み都道府県を収集
+  // geoloniaの.prefecture クラスを使う
+  const prefs = area.querySelectorAll('.prefecture');
+  if (prefs.length === 0) return; // フォールバック時はスキップ
+
+  // 訪問済みコードを収集
   const visitedCodes = new Set();
-  let currentCode = null;
+  let   currentCode  = null;
+
   for (const wp of WAYPOINTS) {
     if (wp.km <= totalKm) {
-      visitedCodes.add(wp.prefCode);
-      currentCode = wp.prefCode;
+      visitedCodes.add(wp.prefCode.padStart(2, '0'));
+      currentCode = wp.prefCode.padStart(2, '0');
     }
   }
 
-  svgEl.querySelectorAll('path[data-code]').forEach(path => {
-    const code = path.getAttribute('data-code').padStart(2, '0');
+  prefs.forEach(path => {
+    const code = String(path.dataset.code || '').padStart(2, '0');
     path.classList.remove('visited', 'current-pref');
     if (code === currentCode) {
       path.classList.add('current-pref');
@@ -704,22 +615,120 @@ function updateMapColors(totalKm) {
   });
 }
 
-// =============================================
+// ============================================================
+// マーカー位置更新
+// ============================================================
+function updateMarkerPosition(totalKm) {
+  const pos    = getPositionOnRoute(totalKm);
+  const marker = document.getElementById('map-marker');
+
+  marker.style.left = pos.x + '%';
+  marker.style.top  = pos.y + '%';
+
+  // 参加人数に応じてアイコン変化
+  const users = new Set(todayData.map(d => d.user_name)).size;
+  if      (users >= 15) marker.textContent = '🚌';
+  else if (users >= 8)  marker.textContent = '🚶‍♀️';
+  else if (users >= 3)  marker.textContent = '🏃';
+  else                  marker.textContent = '🚶';
+}
+
+// ルート上の座標補間
+function getPositionOnRoute(km) {
+  const wps = WAYPOINTS;
+  if (km <= 0) return { x: wps[0].mapX, y: wps[0].mapY };
+  const last = wps[wps.length - 1];
+  if (km >= last.km) return { x: last.mapX, y: last.mapY };
+
+  for (let i = 0; i < wps.length - 1; i++) {
+    if (km >= wps[i].km && km < wps[i + 1].km) {
+      const r = (km - wps[i].km) / (wps[i + 1].km - wps[i].km);
+      return {
+        x: wps[i].mapX + (wps[i + 1].mapX - wps[i].mapX) * r,
+        y: wps[i].mapY + (wps[i + 1].mapY - wps[i].mapY) * r,
+      };
+    }
+  }
+  return { x: wps[0].mapX, y: wps[0].mapY };
+}
+
+// ============================================================
+// データ読み込み
+// ============================================================
+async function loadData() {
+  const today = getToday();
+  const [r1, r2] = await Promise.all([
+    sb.from('participations').select('*').eq('date', today),
+    sb.from('participations').select('*').gte('date', EVENT_START),
+  ]);
+  todayData = r1.data || [];
+  allData   = r2.data || [];
+  renderAll();
+}
+
+// ============================================================
+// 全描画
+// ============================================================
+function renderAll() {
+  const totalKm = calculateTotalKm();
+  renderProgress(totalKm);
+  updateMarkerPosition(totalKm);   // ← マーカー位置
+  updateMapColors(totalKm);        // ← 都道府県色
+  renderMemberList();
+  renderWaypoints(totalKm);
+  renderWeeklyRanking();
+  renderSessionStatus();
+  renderMyStats();
+  checkGoalReached(totalKm);
+}
+
+// ============================================================
+// 距離計算
+// ============================================================
+function calculateTotalKm() {
+  return Math.min(allData.length * KM_PER_SESSION, GOAL_GOLD);
+}
+
+// ============================================================
+// 進捗バー
+// ============================================================
+function renderProgress(totalKm) {
+  document.getElementById('current-km').innerHTML =
+    `${totalKm.toLocaleString()} <span>km / ${GOAL_GOLD.toLocaleString()}km</span>`;
+
+  document.getElementById('progress-bar').style.width =
+    Math.min((totalKm / GOAL_GOLD) * 100, 100) + '%';
+
+  document.getElementById('stat-today').textContent = `今日: ${todayData.length}回参加`;
+  document.getElementById('stat-total').textContent = `合計: ${allData.length}回`;
+
+  document.getElementById('badge-bronze').classList.toggle('reached', totalKm >= GOAL_BRONZE);
+  document.getElementById('badge-silver').classList.toggle('reached', totalKm >= GOAL_SILVER);
+  document.getElementById('badge-gold'  ).classList.toggle('reached', totalKm >= GOAL_GOLD);
+}
+
+// ============================================================
 // 通過地点チップ
-// =============================================
+// ============================================================
 function renderWaypoints(totalKm) {
   const el = document.getElementById('waypoint-list');
   el.innerHTML = '';
-  const unique = [];
-  const seen   = new Set();
+
+  // 重複名を除いてユニーク表示
+  const seen    = new Set();
+  const unique  = [];
   for (const wp of WAYPOINTS) {
-    if (!seen.has(wp.name)) { seen.add(wp.name); unique.push(wp); }
+    const key = wp.name + wp.km;
+    if (!seen.has(key)) { seen.add(key); unique.push(wp); }
   }
+
+  // 現在地ウェイポイント（通過済みの最後）
+  const currentWp = [...WAYPOINTS].reverse().find(w => w.km <= totalKm);
+
   unique.forEach(wp => {
     const chip = document.createElement('div');
     chip.className = 'wp-chip';
     if (wp.km <= totalKm) chip.classList.add('visited');
-    const currentWp = [...WAYPOINTS].reverse().find(w => w.km <= totalKm);
     if (currentWp && wp.name === currentWp.name && wp.km === currentWp.km) {
       chip.classList.add('current');
     }
@@ -728,9 +737,9 @@ function renderWaypoints(totalKm) {
   });
 }
 
-// =============================================
-// 今日の参加者リスト
-// =============================================
+// ============================================================
+// 今日の参加者
+// ============================================================
 function renderMemberList() {
   const el = document.getElementById('member-list');
   if (!todayData.length) {
@@ -739,7 +748,6 @@ function renderMemberList() {
   }
   el.innerHTML = '';
 
-  // 名前ごとに今日の回数集計
   const countMap = {};
   todayData.forEach(d => {
     countMap[d.user_name] = (countMap[d.user_name] || 0) + 1;
@@ -749,27 +757,26 @@ function renderMemberList() {
     const km   = count * KM_PER_SESSION;
     const chip = document.createElement('div');
     chip.className = 'member-chip';
-    chip.innerHTML = `${escapeHtml(name)} <span class="km-label">+${km}km</span>`;
+    chip.innerHTML = `${escapeHtml(name)}<span class="km-label">+${km}km</span>`;
 
-    // クリックで週間累計ポップアップ
     chip.addEventListener('click', async () => {
       const { data } = await sb
         .from('participations')
-        .select('date')
+        .select('id')
         .eq('user_name', name)
         .gte('date', EVENT_START);
-      const weekTotal = (data || []).length * KM_PER_SESSION;
+      const weekKm    = (data || []).length * KM_PER_SESSION;
       const weekCount = (data || []).length;
-      showToast(`${name}さん 週間累計: ${weekTotal}km（${weekCount}回）`);
+      showToast(`${name}さん 週間累計: ${weekKm}km（${weekCount}回）`);
     });
 
     el.appendChild(chip);
   });
 }
 
-// =============================================
+// ============================================================
 // 週間ランキング
-// =============================================
+// ============================================================
 function renderWeeklyRanking() {
   const el = document.getElementById('weekly-ranking');
   if (!allData.length) {
@@ -782,12 +789,10 @@ function renderWeeklyRanking() {
     countMap[d.user_name] = (countMap[d.user_name] || 0) + 1;
   });
 
-  const sorted = Object.entries(countMap)
-    .sort((a, b) => b[1] - a[1])
-    .slice(0, 10);
-
+  const sorted = Object.entries(countMap).sort((a, b) => b[1] - a[1]).slice(0, 10);
   el.innerHTML = '';
   const medals = ['🥇', '🥈', '🥉'];
+
   sorted.forEach(([name, count], i) => {
     const km   = count * KM_PER_SESSION;
     const item = document.createElement('div');
@@ -801,30 +806,26 @@ function renderWeeklyRanking() {
   });
 }
 
-// =============================================
-// セッション残り表示
-// =============================================
+// ============================================================
+// セッション残り
+// ============================================================
 function renderSessionStatus() {
-  const myN      = document.getElementById('input-name').value.trim() || myName;
-  const todayMy  = todayData.filter(d => d.user_name === myN).length;
-  const remaining = MAX_SESSIONS - todayMy;
+  const name      = document.getElementById('input-name').value.trim() || myName;
+  const usedToday = todayData.filter(d => d.user_name === name).length;
+  const remaining = MAX_SESSIONS - usedToday;
 
   document.getElementById('session-text').textContent =
-    remaining > 0
-      ? `本日の参加残り: ${remaining}回`
-      : '本日の参加は3回完了しました！';
+    remaining > 0 ? `本日の参加残り: ${remaining}回` : '本日の参加は3回完了しました！';
 
   for (let i = 0; i < MAX_SESSIONS; i++) {
-    document.getElementById(`dot-${i}`).classList.toggle('used', i < todayMy);
+    document.getElementById(`dot-${i}`).classList.toggle('used', i < usedToday);
   }
-
-  const btn = document.getElementById('btn-participate');
-  btn.disabled = remaining <= 0;
+  document.getElementById('btn-participate').disabled = remaining <= 0;
 }
 
-// =============================================
-// 個人累積表示
-// =============================================
+// ============================================================
+// 個人累積
+// ============================================================
 function renderMyStats() {
   const name = localStorage.getItem('myName');
   if (!name) return;
@@ -835,46 +836,41 @@ function renderMyStats() {
   const totalKm    = myAll.length * KM_PER_SESSION;
   const totalCount = myAll.length;
 
-  const el = document.getElementById('my-stats');
-  el.style.display = 'block';
+  document.getElementById('my-stats').style.display = 'block';
   document.getElementById('my-stats-name').textContent  = `${name}さんの週間累計`;
   document.getElementById('my-stats-km').textContent    = `${totalKm} km`;
   document.getElementById('my-stats-count').textContent = `${totalCount}回参加 (+${KM_PER_SESSION}km/回)`;
 }
 
-// =============================================
+// ============================================================
 // ゴール判定
-// =============================================
+// ============================================================
 function checkGoalReached(totalKm) {
   const goals = [
-    { km: GOAL_GOLD,   key: 'gold',   emoji: '🥇', title: 'ゴール達成！',    desc: `チームで${GOAL_GOLD.toLocaleString()}km 達成！素晴らしい！🎉` },
-    { km: GOAL_SILVER, key: 'silver', emoji: '🥈', title: 'シルバー達成！',  desc: `チームで${GOAL_SILVER.toLocaleString()}km 達成！この調子で！` },
-    { km: GOAL_BRONZE, key: 'bronze', emoji: '🥉', title: 'ブロンズ達成！',  desc: `チームで${GOAL_BRONZE.toLocaleString()}km 達成！よくやった！` },
+    { km: GOAL_GOLD,   key:'gold',   emoji:'🥇', title:'ゴール達成！',   desc:`チームで${GOAL_GOLD.toLocaleString()}km 達成！おめでとう🎉` },
+    { km: GOAL_SILVER, key:'silver', emoji:'🥈', title:'シルバー達成！', desc:`チームで${GOAL_SILVER.toLocaleString()}km 達成！この調子で！` },
+    { km: GOAL_BRONZE, key:'bronze', emoji:'🥉', title:'ブロンズ達成！', desc:`チームで${GOAL_BRONZE.toLocaleString()}km 達成！よくやった！` },
   ];
   for (const g of goals) {
     if (totalKm >= g.km && !goalShown[g.key]) {
       goalShown[g.key] = true;
       localStorage.setItem('goalShown', JSON.stringify(goalShown));
-      showGoalOverlay(g.emoji, g.title, g.desc);
+      document.getElementById('goal-emoji').textContent = g.emoji;
+      document.getElementById('goal-title').textContent = g.title;
+      document.getElementById('goal-desc' ).textContent = g.desc;
+      document.getElementById('goal-overlay').classList.add('show');
       break;
     }
   }
-}
-
-function showGoalOverlay(emoji, title, desc) {
-  document.getElementById('goal-emoji').textContent  = emoji;
-  document.getElementById('goal-title').textContent  = title;
-  document.getElementById('goal-desc').textContent   = desc;
-  document.getElementById('goal-overlay').classList.add('show');
 }
 
 function closeGoal() {
   document.getElementById('goal-overlay').classList.remove('show');
 }
 
-// =============================================
+// ============================================================
 // 参加ボタン
-// =============================================
+// ============================================================
 async function participate() {
   const nameEl    = document.getElementById('input-name');
   const commentEl = document.getElementById('input-comment');
@@ -887,7 +883,7 @@ async function participate() {
     return;
   }
 
-  // 今日の参加回数チェック
+  // 今日の回数チェック
   const { data: todayCheck } = await sb
     .from('participations')
     .select('id')
@@ -895,70 +891,68 @@ async function participate() {
     .eq('date', getToday());
 
   if ((todayCheck || []).length >= MAX_SESSIONS) {
-    showToast('本日の参加は3回が上限です！');
+    showToast('今日の参加は3回が上限です！');
     return;
   }
 
   const btn = document.getElementById('btn-participate');
-  btn.disabled = true;
+  btn.disabled    = true;
   btn.textContent = '登録中…';
 
   const { error } = await sb.from('participations').insert({
-    user_name:   userName,
-    date:        getToday(),
-    comment:     comment || null,
+    user_name:    userName,
+    date:         getToday(),
+    comment:      comment || null,
     participated: true,
   });
+
+  btn.textContent = '🏃 ラジオ体操参加！ +20km';
 
   if (error) {
     showToast('❌ エラーが発生しました');
     console.error(error);
     btn.disabled = false;
-    btn.textContent = '🏃 ラジオ体操参加！ +20km';
     return;
   }
 
-  // 名前保存
+  // 名前をローカルストレージへ
   myName = userName;
   localStorage.setItem('myName', userName);
   commentEl.value = '';
-  btn.textContent = '🏃 ラジオ体操参加！ +20km';
 
-  // 週間累計を取得してトースト
+  // 週間累計トースト
   const { data: myAllData } = await sb
     .from('participations')
     .select('id')
     .eq('user_name', userName)
     .gte('date', EVENT_START);
   const myTotal = (myAllData || []).length * KM_PER_SESSION;
-
   showToast(`✅ 参加完了！あなたの累計: ${myTotal}km 🎉`);
 
   await loadData();
 }
 
-// =============================================
-// リアルタイム
-// =============================================
-function setupRealtimeSubscription() {
+// ============================================================
+// リアルタイム購読
+// ============================================================
+function setupRealtime() {
   sb.channel('participations-channel')
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'participations' },
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'participations' },
       payload => {
         const name = payload.new?.user_name;
-        if (name && name !== myName) {
-          showToast(`🎉 ${name}さんが参加しました！`);
-        }
+        if (name && name !== myName) showToast(`🎉 ${name}さんが参加しました！`);
         loadData();
       }
     )
     .subscribe();
 }
 
-// =============================================
+// ============================================================
 // ユーティリティ
-// =============================================
+// ============================================================
 function getToday() {
-  return new Date().toLocaleDateString('sv-SE'); // YYYY-MM-DD
+  return new Date().toLocaleDateString('sv-SE');
 }
 
 let toastTimer;
@@ -967,12 +961,12 @@ function showToast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
 }
 
 function escapeHtml(str) {
   return str.replace(/[&<>"']/g, c =>
-    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'": '&#39;' }[c])
+    ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c])
   );
 }
 
