@@ -52,6 +52,141 @@
       animation: float 2s ease-in-out infinite reverse;
     }
 
+    /* 管理者ボタン */
+    .admin-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+      border: 4px solid #000;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.6);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .admin-button:hover {
+      background: linear-gradient(180deg, #ff6b6b 0%, #e74c3c 100%);
+    }
+
+    .admin-button:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+    }
+
+    /* 管理パネル */
+    #admin-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #admin-panel.show { display: flex; }
+
+    .admin-box {
+      background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+      border: 8px solid #000;
+      border-radius: 12px;
+      padding: 40px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 12px 12px 0 rgba(0,0,0,0.8);
+    }
+
+    .admin-box h2 {
+      font-size: 1.3rem;
+      color: #ffeaa7;
+      margin-bottom: 24px;
+      text-align: center;
+      text-shadow: 3px 3px 0 #000;
+    }
+
+    .admin-section {
+      background: rgba(0,0,0,0.3);
+      border: 4px solid #000;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .admin-section h3 {
+      font-size: 0.8rem;
+      color: #fff;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .admin-input {
+      width: 100%;
+      padding: 14px;
+      border: 4px solid #000;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-family: 'Press Start 2P', monospace;
+      background: #fff;
+      margin-bottom: 12px;
+    }
+
+    .admin-button-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-admin {
+      flex: 1;
+      min-width: 150px;
+      padding: 16px;
+      border: 5px solid #000;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-family: 'Press Start 2P', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.6);
+      text-shadow: 2px 2px 0 #000;
+      color: white;
+    }
+
+    .btn-admin:active {
+      transform: translate(3px, 3px);
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+    }
+
+    .btn-danger {
+      background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .btn-warning {
+      background: linear-gradient(180deg, #f39c12 0%, #e67e22 100%);
+    }
+
+    .btn-close {
+      background: linear-gradient(180deg, #95a5a6 0%, #7f8c8d 100%);
+    }
+
+    .admin-warning {
+      background: rgba(231,76,60,0.2);
+      border: 3px solid #e74c3c;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 0.6rem;
+      color: #ffeaa7;
+      text-align: center;
+    }
+
     @keyframes float {
       0%, 100% { transform: translateY(-50%) translateY(0); }
       50% { transform: translateY(-50%) translateY(-10px); }
@@ -140,6 +275,15 @@
       .tab-button { 
         font-size: 0.8rem;
         padding: 12px 20px;
+      }
+      .admin-button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+      .btn-admin {
+        min-width: 120px;
+        font-size: 0.6rem;
       }
     }
 
@@ -1068,6 +1212,64 @@
   </div>
 </div>
 
+<!-- 管理者ボタン -->
+<button class="admin-button" onclick="openAdminPanel()">⚙️</button>
+
+<!-- 管理パネル -->
+<div id="admin-panel">
+  <div class="admin-box">
+    <h2>🔧 管理者パネル</h2>
+    
+    <!-- パスワード入力 -->
+    <div class="admin-section" id="password-section">
+      <h3>🔐 認証</h3>
+      <input type="password" id="admin-password" class="admin-input" placeholder="管理者パスワード">
+      <div class="admin-button-group">
+        <button class="btn-admin btn-warning" onclick="checkPassword()">ログイン</button>
+        <button class="btn-admin btn-close" onclick="closeAdminPanel()">閉じる</button>
+      </div>
+    </div>
+
+    <!-- 管理機能 -->
+    <div class="admin-section" id="admin-controls" style="display:none;">
+      
+      <!-- 全データ削除 -->
+      <div style="margin-bottom:24px;">
+        <h3>🗑️ 全データリセット</h3>
+        <div class="admin-warning">
+          ⚠️ 警告：全てのデータが削除されます！
+        </div>
+        <div class="admin-button-group">
+          <button class="btn-admin btn-danger" onclick="resetAllData()">全データ削除</button>
+        </div>
+      </div>
+
+      <!-- 今日のデータ削除 -->
+      <div style="margin-bottom:24px;">
+        <h3>📅 今日のデータ削除</h3>
+        <div class="admin-button-group">
+          <button class="btn-admin btn-warning" onclick="resetTodayData()">今日のデータ削除</button>
+        </div>
+      </div>
+
+      <!-- 特定ユーザー削除 -->
+      <div style="margin-bottom:24px;">
+        <h3>👤 特定ユーザー削除</h3>
+        <input type="text" id="delete-user-name" class="admin-input" placeholder="ユーザー名">
+        <div class="admin-button-group">
+          <button class="btn-admin btn-warning" onclick="deleteUserData()">このユーザー削除</button>
+        </div>
+      </div>
+
+      <!-- 閉じる -->
+      <div class="admin-button-group">
+        <button class="btn-admin btn-close" onclick="closeAdminPanel()">閉じる</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <div id="goal-overlay">
@@ -1093,6 +1295,102 @@ const MAX_SESSIONS   = 3;
 const GOAL_BRONZE    = 1500;
 const GOAL_SILVER    = 2500;
 const GOAL_GOLD      = 3800;
+
+// 管理者パスワード（本番環境では環境変数に移動推奨）
+const ADMIN_PASSWORD = 'radio2026';
+
+let isAdminAuth = false;
+
+// ============================================================
+// 管理パネル
+// ============================================================
+function openAdminPanel() {
+  document.getElementById('admin-panel').classList.add('show');
+  if (isAdminAuth) {
+    document.getElementById('password-section').style.display = 'none';
+    document.getElementById('admin-controls').style.display = 'block';
+  }
+}
+
+function closeAdminPanel() {
+  document.getElementById('admin-panel').classList.remove('show');
+}
+
+function checkPassword() {
+  const pwd = document.getElementById('admin-password').value;
+  if (pwd === ADMIN_PASSWORD) {
+    isAdminAuth = true;
+    document.getElementById('password-section').style.display = 'none';
+    document.getElementById('admin-controls').style.display = 'block';
+    showToast('✅ 認証成功！管理者権限が有効になりました');
+  } else {
+    showToast('❌ パスワードが違います');
+    document.getElementById('admin-password').value = '';
+  }
+}
+
+async function resetAllData() {
+  if (!isAdminAuth) { showToast('❌ 認証が必要です'); return; }
+  
+  if (!confirm('⚠️ 本当に全データを削除しますか？この操作は取り消せません！')) return;
+  if (!confirm('⚠️⚠️ 最終確認：全てのユーザーデータが削除されます！')) return;
+
+  try {
+    const { error } = await sb.from('participations').delete().gte('date', '2000-01-01');
+    if (error) throw error;
+    
+    // ローカルストレージもリセット
+    localStorage.removeItem('goalShown');
+    localStorage.removeItem('stampShown');
+    
+    showToast('✅ 全データを削除しました');
+    closeAdminPanel();
+    await loadData();
+  } catch (err) {
+    console.error(err);
+    showToast('❌ エラーが発生しました');
+  }
+}
+
+async function resetTodayData() {
+  if (!isAdminAuth) { showToast('❌ 認証が必要です'); return; }
+  
+  if (!confirm('今日のデータを全て削除しますか？')) return;
+
+  try {
+    const { error } = await sb.from('participations').delete().eq('date', getToday());
+    if (error) throw error;
+    
+    showToast('✅ 今日のデータを削除しました');
+    closeAdminPanel();
+    await loadData();
+  } catch (err) {
+    console.error(err);
+    showToast('❌ エラーが発生しました');
+  }
+}
+
+async function deleteUserData() {
+  if (!isAdminAuth) { showToast('❌ 認証が必要です'); return; }
+  
+  const userName = document.getElementById('delete-user-name').value.trim();
+  if (!userName) { showToast('❌ ユーザー名を入力してください'); return; }
+  
+  if (!confirm(`「${userName}」さんの全データを削除しますか？`)) return;
+
+  try {
+    const { error } = await sb.from('participations').delete().eq('user_name', userName);
+    if (error) throw error;
+    
+    showToast(`✅ ${userName}さんのデータを削除しました`);
+    document.getElementById('delete-user-name').value = '';
+    closeAdminPanel();
+    await loadData();
+  } catch (err) {
+    console.error(err);
+    showToast('❌ エラーが発生しました');
+  }
+}
 
 // ============================================================
 // ページ切り替え
@@ -1126,7 +1424,7 @@ const STAMPS = [
 ];
 
 // ============================================================
-// WAYPOINTS
+// WAYPOINTS（省略 - 元のコードと同じ）
 // ============================================================
 const WAYPOINTS = [
   { km:    0, name:'新大阪',   emoji:'🍜', prefCode:'27', mapX:54.5, mapY:51.5 },
@@ -1303,9 +1601,9 @@ async function loadMap() {
   }
 }
 
-// ============================================================
-// データ読み込み
-// ============================================================
+// 残りのJavaScript関数（loadData, renderAll, calculateTotalKm等）は元のコードと同じなので省略
+// 以下に必要な関数のみ追加
+
 async function loadData() {
   const [r1, r2] = await Promise.all([
     sb.from('participations').select('*').eq('date', getToday()),
@@ -1316,9 +1614,6 @@ async function loadData() {
   renderAll();
 }
 
-// ============================================================
-// 全描画
-// ============================================================
 function renderAll() {
   const totalKm = calculateTotalKm();
   renderProgress(totalKm);
@@ -1335,66 +1630,44 @@ function renderAll() {
   prevKm = totalKm;
 }
 
-// ============================================================
-// キロ数計算（駅ベース）
-// ============================================================
 function calculateTotalKm() {
   const totalStations = allData.reduce((sum, record) => 
     sum + (record.station_progress || 1), 0
   );
-
   let totalKm = 0;
   let stationCount = 0;
   const sorted = [...WAYPOINTS].sort((a, b) => a.km - b.km);
-  
   for (const wp of sorted) {
     if (stationCount >= totalStations) break;
     totalKm = wp.km;
     stationCount++;
   }
-
   return Math.min(totalKm, GOAL_GOLD);
 }
 
-// ============================================================
-// スタンプグリッド描画
-// ============================================================
 function renderStampGrid(totalKm) {
   const grid = document.getElementById('stamp-grid');
   grid.innerHTML = '';
-
   STAMPS.forEach(stamp => {
     const earned = totalKm >= stamp.km;
     const isNew  = earned && prevKm < stamp.km && !stampShown[stamp.km];
-
     const item = document.createElement('div');
     item.className = 'stamp-item' + (earned ? ' earned' : '') + (isNew ? ' just-earned' : '');
-
     item.innerHTML = `
       <div class="stamp-emoji">${stamp.emoji}</div>
       <div class="stamp-name">${stamp.name}</div>
       <div class="stamp-km">${earned ? stamp.desc : stamp.km + 'km〜'}</div>
     `;
-
     if (isNew) {
       stampShown[stamp.km] = true;
       localStorage.setItem('stampShown', JSON.stringify(stampShown));
-      setTimeout(() => {
-        showToast(`🎫 スタンプ獲得！ ${stamp.emoji} ${stamp.name}`);
-      }, 400);
+      setTimeout(() => showToast(`🎫 スタンプ獲得！ ${stamp.emoji} ${stamp.name}`), 400);
     }
-
-    item.title = earned
-      ? `${stamp.name}：${stamp.desc}（${stamp.km}km地点）`
-      : `${stamp.name}（${stamp.km}kmで獲得）`;
-
+    item.title = earned ? `${stamp.name}：${stamp.desc}（${stamp.km}km地点）` : `${stamp.name}（${stamp.km}kmで獲得）`;
     grid.appendChild(item);
   });
 }
 
-// ============================================================
-// 都道府県色更新
-// ============================================================
 function updateMapColors(totalKm) {
   const prefs = document.querySelectorAll('#map-svg-area .prefecture');
   if (!prefs.length) return;
@@ -1409,29 +1682,20 @@ function updateMapColors(totalKm) {
   prefs.forEach(p => {
     const code = String(p.dataset.code || '').padStart(2, '0');
     p.classList.remove('visited', 'current-pref');
-    if (code === current)      p.classList.add('current-pref');
+    if (code === current) p.classList.add('current-pref');
     else if (visited.has(code)) p.classList.add('visited');
   });
 }
 
-// ============================================================
-// マーカー位置
-// ============================================================
 function updateMarkerPosition(totalKm) {
-  const pos    = getPositionOnRoute(totalKm);
+  const pos = getPositionOnRoute(totalKm);
   const marker = document.getElementById('map-marker');
   marker.style.left = pos.x + '%';
   marker.style.top  = pos.y + '%';
   const u = new Set(todayData.map(d => d.user_name)).size;
-  if (u >= 15) {
-    marker.textContent = '🚄🚄🚄';
-  } else if (u >= 10) {
-    marker.textContent = '🚄🚄';
-  } else if (u >= 1) {
-    marker.textContent = '🚄';
-  } else {
-    marker.textContent = '🚄';
-  }
+  if (u >= 15) marker.textContent = '🚄🚄🚄';
+  else if (u >= 10) marker.textContent = '🚄🚄';
+  else marker.textContent = '🚄';
 }
 
 function getPositionOnRoute(km) {
@@ -1451,13 +1715,10 @@ function getPositionOnRoute(km) {
   return { x: WAYPOINTS[0].mapX, y: WAYPOINTS[0].mapY };
 }
 
-// ============================================================
-// 現在地バー
-// ============================================================
 function updateLocationBar(totalKm) {
-  const sorted    = [...WAYPOINTS].sort((a, b) => a.km - b.km);
+  const sorted = [...WAYPOINTS].sort((a, b) => a.km - b.km);
   const currentWp = [...sorted].reverse().find(w => w.km <= totalKm) || sorted[0];
-  const nextWp    = sorted.find(w => w.km > totalKm);
+  const nextWp = sorted.find(w => w.km > totalKm);
   document.getElementById('loc-emoji').textContent = currentWp.emoji;
   document.getElementById('loc-name').textContent  = currentWp.name;
   document.getElementById('loc-next').textContent  = nextWp
@@ -1465,57 +1726,41 @@ function updateLocationBar(totalKm) {
     : '🎉 ゴール達成！おめでとう！';
 }
 
-// ============================================================
-// 進捗バー
-// ============================================================
 function renderProgress(totalKm) {
   document.getElementById('current-km').innerHTML =
     `${totalKm.toLocaleString()} <span>km / ${GOAL_GOLD.toLocaleString()}km</span>`;
   document.getElementById('progress-bar').style.width =
     Math.min((totalKm / GOAL_GOLD) * 100, 100) + '%';
-  
-  const totalStations = allData.reduce((sum, record) => 
-    sum + (record.station_progress || 1), 0
-  );
-  const todayStations = todayData.reduce((sum, record) => 
-    sum + (record.station_progress || 1), 0
-  );
-  
+  const totalStations = allData.reduce((sum, record) => sum + (record.station_progress || 1), 0);
+  const todayStations = todayData.reduce((sum, record) => sum + (record.station_progress || 1), 0);
   document.getElementById('stat-today').textContent = `今日: ${todayStations}駅進行`;
   document.getElementById('stat-total').textContent = `合計: ${totalStations}駅`;
   document.getElementById('badge-bronze').classList.toggle('reached', totalKm >= GOAL_BRONZE);
   document.getElementById('badge-silver').classList.toggle('reached', totalKm >= GOAL_SILVER);
-  document.getElementById('badge-gold'  ).classList.toggle('reached', totalKm >= GOAL_GOLD);
+  document.getElementById('badge-gold').classList.toggle('reached', totalKm >= GOAL_GOLD);
 }
 
-// ============================================================
-// 通過駅チップ
-// ============================================================
 function renderWaypoints(totalKm) {
-  const el     = document.getElementById('waypoint-list');
+  const el = document.getElementById('waypoint-list');
   el.innerHTML = '';
   const sorted = [...WAYPOINTS].sort((a, b) => a.km - b.km);
   const currentWp = [...sorted].reverse().find(w => w.km <= totalKm) || sorted[0];
   const display = sorted.filter(w => w.km <= totalKm || w.km <= totalKm + 100);
-  const list    = display.length > 0 ? display : sorted.slice(0, 6);
-
+  const list = display.length > 0 ? display : sorted.slice(0, 6);
   list.forEach(wp => {
     const chip = document.createElement('div');
     chip.className = 'wp-chip';
     const isCurrent  = wp.km === currentWp.km && wp.name === currentWp.name;
     const isUpcoming = wp.km > totalKm;
-    if (isCurrent)       chip.classList.add('current');
+    if (isCurrent) chip.classList.add('current');
     else if (isUpcoming) chip.classList.add('upcoming');
-    else                 chip.classList.add('visited');
+    else chip.classList.add('visited');
     chip.textContent = `${wp.emoji} ${wp.name}`;
-    chip.title       = `${wp.name}（${wp.km.toLocaleString()}km）`;
+    chip.title = `${wp.name}（${wp.km.toLocaleString()}km）`;
     el.appendChild(chip);
   });
 }
 
-// ============================================================
-// 今日の運転手
-// ============================================================
 function renderMemberList() {
   const el = document.getElementById('member-list');
   if (!todayData.length) {
@@ -1542,34 +1787,26 @@ function renderMemberList() {
   });
 }
 
-// ============================================================
-// 週間ランキング
-// ============================================================
 function renderWeeklyRanking() {
   const el = document.getElementById('weekly-ranking');
   if (!allData.length) {
     el.innerHTML = '<span style="color:#2c3e50;font-size:0.75rem;">データなし</span>';
     return;
   }
-
   const countMap = {};
   allData.forEach(d => { 
     if (!countMap[d.user_name]) countMap[d.user_name] = 0;
     countMap[d.user_name] += (d.station_progress || 1);
   });
-
   const sorted = Object.entries(countMap)
     .map(([name, stations]) => ({ name, stations }))
     .sort((a, b) => b.stations - a.stations)
     .slice(0, 10);
-
   el.innerHTML = '';
   const medals = ['🥇', '🥈', '🥉'];
   let rank = 1;
-
   sorted.forEach((entry, i) => {
     if (i > 0 && entry.stations < sorted[i - 1].stations) rank = i + 1;
-
     const item = document.createElement('div');
     item.className = 'rank-item';
     const rankDisplay = rank <= 3 ? medals[rank - 1] : `${rank}位`;
@@ -1582,14 +1819,10 @@ function renderWeeklyRanking() {
   });
 }
 
-// ============================================================
-// セッション残り
-// ============================================================
 function renderSessionStatus() {
   const name = document.getElementById('input-name').value.trim() || myName;
   const used = todayData.filter(d => d.user_name === name).length;
   const rem  = MAX_SESSIONS - used;
-  
   if (rem <= 0) {
     document.getElementById('btn-participate').disabled = true;
     document.getElementById('btn-participate').textContent = '👨‍✈️ 勤務終了！お疲れ様でした！';
@@ -1601,14 +1834,10 @@ function renderSessionStatus() {
     document.getElementById('btn-participate').style.background = 'linear-gradient(180deg, #00b894 0%, #00916a 100%)';
     document.getElementById('btn-participate').style.borderColor = '#006644';
   }
-  
   for (let i = 0; i < MAX_SESSIONS; i++)
     document.getElementById(`dot-${i}`).classList.toggle('used', i < used);
 }
 
-// ============================================================
-// 個人累積
-// ============================================================
 function renderMyStats() {
   const name = localStorage.getItem('myName');
   if (!name) return;
@@ -1621,29 +1850,11 @@ function renderMyStats() {
   document.getElementById('my-stats-count').textContent = `${myAll.length}回参加`;
 }
 
-// ============================================================
-// ゴール判定
-// ============================================================
 function checkGoalReached(totalKm) {
   const goals = [
-    {
-      km: GOAL_GOLD, key:'gold', emoji:'🥇',
-      title:'ゴール！那覇に到着！',
-      desc:'チームで日本一周完走！🎉',
-      stamps: STAMPS.filter(s => s.km <= GOAL_GOLD).map(s => s.emoji),
-    },
-    {
-      km: GOAL_SILVER, key:'silver', emoji:'🥈',
-      title:'シルバー達成！',
-      desc:`${GOAL_SILVER.toLocaleString()}km 到達！折り返し完了！`,
-      stamps: STAMPS.filter(s => s.km <= GOAL_SILVER).map(s => s.emoji),
-    },
-    {
-      km: GOAL_BRONZE, key:'bronze', emoji:'🥉',
-      title:'ブロンズ達成！',
-      desc:`${GOAL_BRONZE.toLocaleString()}km 到達！東京を通過！`,
-      stamps: STAMPS.filter(s => s.km <= GOAL_BRONZE).map(s => s.emoji),
-    },
+    { km: GOAL_GOLD, key:'gold', emoji:'🥇', title:'ゴール！那覇に到着！', desc:'チームで日本一周完走！🎉', stamps: STAMPS.filter(s => s.km <= GOAL_GOLD).map(s => s.emoji) },
+    { km: GOAL_SILVER, key:'silver', emoji:'🥈', title:'シルバー達成！', desc:`${GOAL_SILVER.toLocaleString()}km 到達！折り返し完了！`, stamps: STAMPS.filter(s => s.km <= GOAL_SILVER).map(s => s.emoji) },
+    { km: GOAL_BRONZE, key:'bronze', emoji:'🥉', title:'ブロンズ達成！', desc:`${GOAL_BRONZE.toLocaleString()}km 到達！東京を通過！`, stamps: STAMPS.filter(s => s.km <= GOAL_BRONZE).map(s => s.emoji) },
   ];
   for (const g of goals) {
     if (totalKm >= g.km && !goalShown[g.key]) {
@@ -1651,11 +1862,9 @@ function checkGoalReached(totalKm) {
       localStorage.setItem('goalShown', JSON.stringify(goalShown));
       document.getElementById('goal-emoji').textContent = g.emoji;
       document.getElementById('goal-title').textContent = g.title;
-      document.getElementById('goal-desc' ).textContent = g.desc;
+      document.getElementById('goal-desc').textContent = g.desc;
       const stampsEl = document.getElementById('goal-stamps');
-      stampsEl.innerHTML = g.stamps.map(e =>
-        `<div class="goal-stamp-chip">${e}</div>`
-      ).join('');
+      stampsEl.innerHTML = g.stamps.map(e => `<div class="goal-stamp-chip">${e}</div>`).join('');
       document.getElementById('goal-overlay').classList.add('show');
       break;
     }
@@ -1666,28 +1875,18 @@ function closeGoal() {
   document.getElementById('goal-overlay').classList.remove('show');
 }
 
-// ============================================================
-// 乗車報告（駅ベース＆ドクターイエロー機能）
-// ============================================================
 async function participate() {
   const nameEl    = document.getElementById('input-name');
   const commentEl = document.getElementById('input-comment');
   const userName  = nameEl.value.trim();
   if (!userName) { showToast('⚠️ 運転手の名前を入力してください'); nameEl.focus(); return; }
-
-  const { data: chk } = await sb.from('participations').select('id')
-    .eq('user_name', userName).eq('date', getToday());
-  if ((chk || []).length >= MAX_SESSIONS) {
-    showToast('🎉 本日の勤務お疲れ様でした！'); return;
-  }
-
+  const { data: chk } = await sb.from('participations').select('id').eq('user_name', userName).eq('date', getToday());
+  if ((chk || []).length >= MAX_SESSIONS) { showToast('🎉 本日の勤務お疲れ様でした！'); return; }
   const isDoctorYellow = Math.random() < DOCTOR_YELLOW_PROBABILITY;
   const stationProgress = isDoctorYellow ? 2 : 1;
-
   const btn = document.getElementById('btn-participate');
   btn.disabled = true;
   btn.textContent = isDoctorYellow ? '🚄 ドクターイエロー搭乗中…' : '登録中…';
-
   const { error } = await sb.from('participations').insert({
     user_name: userName,
     date: getToday(),
@@ -1696,17 +1895,11 @@ async function participate() {
     station_progress: stationProgress,
     is_doctor_yellow: isDoctorYellow,
   });
-
   btn.textContent = '👨‍✈️ 乗車報告';
-  if (error) {
-    showToast('❌ エラーが発生しました'); console.error(error);
-    btn.disabled = false; return;
-  }
-
+  if (error) { showToast('❌ エラーが発生しました'); console.error(error); btn.disabled = false; return; }
   myName = userName;
   localStorage.setItem('myName', userName);
   commentEl.value = '';
-
   if (isDoctorYellow) {
     document.getElementById('goal-emoji').textContent = '🚄';
     document.getElementById('goal-title').textContent = 'ドクターイエロー搭乗！';
@@ -1715,52 +1908,32 @@ async function participate() {
     document.getElementById('goal-overlay').classList.add('show');
     setTimeout(() => closeGoal(), 2500);
   }
-
-  if (isDoctorYellow) {
-    showToast('🚄✨ ラッキー！ドクターイエロー搭乗！ +2駅！🎉');
-  } else {
-    showToast('✅ 乗車報告完了！ +1駅進みました！');
-  }
-
-  const { data: myAll } = await sb.from('participations').select('*')
-    .eq('user_name', userName).gte('date', EVENT_START);
-  
+  if (isDoctorYellow) showToast('🚄✨ ラッキー！ドクターイエロー搭乗！ +2駅！🎉');
+  else showToast('✅ 乗車報告完了！ +1駅進みました！');
+  const { data: myAll } = await sb.from('participations').select('*').eq('user_name', userName).gte('date', EVENT_START);
   const totalStations = (myAll || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
-  
   const remainingToday = MAX_SESSIONS - (todayData.filter(d => d.user_name === userName).length + 1);
-  if (remainingToday === 0) {
-    showToast(`🎉 本日の勤務完了！${totalStations}駅進行中！`);
-  } else {
-    showToast(`あなたの累計: ${totalStations}駅進行中！`);
-  }
-  
+  if (remainingToday === 0) showToast(`🎉 本日の勤務完了！${totalStations}駅進行中！`);
+  else showToast(`あなたの累計: ${totalStations}駅進行中！`);
   await loadData();
 }
 
-// ============================================================
-// リアルタイム
-// ============================================================
 function setupRealtime() {
   sb.channel('participations-channel')
-    .on('postgres_changes',
-      { event: 'INSERT', schema: 'public', table: 'participations' },
-      payload => {
-        const isDoctorYellow = payload.new?.is_doctor_yellow || false;
-        const stations = payload.new?.station_progress || 1;
-        if (payload.new?.user_name !== myName) {
-          const msg = isDoctorYellow 
-            ? `🚄✨ ${payload.new.user_name}さんがドクターイエロー搭乗！ +2駅！`
-            : `🎉 ${payload.new.user_name}さんが乗車報告しました！ +${stations}駅`;
-          showToast(msg);
-        }
-        loadData();
-      })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'participations' }, payload => {
+      const isDoctorYellow = payload.new?.is_doctor_yellow || false;
+      const stations = payload.new?.station_progress || 1;
+      if (payload.new?.user_name !== myName) {
+        const msg = isDoctorYellow 
+          ? `🚄✨ ${payload.new.user_name}さんがドクターイエロー搭乗！ +2駅！`
+          : `🎉 ${payload.new.user_name}さんが乗車報告しました！ +${stations}駅`;
+        showToast(msg);
+      }
+      loadData();
+    })
     .subscribe();
 }
 
-// ============================================================
-// ユーティリティ
-// ============================================================
 function getToday() { return new Date().toLocaleDateString('sv-SE'); }
 
 let toastTimer;
@@ -1773,8 +1946,7 @@ function showToast(msg) {
 }
 
 function escapeHtml(str) {
-  return str.replace(/[&<>"']/g, c =>
-    ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  return str.replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
 
 document.getElementById('input-name').addEventListener('input', renderSessionStatus);
