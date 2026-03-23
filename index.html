@@ -1747,14 +1747,12 @@ function renderWaypoints(totalStations) {
 // ============================================================
 function renderMemberList() {
   const el = document.getElementById('member-list');
-  if (!todayData.length) {
-    el.innerHTML = '<span style="color:#2c3e50;font-size:0.75rem;">まだ誰も乗務していません</span>';
+  if (!todayData || todayData.length === 0) {
+    el.innerHTML = '<span style="color:#bbb;">まだ誰も乗務していません</span>';
     return;
   }
-  
-  el.innerHTML = '';
-  
-  // ユーザーごとにデータを集約
+
+  // 1️⃣ ユーザーごとにデータを集約
   const userMap = {};
   todayData.forEach(record => {
     const name = record.user_name;
@@ -1764,89 +1762,82 @@ function renderMemberList() {
         totalStations: 0,
         comments: [],
         isDoctorYellow: false,
-        latestTime: record.created_at || 0
+        latestTime: record.created_at || ''
       };
     }
     userMap[name].totalStations += (record.station_progress || 1);
-    if (record.comment) {
-      userMap[name].comments.push(record.comment);
+    if (record.comment && record.comment.trim()) {
+      userMap[name].comments.push(record.comment.trim());
     }
     if (record.is_doctor_yellow) {
       userMap[name].isDoctorYellow = true;
     }
-    // 最新の報告時刻を保持
     if (record.created_at > userMap[name].latestTime) {
       userMap[name].latestTime = record.created_at;
     }
   });
-  
-  // 最新順にソート
-  const users = Object.values(userMap).sort((a, b) => 
-    new Date(b.latestTime) - new Date(a.latestTime)
-  );
-  
+
+  // 2️⃣ 最新順にソート
+  const users = Object.values(userMap).sort((a, b) => {
+    return new Date(b.latestTime) - new Date(a.latestTime);
+  });
+
+  // 3️⃣ カードを生成
+  el.innerHTML = ''; // 既存のカードをクリア
   users.forEach(user => {
     const card = document.createElement('div');
     card.style.cssText = `
-      background: linear-gradient(180deg, #f0f4ff 0%, #e8efff 100%);
-      border: 4px solid #2c3e50;
-      border-radius: 8px;
-      padding: 12px 16px;
-      margin-bottom: 12px;
-      box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: 3px solid #fff;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 8px;
       cursor: pointer;
-      transition: all 0.2s;
+      transition: all 0.3s;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
     `;
-    
-    card.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: ${user.comments.length > 0 ? '8px' : '0'};">
-        <span style="font-size: 1.2rem;">${user.isDoctorYellow ? '🚄' : '🚂'}</span>
-        <span style="font-size: 0.8rem; font-weight: bold; color: #2c3e50; flex: 1;">
-          ${escapeHtml(user.name)}
-        </span>
-        <span style="font-size: 0.7rem; font-weight: bold; color: #e17055; background: #ffeaa7; padding: 4px 8px; border-radius: 4px; border: 2px solid #e17055;">
-          +${user.totalStations}駅
-        </span>
-      </div>
-      ${user.comments.length > 0 ? user.comments.map(comment => `
-        <div style="
-          font-size: 0.65rem;
-          color: #555;
-          background: rgba(255,255,255,0.7);
-          padding: 8px 10px;
-          border-radius: 6px;
-          border-left: 3px solid #74b9ff;
-          line-height: 1.5;
-          margin-top: 6px;
-        ">
-          💬 ${escapeHtml(comment)}
-        </div>
-      `).join('') : ''}
-    `;
-    
     card.addEventListener('mouseenter', () => {
-      card.style.background = 'linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%)';
-      card.style.transform = 'translateY(-2px)';
-      card.style.boxShadow = '6px 6px 0 rgba(0,0,0,0.4)';
+      card.style.transform = 'translateX(5px) scale(1.02)';
+      card.style.boxShadow = '0 6px 12px rgba(255,255,255,0.3)';
     });
-    
     card.addEventListener('mouseleave', () => {
-      card.style.background = 'linear-gradient(180deg, #f0f4ff 0%, #e8efff 100%)';
-      card.style.transform = 'translateY(0)';
-      card.style.boxShadow = '4px 4px 0 rgba(0,0,0,0.3)';
+      card.style.transform = 'none';
+      card.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
     });
-    
+
+    const icon = user.isDoctorYellow ? '🚄' : '🚂';
+    const commentHTML = user.comments.length > 0
+      ? user.comments.map(c => `
+          <div style="
+            background: rgba(255,255,255,0.9);
+            color: #333;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            border-left: 4px solid #ffd700;
+          ">💬 ${escapeHtml(c)}</div>
+        `).join('')
+      : '';
+
+    card.innerHTML = `
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-size:1.5rem;">${icon}</span>
+        <span style="flex:1; margin-left:10px; font-size:0.9rem; font-weight:bold;">${escapeHtml(user.name)}</span>
+        <span style="background:#ffd700; color:#333; padding:4px 8px; border-radius:5px; font-size:0.75rem; font-weight:bold;">+${user.totalStations}駅</span>
+      </div>
+      ${commentHTML}
+    `;
+
     card.addEventListener('click', async () => {
-      const { data } = await sb.from('participations').select('*')
-        .eq('user_name', user.name).gte('date', EVENT_START);
-      const totalStations = (data || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
-      showToast(`${user.name}さん 週間累計: ${totalStations}駅進行`);
+      const { data } = await sb.from('participations').select('*').eq('user_name', user.name).gte('date', EVENT_START);
+      const total = (data || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
+      showToast(`📊 ${user.name}さん 週間累計: ${total}駅進行！`);
     });
-    
+
     el.appendChild(card);
   });
 }
-
 // ============================================================
 // 週間ランキング
 // ============================================================
