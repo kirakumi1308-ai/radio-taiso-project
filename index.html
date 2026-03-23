@@ -1987,12 +1987,11 @@ async function participate() {
   const stationProgress = isDoctorYellow ? 2 : 1;
 
 // 🔊 効果音再生
-1990    if (isDoctorYellow) {
-1991      soundDoctorYellowDepart.play();
-1992    } else {
-1993      soundTrainDepart.play();
-1994    }
-
+    if (isDoctorYellow) {
+      soundDoctorYellowDepart.play();
+    } else {
+      soundTrainDepart.play();
+    }
   
   const btn = document.getElementById('btn-participate');
   btn.disabled = true;
