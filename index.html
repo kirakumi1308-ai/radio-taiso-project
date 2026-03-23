@@ -1751,23 +1751,75 @@ function renderMemberList() {
     el.innerHTML = '<span style="color:#2c3e50;font-size:0.75rem;">まだ誰も乗務していません</span>';
     return;
   }
+  
   el.innerHTML = '';
-  const countMap = {};
-  todayData.forEach(d => { 
-    if (!countMap[d.user_name]) countMap[d.user_name] = 0;
-    countMap[d.user_name] += (d.station_progress || 1);
-  });
-  Object.entries(countMap).forEach(([name, stations]) => {
-    const chip = document.createElement('div');
-    chip.className = 'member-chip';
-    chip.innerHTML = `${escapeHtml(name)}<span class="km-label">+${stations}駅</span>`;
-    chip.addEventListener('click', async () => {
-      const { data } = await sb.from('participations').select('*')
-        .eq('user_name', name).gte('date', EVENT_START);
-      const totalStations = (data || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
-      showToast(`${name}さん 週間累計: ${totalStations}駅進行`);
+  
+  // 時系列順にソート（新しい順）
+  const sortedData = [...todayData].sort((a, b) => 
+    new Date(b.created_at || 0) - new Date(a.created_at || 0)
+  );
+  
+  sortedData.forEach(record => {
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background: linear-gradient(180deg, #f0f4ff 0%, #e8efff 100%);
+      border: 4px solid #2c3e50;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.3);
+      cursor: pointer;
+      transition: all 0.2s;
+    `;
+    
+    const stations = record.station_progress || 1;
+    const isDoctorYellow = record.is_doctor_yellow || false;
+    
+    card.innerHTML = `
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: ${record.comment ? '8px' : '0'};">
+        <span style="font-size: 1.2rem;">${isDoctorYellow ? '🚄' : '🚂'}</span>
+        <span style="font-size: 0.8rem; font-weight: bold; color: #2c3e50; flex: 1;">
+          ${escapeHtml(record.user_name)}
+        </span>
+        <span style="font-size: 0.7rem; font-weight: bold; color: #e17055; background: #ffeaa7; padding: 4px 8px; border-radius: 4px; border: 2px solid #e17055;">
+          +${stations}駅
+        </span>
+      </div>
+      ${record.comment ? `
+        <div style="
+          font-size: 0.65rem;
+          color: #555;
+          background: rgba(255,255,255,0.7);
+          padding: 8px 10px;
+          border-radius: 6px;
+          border-left: 3px solid #74b9ff;
+          line-height: 1.5;
+        ">
+          💬 ${escapeHtml(record.comment)}
+        </div>
+      ` : ''}
+    `;
+    
+    card.addEventListener('mouseenter', () => {
+      card.style.background = 'linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%)';
+      card.style.transform = 'translateY(-2px)';
+      card.style.boxShadow = '6px 6px 0 rgba(0,0,0,0.4)';
     });
-    el.appendChild(chip);
+    
+    card.addEventListener('mouseleave', () => {
+      card.style.background = 'linear-gradient(180deg, #f0f4ff 0%, #e8efff 100%)';
+      card.style.transform = 'translateY(0)';
+      card.style.boxShadow = '4px 4px 0 rgba(0,0,0,0.3)';
+    });
+    
+    card.addEventListener('click', async () => {
+      const { data } = await sb.from('participations').select('*')
+        .eq('user_name', record.user_name).gte('date', EVENT_START);
+      const totalStations = (data || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
+      showToast(`${record.user_name}さん 週間累計: ${totalStations}駅進行`);
+    });
+    
+    el.appendChild(card);
   });
 }
 
