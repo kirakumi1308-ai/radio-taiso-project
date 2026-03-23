@@ -21,6 +21,54 @@
       color: #fff;
       image-rendering: pixelated;
     }
+  }
+
+  /* 📱 レスポンシブ対応: 画面幅に合わせて自動調整 */
+  * {
+    box-sizing: border-box;
+  }
+
+  .container {
+    max-width: 100%;
+    padding: 10px;
+    overflow-x: hidden;
+  }
+
+  .card, .goal-box, .map-container, .stamp-grid {
+    max-width: 100%;
+    width: 100%;
+  }
+
+  /* 画面幅が小さい場合の調整 */
+  @media (max-width: 768px) {
+    body {
+      font-size: 0.8rem;
+    }
+    
+    .card {
+      padding: 15px;
+      margin: 10px 0;
+    }
+    
+    h1 {
+      font-size: 1.2rem !important;
+    }
+    
+    h2 {
+      font-size: 1rem !important;
+    }
+    
+    .btn {
+      font-size: 0.75rem !important;
+      padding: 12px !important;
+    }
+    
+    input, textarea {
+      font-size: 0.8rem !important;
+    }
+  }
+
+  header {
 
     header {
       background: linear-gradient(180deg, #ff6b35 0%, #d94a1e 100%);
