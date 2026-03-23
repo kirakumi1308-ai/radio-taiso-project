@@ -1754,12 +1754,38 @@ function renderMemberList() {
   
   el.innerHTML = '';
   
-  // 時系列順にソート（新しい順）
-  const sortedData = [...todayData].sort((a, b) => 
-    new Date(b.created_at || 0) - new Date(a.created_at || 0)
+  // ユーザーごとにデータを集約
+  const userMap = {};
+  todayData.forEach(record => {
+    const name = record.user_name;
+    if (!userMap[name]) {
+      userMap[name] = {
+        name: name,
+        totalStations: 0,
+        comments: [],
+        isDoctorYellow: false,
+        latestTime: record.created_at || 0
+      };
+    }
+    userMap[name].totalStations += (record.station_progress || 1);
+    if (record.comment) {
+      userMap[name].comments.push(record.comment);
+    }
+    if (record.is_doctor_yellow) {
+      userMap[name].isDoctorYellow = true;
+    }
+    // 最新の報告時刻を保持
+    if (record.created_at > userMap[name].latestTime) {
+      userMap[name].latestTime = record.created_at;
+    }
+  });
+  
+  // 最新順にソート
+  const users = Object.values(userMap).sort((a, b) => 
+    new Date(b.latestTime) - new Date(a.latestTime)
   );
   
-  sortedData.forEach(record => {
+  users.forEach(user => {
     const card = document.createElement('div');
     card.style.cssText = `
       background: linear-gradient(180deg, #f0f4ff 0%, #e8efff 100%);
@@ -1772,20 +1798,17 @@ function renderMemberList() {
       transition: all 0.2s;
     `;
     
-    const stations = record.station_progress || 1;
-    const isDoctorYellow = record.is_doctor_yellow || false;
-    
     card.innerHTML = `
-      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: ${record.comment ? '8px' : '0'};">
-        <span style="font-size: 1.2rem;">${isDoctorYellow ? '🚄' : '🚂'}</span>
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: ${user.comments.length > 0 ? '8px' : '0'};">
+        <span style="font-size: 1.2rem;">${user.isDoctorYellow ? '🚄' : '🚂'}</span>
         <span style="font-size: 0.8rem; font-weight: bold; color: #2c3e50; flex: 1;">
-          ${escapeHtml(record.user_name)}
+          ${escapeHtml(user.name)}
         </span>
         <span style="font-size: 0.7rem; font-weight: bold; color: #e17055; background: #ffeaa7; padding: 4px 8px; border-radius: 4px; border: 2px solid #e17055;">
-          +${stations}駅
+          +${user.totalStations}駅
         </span>
       </div>
-      ${record.comment ? `
+      ${user.comments.length > 0 ? user.comments.map(comment => `
         <div style="
           font-size: 0.65rem;
           color: #555;
@@ -1794,10 +1817,11 @@ function renderMemberList() {
           border-radius: 6px;
           border-left: 3px solid #74b9ff;
           line-height: 1.5;
+          margin-top: 6px;
         ">
-          💬 ${escapeHtml(record.comment)}
+          💬 ${escapeHtml(comment)}
         </div>
-      ` : ''}
+      `).join('') : ''}
     `;
     
     card.addEventListener('mouseenter', () => {
@@ -1814,9 +1838,9 @@ function renderMemberList() {
     
     card.addEventListener('click', async () => {
       const { data } = await sb.from('participations').select('*')
-        .eq('user_name', record.user_name).gte('date', EVENT_START);
+        .eq('user_name', user.name).gte('date', EVENT_START);
       const totalStations = (data || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
-      showToast(`${record.user_name}さん 週間累計: ${totalStations}駅進行`);
+      showToast(`${user.name}さん 週間累計: ${totalStations}駅進行`);
     });
     
     el.appendChild(card);
