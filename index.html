@@ -1285,7 +1285,12 @@ const GOAL_GOLD      = 106;  // 106駅（全駅）
 
 const ADMIN_PASSWORD = 'radio2026';
 let isAdminAuth = false;
+// フォルダ無しで直接参照
+const soundTrainDepart = new Audio('電車のクラクション1.mp3');
+const soundDoctorYellowDepart = new Audio('電車の発車ベル.mp3');
 
+soundTrainDepart.volume = 0.5;
+soundDoctorYellowDepart.volume = 0.6;
 // ============================================================
 // 管理パネル
 // ============================================================
@@ -1980,6 +1985,13 @@ async function participate() {
   const isDoctorYellow = Math.random() < DOCTOR_YELLOW_PROBABILITY;
   const stationProgress = isDoctorYellow ? 2 : 1;
 
+  // 🔊 効果音再生
+  if (isDoctorYellow) {
+    soundDoctorYellowDepart.play();
+  } else {
+    soundTrainDepart.play();
+  }
+  
   const btn = document.getElementById('btn-participate');
   btn.disabled = true;
   btn.textContent = isDoctorYellow ? '🚄 ドクターイエロー搭乗中…' : '登録中…';
