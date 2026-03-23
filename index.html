@@ -1986,14 +1986,14 @@ async function participate() {
   const isDoctorYellow = Math.random() < DOCTOR_YELLOW_PROBABILITY;
   const stationProgress = isDoctorYellow ? 2 : 1;
 
-// 🔊 効果音再生
+    // 🔊 効果音再生
     if (isDoctorYellow) {
       soundDoctorYellowDepart.play();
     } else {
       soundTrainDepart.play();
     }
-  
-  const btn = document.getElementById('btn-participate');
+
+    const btn = document.getElementById('btn-participate');
   btn.disabled = true;
   btn.textContent = isDoctorYellow ? '🚄 ドクターイエロー搭乗中…' : '登録中…';
 
