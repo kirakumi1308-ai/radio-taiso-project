@@ -2042,7 +2042,11 @@ async function participate() {
   } else {
     showToast(`あなたの累計: ${totalStations}駅進行中！`);
   }
-  
+
+  // 名前欄とコメント欄をクリア
+  nameEl.value = '';
+  commentEl.value = '';
+
   await loadData();
 }
 
