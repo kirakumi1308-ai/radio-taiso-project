@@ -1771,7 +1771,7 @@ function renderAll() {
   const totalStations = calculateTotalStations();
   renderProgress(totalStations);
   updateMarkerPosition(totalStations);
-  updateMapColors(totalStations);
+  // updateMapColors(totalStations); // 一時的にコメントアウト
   updateLocationBar(totalStations);
   renderStampGrid(totalStations);
   renderMemberList();
