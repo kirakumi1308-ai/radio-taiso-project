@@ -1292,7 +1292,12 @@ const EVENT_START    = '2026-03-30';
 const STATIONS_PER_SESSION = 1;
 const DOCTOR_YELLOW_PROBABILITY = 0.10;
 // 🗓️ 曜日別の参加回数制限（土日のみ2回）
-function getMaxSessionsForToday() {
+// グローバル変数
+let todayData = [];
+let allData = [];
+let totalStations = 0;
+let myName = localStorage.getItem('myName') || '';
+  function getMaxSessionsForToday() {
   const today = new Date();
   const dayOfWeek = today.getDay(); // 0=日曜, 6=土曜
   return (dayOfWeek === 0 || dayOfWeek === 6) ? 2 : 1;
@@ -1751,6 +1756,11 @@ const thisWeekMonday = getThisWeekMonday(); // 今週の月曜日
   ]);
   todayData = r1.data || [];
   allData   = r2.data || [];
+  // 総進捗駅数を計算
+totalStations = 0;  // let を削除
+for (const rec of allData) {
+  totalStations += (rec.station_progress || 1);
+}
   renderAll();
 }
 
