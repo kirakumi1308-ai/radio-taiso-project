@@ -1118,7 +1118,35 @@ align-items: center;
     ::-webkit-scrollbar-thumb:hover {
       background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%);
     }
-  </style>
+/* ============================================================ */
+/* 通過済み・現在地の駅スタイル */
+/* ============================================================ */
+
+/* 通過済みの駅 */
+.station.passed {
+  background-color: #00b894 !important;
+  border-color: #00916a !important;
+  opacity: 0.9;
+}
+
+/* 現在地の駅 */
+.station.current {
+  background-color: #fdcb6e !important;
+  border-color: #f39c12 !important;
+  box-shadow: 0 0 15px rgba(243, 156, 18, 0.8);
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.15);
+    opacity: 0.85;
+  }
+}  </style>
 </head>
 <body>
 
@@ -1775,7 +1803,9 @@ function renderAll() {
   const totalStations = calculateTotalStations();
   renderProgress(totalStations);
   updateMarkerPosition(totalStations);
-  // updateMapColors(totalStations); // 一時的にコメントアウト
+ if (totalStations > 0) {
+  updateMapColors(totalStations);
+}
   updateLocationBar(totalStations);
   renderStampGrid(totalStations);
   renderMemberList();
@@ -1841,25 +1871,36 @@ function renderStampGrid(totalStations) {
 // 都道府県色更新
 // ============================================================
 function updateMapColors(totalStations) {
-  const prefs = document.querySelectorAll('#map-svg-area .prefecture');
-  if (!prefs.length) return;
-  const visited = new Set();
-  let current = null;
+  // 現在の駅番号を計算
+  const currentStationIndex = Math.min(Math.floor(totalStations), WAYPOINTS.length - 1);
   
-  for (let i = 0; i <= totalStations && i < WAYPOINTS.length; i++) {
-    const wp = WAYPOINTS[i];
-    visited.add(wp.prefCode.padStart(2, '0'));
-    if (i === totalStations) {
-      current = wp.prefCode.padStart(2, '0');
+  // 全ての駅をリセット
+  for (let i = 0; i < WAYPOINTS.length; i++) {
+    const waypoint = WAYPOINTS[i];
+    if (!waypoint) continue;
+    
+    const stationNum = String(waypoint.station).padStart(3, '0');
+    const el = document.getElementById(`station-${stationNum}`);
+    if (el) {
+      el.classList.remove('passed', 'current');
     }
   }
   
-  prefs.forEach(p => {
-    const code = String(p.dataset.code || '').padStart(2, '0');
-    p.classList.remove('visited', 'current-pref');
-    if (code === current) p.classList.add('current-pref');
-    else if (visited.has(code)) p.classList.add('visited');
-  });
+  // 通過した駅を色付け
+  for (let i = 0; i <= currentStationIndex; i++) {
+    const waypoint = WAYPOINTS[i];
+    if (!waypoint) continue;
+    
+    const stationNum = String(waypoint.station).padStart(3, '0');
+    const el = document.getElementById(`station-${stationNum}`);
+    if (el) {
+      if (i === currentStationIndex) {
+        el.classList.add('current'); // 現在地
+      } else {
+        el.classList.add('passed');  // 通過済み
+      }
+    }
+  }
 }
 
 // ============================================================
