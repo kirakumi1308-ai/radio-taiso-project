@@ -1134,12 +1134,12 @@
       </div>
       <div class="progress-stats">
         <span id="stat-today">今日: 0駅進行</span>
-        <span id="stat-total">合計: 0 / 106駅</span>
+        <span id="stat-total">合計: 0 / 123駅</span>
       </div>
       <div class="badges">
-        <div class="badge bronze" id="badge-bronze">🥉 ブロンズ 30駅</div>
-        <div class="badge silver" id="badge-silver">🥈 シルバー 60駅</div>
-        <div class="badge gold"   id="badge-gold"  >🥇 ゴールド 106駅</div>
+        <div class="badge bronze" id="badge-bronze">🥉 ブロンズ 40駅</div>
+　　　　　<div class="badge silver" id="badge-silver">🥈 シルバー 80駅</div>
+　　　　　<div class="badge gold" id="badge-gold">✨ ゴールド 123駅</div>
       </div>
 
       <div style="margin-top:24px">
@@ -1289,13 +1289,19 @@
 // ============================================================
 const SUPABASE_URL   = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
 const SUPABASE_KEY   = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
-const EVENT_START    = '2026-03-16';
+const EVENT_START    = '2026-03-30';
 const STATIONS_PER_SESSION = 1;
 const DOCTOR_YELLOW_PROBABILITY = 0.10;
-const MAX_SESSIONS   = 3;
-const GOAL_BRONZE    = 30;   // 30駅
-const GOAL_SILVER    = 60;   // 60駅
-const GOAL_GOLD      = 106;  // 106駅（全駅）
+// 🗓️ 曜日別の参加回数制限（土日のみ2回）
+function getMaxSessionsForToday() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=日曜, 6=土曜
+  return (dayOfWeek === 0 || dayOfWeek === 6) ? 2 : 1;
+}
+const MAX_SESSIONS = getMaxSessionsForToday();
+const GOAL_BRONZE    = 40;   // 40駅
+const GOAL_SILVER    = 80;   // 80駅
+const GOAL_GOLD      = 123;  // 123駅（全駅）
 
 const ADMIN_PASSWORD = 'radio2026';
 let isAdminAuth = false;
