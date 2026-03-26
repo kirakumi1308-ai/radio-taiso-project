@@ -2567,7 +2567,33 @@ function showToast(msg) {
 function escapeHtml(str) {
   return str.replace(/[&<>"']/g, c =>
     ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-}
+}  // ============================================================
+  // ページ切り替え
+  // ============================================================
+  function switchPage(pageNumber) {
+    // すべてのページを非表示
+    document.querySelectorAll('.page').forEach(page => {
+      page.classList.remove('active');
+      page.style.display = 'none';
+    });
+    
+    // 指定されたページを表示
+    const targetPage = document.getElementById(`page-${pageNumber}`);
+    if (targetPage) {
+      targetPage.classList.add('active');
+      targetPage.style.display = 'block';
+    }
+    
+    // タブのアクティブ状態を更新
+    document.querySelectorAll('.tab-button').forEach(button => {
+      button.classList.remove('active');
+    });
+    
+    // クリックされたタブをアクティブに
+    if (event && event.target) {
+      event.target.classList.add('active');
+    }
+  }
 
 document.getElementById('input-name').addEventListener('input', renderSessionStatus);
 </script>
