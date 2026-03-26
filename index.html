@@ -1603,9 +1603,6 @@ const WAYPOINTS = [
 const { createClient } = supabase;
 const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-let todayData  = [];
-let allData    = [];
-let myName     = localStorage.getItem('myName') || '';
 let goalShown  = JSON.parse(localStorage.getItem('goalShown')  || '{}');
 let stampShown = JSON.parse(localStorage.getItem('stampShown') || '{}');
 let prevStation = 0;
