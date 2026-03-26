@@ -1859,14 +1859,23 @@ function generateRouteMap() {
 // 路線図の生成
 // ============================================================
 function generateRouteMap() {
+  console.log('=== generateRouteMap 開始 ===');
+  console.log('WAYPOINTS.length:', WAYPOINTS.length);
+  
   const container = document.getElementById('map-container');
-  if (!container) return;
+  console.log('map-container 要素:', container);
   
-  container.innerHTML = ''; // クリア
+  if (!container) {
+    console.error('❌ map-container が見つかりません！');
+    return;
+  }
   
-  // 駅を10駅ごとにグループ化
+  console.log('✅ map-container が見つかりました。駅を生成します...');
+  container.innerHTML = '';
+  
   const stationsPerRow = 10;
   const rows = Math.ceil(WAYPOINTS.length / stationsPerRow);
+  console.log('生成する行数:', rows);
   
   for (let row = 0; row < rows; row++) {
     const rowDiv = document.createElement('div');
@@ -1905,7 +1914,6 @@ function generateRouteMap() {
         <div style="font-size: 0.55rem; margin-top: 2px; text-align: center; line-height: 1.1;">${waypoint.name}</div>
       `;
       
-      // ホバー効果
       stationDiv.addEventListener('mouseenter', () => {
         stationDiv.style.transform = 'scale(1.1)';
         stationDiv.style.zIndex = '10';
@@ -1920,8 +1928,12 @@ function generateRouteMap() {
     
     container.appendChild(rowDiv);
   }
+  
+  // ✅ 生成完了を確認
+  const generatedStations = document.querySelectorAll('[id^="station-"]');
+  console.log('✅ 駅要素の生成完了！生成数:', generatedStations.length);
 }
-
+  
 // ページ読み込み時に地図を生成
 window.addEventListener('DOMContentLoaded', () => {
   generateRouteMap();
@@ -1962,7 +1974,25 @@ if (totalStations >= 123) {
   renderWaypoints(totalStations);
   renderWeeklyRanking();
   renderSessionStatus();
-  renderMyStats();
+   // 地図の色を遅延更新
+  setTimeout(() => {
+    console.log('=== 遅延地図更新 ===');
+    const stations = document.querySelectorAll('[id^="station-"]');
+    console.log('駅要素の数（遅延確認）:', stations.length);
+    
+    if (stations.length > 0 && totalStations > 0) {
+      updateMapColors(totalStations);
+    } else {
+      console.warn('⚠️ 駅要素がまだ生成されていません。地図を再生成します...');
+      generateRouteMap();
+      setTimeout(() => {
+        if (totalStations > 0) {
+          updateMapColors(totalStations);
+        }
+      }, 100);
+    }
+  }, 200);
+}renderMyStats();
   checkGoalReached(totalStations);
   prevStation = totalStations;
 }
@@ -2016,37 +2046,71 @@ function renderStampGrid(totalStations) {
 // ============================================================
 // 都道府県色更新
 // ============================================================
-function updateMapColors(totalStations) {
-  // 現在の駅番号を計算
+unction updateMapColors(totalStations) {
   const currentStationIndex = Math.min(Math.floor(totalStations), WAYPOINTS.length - 1);
+  console.log('=== updateMapColors 実行 ===');
+  console.log('totalStations:', totalStations);
+  console.log('currentStationIndex:', currentStationIndex);
   
-  // 全ての駅をリセット
-  for (let i = 0; i < WAYPOINTS.length; i++) {
-    const waypoint = WAYPOINTS[i];
-    if (!waypoint) continue;
-    
-    const stationNum = String(waypoint.station).padStart(3, '0');
-    const el = document.getElementById(`station-${stationNum}`);
+  // 駅要素の存在確認
+  const allStations = document.querySelectorAll('[id^="station-"]');
+  console.log('現在の駅要素数:', allStations.length);
+  
+  if (allStations.length === 0) {
+    console.error('❌ 駅要素が見つかりません！');
+    return;
+  }
+  
+  // 全駅をリセット
+  let resetCount = 0;
+  WAYPOINTS.forEach((wp, i) => {
+    if (!wp) return;
+    const num = String(wp.station).padStart(3, '0');
+    const el = document.getElementById(`station-${num}`);
     if (el) {
       el.classList.remove('passed', 'current');
+      el.style.backgroundColor = '#dfe6e9';
+      el.style.borderColor = '#b2bec3';
+      el.style.animation = '';
+      el.style.boxShadow = '';
+      resetCount++;
+    }
+  });
+  console.log('リセット完了:', resetCount, '個');
+  
+  let passedCount = 0;
+  let currentCount = 0;
+  
+  // 通過済み＋現在地に色を適用
+  for (let i = 0; i <= currentStationIndex; i++) {
+    const wp = WAYPOINTS[i];
+    if (!wp) continue;
+    const num = String(wp.station).padStart(3, '0');
+    const el = document.getElementById(`station-${num}`);
+    
+    if (el) {
+      if (i === currentStationIndex) {
+        // 現在地（黄色）
+        el.classList.add('current');
+        el.style.backgroundColor = '#fdcb6e';
+        el.style.borderColor = '#f39c12';
+        el.style.boxShadow = '0 0 15px rgba(243, 156, 18, 0.8)';
+        el.style.animation = 'pulse 1.5s infinite';
+        currentCount++;
+        console.log('✨ 現在地を設定:', wp.name, `(station-${num})`);
+      } else {
+        // 通過済み（緑色）
+        el.classList.add('passed');
+        el.style.backgroundColor = '#00b894';
+        el.style.borderColor = '#00916a';
+        passedCount++;
+      }
+    } else {
+      console.warn('⚠️ 要素が見つかりません:', `station-${num}`, wp.name);
     }
   }
   
-  // 通過した駅を色付け
-  for (let i = 0; i <= currentStationIndex; i++) {
-    const waypoint = WAYPOINTS[i];
-    if (!waypoint) continue;
-    
-    const stationNum = String(waypoint.station).padStart(3, '0');
-    const el = document.getElementById(`station-${stationNum}`);
-    if (el) {
-      if (i === currentStationIndex) {
-        el.classList.add('current'); // 現在地
-      } else {
-        el.classList.add('passed');  // 通過済み
-      }
-    }
-  }
+  console.log('✅ 色更新完了！通過済み:', passedCount, '駅、現在地:', currentCount, '駅');
 }
 
 // ============================================================
