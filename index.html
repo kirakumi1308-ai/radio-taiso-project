@@ -1804,7 +1804,2285 @@ goalStyle.textContent = `
 `;
 document.head.appendChild(goalStyle);
 
+// ============================================================<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>みんなで日本一周の旅 🗾</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <style>
+  * {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+  
+  body {
+    overflow-x: hidden;
+    padding: 10px;
+  }
+  
+  .card, .goal-box, .map-container {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Press Start 2P', 'Hiragino Sans', 'Meiryo', monospace;
+      background: #1a1a2e;
+      background-image: 
+        repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,.02) 10px, rgba(255,255,255,.02) 20px),
+        linear-gradient(180deg, #0f3460 0%, #16213e 100%);
+      min-height: 100vh;
+      color: #fff;
+      image-rendering: pixelated;
+    }
+
+    header {
+      background: linear-gradient(180deg, #ff6b35 0%, #d94a1e 100%);
+      color: white;
+      text-align: center;
+      padding: 24px;
+      border-bottom: 6px solid #8b2500;
+      box-shadow: 0 6px 0 rgba(0,0,0,0.5), inset 0 -4px 0 rgba(0,0,0,0.3);
+      position: relative;
+    }
+
+    header::before {
+      content: '🎮';
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2.5rem;
+      animation: float 2s ease-in-out infinite;
+    }
+
+    header::after {
+      content: '🎮';
+      position: absolute;
+      right: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 2.5rem;
+      animation: float 2s ease-in-out infinite reverse;
+    }
+
+    .admin-button {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+      border: 4px solid #000;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.6);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .admin-button:hover {
+      background: linear-gradient(180deg, #ff6b6b 0%, #e74c3c 100%);
+    }
+
+    .admin-button:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.6);
+    }
+
+    #admin-panel {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #admin-panel.show { display: flex; }
+
+    .admin-box {
+      background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
+      border: 8px solid #000;
+      border-radius: 12px;
+      padding: 40px;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 12px 12px 0 rgba(0,0,0,0.8);
+    }
+
+    .admin-box h2 {
+      font-size: 1.3rem;
+      color: #ffeaa7;
+      margin-bottom: 24px;
+      text-align: center;
+      text-shadow: 3px 3px 0 #000;
+    }
+
+    .admin-section {
+      background: rgba(0,0,0,0.3);
+      border: 4px solid #000;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .admin-section h3 {
+      font-size: 0.8rem;
+      color: #fff;
+      margin-bottom: 16px;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .admin-input {
+      width: 100%;
+      padding: 14px;
+      border: 4px solid #000;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-family: 'Press Start 2P', monospace;
+      background: #fff;
+      margin-bottom: 12px;
+    }
+
+    .admin-button-group {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .btn-admin {
+      flex: 1;
+      min-width: 150px;
+      padding: 16px;
+      border: 5px solid #000;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-family: 'Press Start 2P', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.6);
+      text-shadow: 2px 2px 0 #000;
+      color: white;
+    }
+
+    .btn-admin:active {
+      transform: translate(3px, 3px);
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+    }
+
+    .btn-danger {
+      background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+    }
+
+    .btn-warning {
+      background: linear-gradient(180deg, #f39c12 0%, #e67e22 100%);
+    }
+
+    .btn-close {
+      background: linear-gradient(180deg, #95a5a6 0%, #7f8c8d 100%);
+    }
+
+    .admin-warning {
+      background: rgba(231,76,60,0.2);
+      border: 3px solid #e74c3c;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-size: 0.6rem;
+      color: #ffeaa7;
+      text-align: center;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(-50%) translateY(0); }
+      50% { transform: translateY(-50%) translateY(-10px); }
+    }
+
+    header h1 { 
+      font-size: 1.8rem; 
+      margin-bottom: 12px;
+      text-shadow: 4px 4px 0 #000, -2px -2px 0 #ffa500;
+      letter-spacing: 2px;
+    }
+    
+    header p  { 
+      font-size: 0.85rem; 
+      opacity: 0.95;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .tab-nav {
+      display: flex;
+      justify-content: center;
+      gap: 16px;
+      padding: 20px;
+      background: rgba(0,0,0,0.3);
+    }
+
+    .tab-button {
+      padding: 16px 32px;
+      background: linear-gradient(180deg, #636e72 0%, #2d3436 100%);
+      color: #b2bec3;
+      border: 5px solid #2c3e50;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: 'Press Start 2P', monospace;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 6px 6px 0 rgba(0,0,0,0.6);
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .tab-button.active {
+      background: linear-gradient(180deg, #ffeaa7 0%, #fdcb6e 100%);
+      color: #2c3e50;
+      border-color: #e17055;
+      transform: translateY(3px);
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .tab-button:hover:not(.active) {
+      background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+      color: white;
+    }
+
+    .tab-button:active {
+      transform: translateY(6px);
+      box-shadow: 0 0 0 rgba(0,0,0,0.6);
+    }
+
+    .page {
+      display: none;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px 16px;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+
+    @media (min-width: 900px) {
+      .container { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      header h1 { font-size: 1.2rem; }
+      header p { font-size: 0.65rem; }
+      .tab-button { 
+        font-size: 0.8rem;
+        padding: 12px 20px;
+      }
+      .admin-button {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+      }
+      .btn-admin {
+        min-width: 120px;
+        font-size: 0.6rem;
+      }
+    }
+
+    .card {
+      background: linear-gradient(180deg, #f4e04d 0%, #f9ca24 100%);
+      border: 6px solid #2c3e50;
+      border-radius: 8px;
+      padding: 24px;
+      box-shadow: 
+        8px 8px 0 rgba(0,0,0,0.8),
+        inset 0 0 0 4px #fff,
+        inset 0 0 0 6px #f39c12;
+      position: relative;
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: -3px;
+      left: -3px;
+      right: -3px;
+      bottom: -3px;
+      background: linear-gradient(45deg, #ff6b35, #f7b731, #5f27cd, #00d2d3);
+      border-radius: 10px;
+      z-index: -1;
+      opacity: 0.3;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      color: #2c3e50;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-shadow: 2px 2px 0 rgba(255,255,255,0.5);
+      background: rgba(255,255,255,0.4);
+      padding: 12px 16px;
+      border: 4px solid #2c3e50;
+      border-radius: 4px;
+    }
+
+    .map-card { 
+      background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+    }
+
+    .map-and-stamp {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    @media (min-width: 900px) {
+      .map-and-stamp { grid-template-columns: 1fr 320px; }
+    }
+
+    #map-wrapper {
+      position: relative;
+      width: 100%;
+      height: 500px;
+      background: #81ecec;
+      border: 6px solid #2c3e50;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: inset 4px 4px 0 rgba(0,0,0,0.3);
+    }
+
+    #map-svg-area { width: 100%; height: 100%; }
+
+    #map-svg-area .prefecture {
+      fill: #55efc4;
+      stroke: #2c3e50;
+      stroke-width: 1.5;
+      transition: fill 0.4s;
+    }
+
+    #map-svg-area .prefecture.visited      { fill: #00b894; }
+    #map-svg-area .prefecture.current-pref { fill: #fd79a8; animation: pulse 1s infinite; }
+
+    @keyframes pulse {
+      0%, 100% { fill: #fd79a8; }
+      50% { fill: #ff7675; }
+    }
+
+    #map-marker {
+      position: absolute;
+      font-size: 3rem;
+      transform: translate(-50%, -100%);
+      filter: drop-shadow(4px 4px 0 rgba(0,0,0,0.8));
+      transition: left 1s ease, top 1s ease;
+      z-index: 20;
+      pointer-events: none;
+      animation: trainMove 0.5s ease-in-out infinite;
+    }
+
+    @keyframes trainMove {
+      0%, 100% { transform: translate(-50%, -100%) translateX(0); }
+      50% { transform: translate(-50%, -100%) translateX(3px); }
+    }
+
+    .stamp-card {
+      background: linear-gradient(180deg, #ffeaa7 0%, #fdcb6e 100%);
+      border: 6px solid #d63031;
+      border-radius: 8px;
+      padding: 18px 16px;
+      height: 500px;
+      overflow-y: auto;
+      box-shadow: 
+        inset 0 0 0 3px #fff,
+        6px 6px 0 rgba(0,0,0,0.6);
+    }
+
+    .stamp-card-title {
+      text-align: center;
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: #d63031;
+      margin-bottom: 14px;
+      text-shadow: 2px 2px 0 rgba(255,255,255,0.7);
+      background: rgba(255,255,255,0.5);
+      padding: 10px;
+      border: 4px solid #d63031;
+      border-radius: 4px;
+    }
+
+    .stamp-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .stamp-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      padding: 12px 6px;
+      border-radius: 4px;
+      background: #dfe6e9;
+      border: 4px solid #636e72;
+      transition: all 0.4s;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+    }
+
+    .stamp-item:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+    }
+
+    .stamp-item .stamp-emoji {
+      font-size: 2.2rem;
+      filter: grayscale(1) opacity(0.3);
+      transition: filter 0.5s, transform 0.4s;
+    }
+
+    .stamp-item .stamp-name {
+      font-size: 0.6rem;
+      color: #636e72;
+      text-align: center;
+      line-height: 1.5;
+    }
+
+    .stamp-item .stamp-km {
+      font-size: 0.55rem;
+      color: #636e72;
+    }
+
+    .stamp-item.earned {
+      background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+      border-color: #e17055;
+      box-shadow: 
+        4px 4px 0 rgba(0,0,0,0.6),
+        inset 0 0 0 2px #fff;
+      animation: shine 2s ease-in-out infinite;
+    }
+
+    @keyframes shine {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.1); }
+    }
+
+    .stamp-item.earned .stamp-emoji {
+      filter: grayscale(0) opacity(1);
+      transform: scale(1.2);
+    }
+
+    .stamp-item.earned .stamp-name { 
+      color: #2d3436; 
+      font-weight: bold;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.7);
+    }
+    
+    .stamp-item.earned .stamp-km { 
+      color: #d63031; 
+      font-weight: bold;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.7);
+    }
+
+    @keyframes stampIn {
+      0%   { transform: scale(3) rotate(-20deg); opacity: 0; }
+      60%  { transform: scale(0.8) rotate(5deg); opacity: 1; }
+      100% { transform: scale(1.2) rotate(0deg); opacity: 1; }
+    }
+
+    .stamp-item.just-earned .stamp-emoji {
+      animation: stampIn 0.8s ease forwards;
+    }
+
+    .progress-bar-bg {
+      background: #2d3436;
+      border: 5px solid #000;
+      border-radius: 4px;
+      height: 40px;
+      overflow: hidden;
+      margin: 16px 0;
+      box-shadow: 
+        inset 4px 4px 0 rgba(0,0,0,0.5),
+        4px 4px 0 rgba(0,0,0,0.6);
+      position: relative;
+    }
+
+    .progress-bar-bg::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 10px;
+      background: repeating-linear-gradient(
+        90deg,
+        rgba(255,255,255,0.1),
+        rgba(255,255,255,0.1) 10px,
+        transparent 10px,
+        transparent 20px
+      );
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #00b894, #00cec9, #0984e3);
+      background-size: 200% 100%;
+      transition: width 0.8s ease;
+      min-width: 2px;
+      animation: progressFlow 3s linear infinite;
+      box-shadow: inset 0 6px 0 rgba(255,255,255,0.4);
+    }
+
+    @keyframes progressFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+
+    .progress-stats {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      color: #2c3e50;
+      margin-bottom: 12px;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .progress-km {
+      font-size: 2.2rem;
+      font-weight: bold;
+      color: #2c3e50;
+      text-align: center;
+      margin: 12px 0;
+      text-shadow: 4px 4px 0 rgba(255,255,255,0.7), -2px -2px 0 #e74c3c;
+    }
+
+    .progress-km span { 
+      font-size: 1.1rem; 
+      color: #2c3e50;
+    }
+
+    .badges {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: nowrap;
+      margin-top: 20px;
+    }
+
+    @media (max-width: 600px) {
+      .badges {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+
+    .badge {
+      padding: 8px 32px;
+      border-radius: 4px;
+      font-size: 0.85rem;
+      font-weight: bold;
+      border: 4px solid #636e72;
+      color: #636e72;
+      background: #b2bec3;
+      transition: all 0.4s;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+      min-width: 180px;
+      width: 180px;
+      height: 70px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .badge:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
+    }
+
+    .badge.reached { 
+      border-color: #000;
+      color: #fff;
+      animation: badgePulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes badgePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+
+    .badge.bronze.reached { 
+      background: linear-gradient(135deg, #cd7f32, #b87333);
+      box-shadow: 
+        4px 4px 0 rgba(0,0,0,0.6),
+        inset 0 0 0 2px #ffd700;
+    }
+    
+    .badge.silver.reached { 
+      background: linear-gradient(135deg, #c0c0c0, #a8a8a8);
+      box-shadow: 
+        4px 4px 0 rgba(0,0,0,0.6),
+        inset 0 0 0 2px #fff;
+    }
+    
+    .badge.gold.reached { 
+      background: linear-gradient(135deg, #ffd700, #ffed4e);
+      color: #2c3e50;
+      box-shadow: 
+        4px 4px 0 rgba(0,0,0,0.6),
+        inset 0 0 0 2px #fff;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.8);
+    }
+
+    .form-group { margin-bottom: 18px; }
+
+    .form-group label {
+      display: block;
+      font-size: 0.8rem;
+      color: #2c3e50;
+      margin-bottom: 8px;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 16px;
+      border: 4px solid #2c3e50;
+      border-radius: 4px;
+      font-size: 0.9rem;
+      font-family: 'Press Start 2P', monospace;
+      outline: none;
+      transition: all 0.2s;
+      background: #fff;
+      box-shadow: inset 4px 4px 0 rgba(0,0,0,0.2);
+    }
+
+    .form-group input:focus { 
+      border-color: #0984e3;
+      box-shadow: 
+        inset 4px 4px 0 rgba(0,0,0,0.2),
+        0 0 0 4px rgba(9,132,227,0.3);
+    }
+
+    .btn-youtube {
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(180deg, #ff6b6b 0%, #ee5a52 100%);
+      color: white;
+      border: 5px solid #c23616;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: 'Press Start 2P', monospace;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.1s;
+      margin-bottom: 20px;
+      text-decoration: none;
+      display: block;
+      text-align: center;
+      box-shadow: 
+        6px 6px 0 rgba(0,0,0,0.6),
+        inset 0 -6px 0 rgba(0,0,0,0.3),
+        inset 0 6px 0 rgba(255,255,255,0.3);
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .btn-youtube:hover { 
+      background: linear-gradient(180deg, #ff7979 0%, #ff6348 100%);
+    }
+    
+    .btn-youtube:active { 
+      transform: translate(3px, 3px);
+      box-shadow: 
+        3px 3px 0 rgba(0,0,0,0.6),
+        inset 0 -4px 0 rgba(0,0,0,0.3);
+    }
+
+    .btn-participate {
+      width: 100%;
+      padding: 20px;
+      background: linear-gradient(180deg, #00b894 0%, #00916a 100%);
+      color: white;
+      border: 5px solid #006644;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      font-family: 'Press Start 2P', monospace;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.1s;
+      box-shadow: 
+        6px 6px 0 rgba(0,0,0,0.6),
+        inset 0 -6px 0 rgba(0,0,0,0.3),
+        inset 0 6px 0 rgba(255,255,255,0.3);
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .btn-participate:hover { 
+      background: linear-gradient(180deg, #00cec9 0%, #00a896 100%);
+    }
+    
+    .btn-participate:active { 
+      transform: translate(3px, 3px);
+      box-shadow: 
+        3px 3px 0 rgba(0,0,0,0.6),
+        inset 0 -4px 0 rgba(0,0,0,0.3);
+    }
+    
+    .btn-participate:disabled { 
+      background: #636e72;
+      border-color: #2d3436;
+      cursor: not-allowed;
+      transform: none;
+      opacity: 0.6;
+    }
+
+    .session-status {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      margin: 18px 0;
+    }
+
+    .session-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 4px;
+      background: #636e72;
+      border: 4px solid #2c3e50;
+      transition: all 0.3s;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+    }
+
+    .session-dot.used { 
+      background: linear-gradient(135deg, #00b894, #00cec9);
+      border-color: #000;
+      box-shadow: 
+        4px 4px 0 rgba(0,0,0,0.6),
+        inset 0 0 0 2px #fff;
+      animation: dotGlow 1s ease-in-out infinite;
+    }
+
+    @keyframes dotGlow {
+      0%, 100% { filter: brightness(1); }
+      50% { filter: brightness(1.2); }
+    }
+
+    #member-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      min-height: 80px;
+      align-items: flex-start;
+    }
+
+    .member-chip {
+      background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+      border: 4px solid #2c3e50;
+      border-radius: 4px;
+      padding: 12px 18px;
+      font-size: 0.7rem;
+      color: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    .member-chip:hover { 
+      background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%);
+    }
+    
+    .member-chip:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0 rgba(0,0,0,0.5);
+    }
+
+    .member-chip .km-label { 
+      color: #ffeaa7;
+      font-weight: bold;
+      margin-left: 8px;
+    }
+
+    #weekly-ranking { 
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .rank-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 18px;
+      background: linear-gradient(180deg, #dfe6e9 0%, #b2bec3 100%);
+      border-radius: 4px;
+      border: 4px solid #2c3e50;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.4);
+    }
+
+    .rank-num  { 
+      font-size: 1rem;
+      font-weight: bold;
+      width: 50px;
+      text-align: center;
+      color: #2c3e50;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+    
+    .rank-name { 
+      flex: 1;
+      font-size: 0.7rem;
+      color: #2c3e50;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.3);
+    }
+    
+    .rank-km { 
+      font-size: 0.85rem;
+      color: #e17055;
+      font-weight: bold;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    #waypoint-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      max-height: 250px;
+      overflow-y: auto;
+    }
+
+    .wp-chip {
+      padding: 10px 16px;
+      border-radius: 4px;
+      font-size: 0.65rem;
+      background: #636e72;
+      color: #dfe6e9;
+      border: 3px solid #2c3e50;
+      transition: all 0.3s;
+      white-space: nowrap;
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.4);
+    }
+
+    .wp-chip.visited { 
+      background: linear-gradient(135deg, #00b894, #00cec9);
+      color: white;
+      border-color: #000;
+      text-shadow: 1px 1px 0 #000;
+    }
+    
+    .wp-chip.current { 
+      background: linear-gradient(135deg, #fd79a8, #e84393);
+      color: white;
+      font-weight: bold;
+      border-color: #000;
+      animation: currentBlink 1s ease-in-out infinite;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    @keyframes currentBlink {
+      0%, 100% { box-shadow: 3px 3px 0 rgba(0,0,0,0.6), 0 0 0 rgba(253,121,168,0); }
+      50% { box-shadow: 3px 3px 0 rgba(0,0,0,0.6), 0 0 12px rgba(253,121,168,0.8); }
+    }
+    
+    .wp-chip.upcoming { 
+      background: linear-gradient(135deg, #ffeaa7, #fdcb6e);
+      color: #2c3e50;
+      border-color: #e17055;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%) translateY(150px);
+      background: linear-gradient(180deg, #2d3436 0%, #000 100%);
+      color: #ffeaa7;
+      padding: 18px 32px;
+      border-radius: 8px;
+      border: 4px solid #fdcb6e;
+      font-size: 0.8rem;
+      transition: transform 0.4s ease;
+      z-index: 999;
+      white-space: nowrap;
+      box-shadow: 
+        6px 6px 0 rgba(0,0,0,0.8),
+        inset 0 0 0 2px #fff;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    #toast.show { transform: translateX(-50%) translateY(0); }
+
+    #goal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #goal-overlay.show { display: flex; }
+
+    .goal-box {
+      background: linear-gradient(180deg, #ffeaa7 0%, #fdcb6e 100%);
+      border: 8px solid #2c3e50;
+      border-radius: 12px;
+      padding: 50px;
+      text-align: center;
+      max-width: 600px;
+      width: 90%;
+      box-shadow: 
+        12px 12px 0 rgba(0,0,0,0.8),
+        inset 0 0 0 4px #fff,
+        inset 0 0 0 8px #e17055;
+      animation: goalAppear 0.5s ease-out;
+    }
+
+    @keyframes goalAppear {
+      0% { transform: scale(0.5) rotate(-5deg); opacity: 0; }
+      100% { transform: scale(1) rotate(0); opacity: 1; }
+    }
+
+    .goal-box .goal-emoji { 
+      font-size: 5rem;
+      margin-bottom: 20px;
+      animation: goalEmojiBounce 0.6s ease-out infinite;
+    }
+
+    @keyframes goalEmojiBounce {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-10px) scale(1.1); }
+    }
+
+    .goal-box h2 { 
+      font-size: 1.6rem;
+      margin-bottom: 16px;
+      color: #2c3e50;
+      text-shadow: 3px 3px 0 rgba(255,255,255,0.7), -2px -2px 0 #e17055;
+    }
+    
+    .goal-box p { 
+      color: #2c3e50;
+      margin-bottom: 28px;
+      font-size: 0.85rem;
+      text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+    }
+
+    .goal-stamps {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    .goal-stamp-chip {
+      font-size: 2.5rem;
+      background: linear-gradient(135deg, #fff, #ffeaa7);
+      border: 4px solid #e17055;
+      border-radius: 8px;
+      padding: 10px 16px;
+      box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+      animation: stampFloat 1.5s ease-in-out infinite;
+    }
+
+    @keyframes stampFloat {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+
+    .goal-stamp-chip:nth-child(2) { animation-delay: 0.2s; }
+    .goal-stamp-chip:nth-child(3) { animation-delay: 0.4s; }
+
+    .btn-close-goal {
+      padding: 18px 40px;
+      background: linear-gradient(180deg, #00b894 0%, #00916a 100%);
+      color: white;
+      border: 5px solid #006644;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      font-family: 'Press Start 2P', monospace;
+      cursor: pointer;
+      box-shadow: 
+        6px 6px 0 rgba(0,0,0,0.6),
+        inset 0 -4px 0 rgba(0,0,0,0.3),
+        inset 0 4px 0 rgba(255,255,255,0.3);
+      text-shadow: 2px 2px 0 #000;
+      transition: all 0.1s;
+    }
+
+    .btn-close-goal:active {
+      transform: translate(3px, 3px);
+      box-shadow: 3px 3px 0 rgba(0,0,0,0.6);
+    }
+
+    #my-stats {
+      background: linear-gradient(180deg, #fd79a8 0%, #e84393 100%);
+      border: 5px solid #2c3e50;
+      border-radius: 8px;
+      padding: 20px 24px;
+      color: white;
+      margin-bottom: 20px;
+      display: none;
+      box-shadow: 
+        6px 6px 0 rgba(0,0,0,0.6),
+        inset 0 0 0 3px #fff;
+    }
+
+    #my-stats .my-name { 
+      font-size: 0.75rem;
+      opacity: 0.9;
+      margin-bottom: 8px;
+      text-shadow: 2px 2px 0 #000;
+    }
+    
+    #my-stats .my-km { 
+      font-size: 1.8rem;
+      font-weight: bold;
+      text-shadow: 3px 3px 0 #000, -1px -1px 0 #ffeaa7;
+    }
+    
+    #my-stats .my-count { 
+      font-size: 0.7rem;
+      opacity: 0.9;
+      margin-top: 6px;
+      text-shadow: 2px 2px 0 #000;
+    }
+
+    #current-location-bar {
+      background: linear-gradient(180deg, #00b894 0%, #00916a 100%);
+      color: white;
+      border: 5px solid #006644;
+      border-radius: 8px;
+      padding: 16px 22px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 
+        6px 6px 0 rgba(0,0,0,0.6),
+        inset 0 0 0 3px #fff;
+    }
+
+    #current-location-bar .loc-emoji { 
+      font-size: 2.5rem;
+      filter: drop-shadow(2px 2px 0 #000);
+    }
+    
+    #current-location-bar .loc-name { 
+      font-weight: bold;
+      font-size: 1.1rem;
+      text-shadow: 2px 2px 0 #000;
+    }
+    
+    #current-location-bar .loc-next { 
+      font-size: 0.7rem;
+      opacity: 0.9;
+      text-shadow: 1px 1px 0 #000;
+    }
+
+    ::-webkit-scrollbar { width: 16px; height: 16px; }
+    ::-webkit-scrollbar-track { background: #2c3e50; border: 3px solid #000; }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #74b9ff 0%, #0984e3 100%);
+      border: 3px solid #000;
+      border-radius: 0;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%);
+    }
+
+    /* 通過済み・現在地の駅スタイル */
+    .station.passed {
+      background-color: #00b894 !important;
+      border-color: #00916a !important;
+      opacity: 0.9;
+    }
+
+    .station.current {
+      background-color: #fdcb6e !important;
+      border-color: #f39c12 !important;
+      box-shadow: 0 0 15px rgba(243, 156, 18, 0.8);
+      animation: stationPulse 1.5s infinite;
+    }
+
+    @keyframes stationPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.15); opacity: 0.85; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🗾 みんなで日本一周の旅</h1>
+  <p>ラジオ体操チャレンジ 〜 駅を巡る冒険！</p>
+</header>
+
+<!-- タブナビゲーション -->
+<div class="tab-nav">
+  <button class="tab-button active" onclick="switchPage(1)">📊 メイン</button>
+  <button class="tab-button" onclick="switchPage(2)">🗺️ 地図</button>
+</div>
+
+<!-- ページ1: メイン -->
+<div class="page active" id="page-1">
+  <div class="container">
+    
+    <!-- 進捗 -->
+    <div class="card">
+      <h2>📊 チーム進捗</h2>
+      <div class="progress-km" id="current-km">0 <span>駅目</span></div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="progress-stats">
+        <span id="stat-today">今日: 0駅進行</span>
+        <span id="stat-total">合計: 0 / 123駅</span>
+      </div>
+      <div class="badges">
+        <div class="badge bronze" id="badge-bronze">🥉 ブロンズ 40駅</div>
+        <div class="badge silver" id="badge-silver">🥈 シルバー 80駅</div>
+        <div class="badge gold"   id="badge-gold">✨ ゴールド 123駅</div>
+      </div>
+
+      <div style="margin-top:24px">
+        <h2>🚄 通過駅</h2>
+        <div id="waypoint-list"></div>
+      </div>
+    </div>
+
+    <!-- 乗車報告フォーム -->
+    <div class="card">
+      <h2>🚄 今日の乗車報告</h2>
+
+      <a href="https://youtu.be/q91wVnUGcnk?si=8mDKoE7orh-Qt9CY" target="_blank" class="btn-youtube">
+        🔔 出発のベルを鳴らす（YouTube）
+      </a>
+
+      <div id="my-stats">
+        <div class="my-name"  id="my-stats-name">あなたの累計</div>
+        <div class="my-km"    id="my-stats-km">0駅</div>
+        <div class="my-count" id="my-stats-count">0回参加</div>
+      </div>
+
+      <div class="form-group">
+        <label>運転手の名前 *</label>
+        <input type="text" id="input-name" placeholder="例: らじお" maxlength="20">
+      </div>
+      <div class="form-group">
+        <label>一言コメント（任意）</label>
+        <input type="text" id="input-comment" placeholder="例: 今日も元気よく！" maxlength="40">
+      </div>
+
+      <button class="btn-participate" id="btn-participate" onclick="participate()">
+        👨‍✈️ 乗車報告
+      </button>
+
+      <div style="margin-top:24px">
+        <h2>👨‍✈️ 今日の運転手</h2>
+        <div id="member-list">
+          <span style="color:#2c3e50;font-size:0.75rem;">まだ誰も乗務していません</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 週間ランキング -->
+    <div class="card" style="grid-column: 1 / -1;">
+      <h2>🏆 週間ランキング</h2>
+      <div id="weekly-ranking">
+        <span style="color:#2c3e50;font-size:0.75rem;">データを読み込み中…</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ページ2: 地図 -->
+<div class="page" id="page-2">
+  <div class="container">
+    <div class="card map-card" style="grid-column: 1 / -1;">
+      <h2>📍 現在地</h2>
+      <div id="current-location-bar">
+        <div class="loc-emoji" id="loc-emoji">🚩</div>
+        <div>
+          <div class="loc-name" id="loc-name">新大阪</div>
+          <div class="loc-next" id="loc-next">次の駅: ⛩️ 京都（あと1駅）</div>
+        </div>
+      </div>
+      <div class="map-and-stamp">
+        <div id="map-wrapper">
+          <div id="map-svg-area"></div>
+          <div id="map-marker">🚄</div>
+        </div>
+        <div class="stamp-card">
+          <div class="stamp-card-title">🎫 名所スタンプ</div>
+          <div class="stamp-grid" id="stamp-grid"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 路線図 -->
+    <div class="card" style="grid-column: 1 / -1; background: rgba(255,255,255,0.95);">
+      <h2 style="color:#2d3436;">🚄 全国新幹線路線図</h2>
+      <div id="map-container" style="display: flex; flex-direction: column; gap: 15px; max-width: 100%; overflow-x: auto;">
+        <!-- 路線は JavaScript で自動生成 -->
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- 管理者ボタン -->
+<button class="admin-button" onclick="openAdminPanel()">⚙️</button>
+
+<!-- 管理パネル -->
+<div id="admin-panel">
+  <div class="admin-box">
+    <h2>🔧 管理者パネル</h2>
+    
+    <div class="admin-section" id="password-section">
+      <h3>🔐 認証</h3>
+      <input type="password" id="admin-password" class="admin-input" placeholder="管理者パスワード">
+      <div class="admin-button-group">
+        <button class="btn-admin btn-warning" onclick="checkPassword()">ログイン</button>
+        <button class="btn-admin btn-close" onclick="closeAdminPanel()">閉じる</button>
+      </div>
+    </div>
+
+    <div class="admin-section" id="admin-controls" style="display:none;">
+      <div style="margin-bottom:24px;">
+        <h3>🗑️ 全データリセット</h3>
+        <div class="admin-warning">⚠️ 警告：全てのデータが削除されます！</div>
+        <div class="admin-button-group">
+          <button class="btn-admin btn-danger" onclick="resetAllData()">全データ削除</button>
+        </div>
+      </div>
+      <div style="margin-bottom:24px;">
+        <h3>📅 今日のデータ削除</h3>
+        <div class="admin-button-group">
+          <button class="btn-admin btn-warning" onclick="resetTodayData()">今日のデータ削除</button>
+        </div>
+      </div>
+      <div style="margin-bottom:24px;">
+        <h3>👤 特定ユーザー削除</h3>
+        <input type="text" id="delete-user-name" class="admin-input" placeholder="ユーザー名">
+        <div class="admin-button-group">
+          <button class="btn-admin btn-warning" onclick="deleteUserData()">このユーザー削除</button>
+        </div>
+      </div>
+      <div class="admin-button-group">
+        <button class="btn-admin btn-close" onclick="closeAdminPanel()">閉じる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<div id="goal-overlay">
+  <div class="goal-box">
+    <div class="goal-emoji" id="goal-emoji">🎉</div>
+    <h2 id="goal-title">目標達成！</h2>
+    <p  id="goal-desc">チームで目標を達成しました！</p>
+    <div class="goal-stamps" id="goal-stamps"></div>
+    <button class="btn-close-goal" onclick="closeGoal()">閉じる</button>
+  </div>
+</div>
+
+<script>
 // ============================================================
+// 設定
+// ============================================================
+const SUPABASE_URL            = 'https://hhiwvbthsyiwkoiffvwp.supabase.co';
+const SUPABASE_KEY            = 'sb_publishable_2we0MxN8UXNRyUz9sEy6eg_iK0L0b_v';
+const EVENT_START             = '2026-03-30';
+const STATIONS_PER_SESSION    = 1;
+const DOCTOR_YELLOW_PROBABILITY = 0.10;
+
+const GOAL_BRONZE = 40;
+const GOAL_SILVER = 80;
+const GOAL_GOLD   = 123;
+const ADMIN_PASSWORD = 'radio2026';
+
+// グローバル変数
+let todayData  = [];
+let allData    = [];
+let myName     = localStorage.getItem('myName') || '';
+let isAdminAuth = false;
+let goalShown  = JSON.parse(localStorage.getItem('goalShown')  || '{}');
+let stampShown = JSON.parse(localStorage.getItem('stampShown') || '{}');
+let prevStation = 0;
+
+// 曜日別参加回数
+function getMaxSessionsForToday() {
+  const day = new Date().getDay();
+  return (day === 0 || day === 6) ? 2 : 1;
+}
+const MAX_SESSIONS = getMaxSessionsForToday();
+
+// 効果音
+const soundTrainDepart       = new Audio('電車のクラクション1.mp3');
+const soundDoctorYellowDepart = new Audio('電車の発車ベル.mp3');
+soundTrainDepart.volume       = 0.5;
+soundDoctorYellowDepart.volume = 0.6;
+
+// ============================================================
+// 名所スタンプ定義
+// ============================================================
+const STAMPS = [
+  { station: 1,   emoji:'⛩️',  name:'京都',       desc:'千年の都' },
+  { station: 9,   emoji:'🦀',  name:'金沢',       desc:'加賀百万石' },
+  { station: 11,  emoji:'⛰️',  name:'富山',       desc:'立山連峰の玄関口' },
+  { station: 16,  emoji:'🏔️',  name:'長野',       desc:'善光寺の聖地' },
+  { station: 19,  emoji:'🌲',  name:'軽井沢',     desc:'高原リゾート' },
+  { station: 25,  emoji:'⛷️',  name:'越後湯沢',   desc:'雪国の温泉郷' },
+  { station: 29,  emoji:'🍚',  name:'新潟',       desc:'米どころ日本海' },
+  { station: 33,  emoji:'🗼',  name:'東京',       desc:'日本の心臓' },
+  { station: 37,  emoji:'🥟',  name:'宇都宮',     desc:'餃子の聖地' },
+  { station: 46,  emoji:'🍒',  name:'山形',       desc:'さくらんぼ王国' },
+  { station: 54,  emoji:'🌙',  name:'仙台',       desc:'杜の都' },
+  { station: 61,  emoji:'🍜',  name:'盛岡',       desc:'わんこそば' },
+  { station: 63,  emoji:'🏔️',  name:'田沢湖',     desc:'日本一深い湖' },
+  { station: 66,  emoji:'🐶',  name:'秋田',       desc:'秋田犬のふるさと' },
+  { station: 70,  emoji:'🦑',  name:'八戸',       desc:'イカの街' },
+  { station: 72,  emoji:'🍎',  name:'新青森',     desc:'りんごの王国' },
+  { station: 75,  emoji:'🌃',  name:'新函館北斗', desc:'100万ドルの夜景' },
+  { station: 88,  emoji:'🏯',  name:'名古屋',     desc:'天下の堅城' },
+  { station: 97,  emoji:'🍑',  name:'岡山',       desc:'晴れの国' },
+  { station: 103, emoji:'🦪',  name:'広島',       desc:'平和の誓い' },
+  { station: 110, emoji:'🍜',  name:'博多',       desc:'豚骨ラーメン' },
+  { station: 116, emoji:'🐻',  name:'熊本',       desc:'難攻不落の城' },
+  { station: 121, emoji:'🌋',  name:'鹿児島中央', desc:'桜島の火山' },
+  { station: 122, emoji:'🌺',  name:'那覇',       desc:'琉球王国のゴール！' },
+];
+
+// ============================================================
+// WAYPOINTS
+// ============================================================
+const WAYPOINTS = [
+  { station: 0,   km: 0,    name: '新大阪',           emoji: '🚩' },
+  { station: 1,   km: 14,   name: '京都',             emoji: '⛩️' },
+  { station: 2,   km: 64,   name: '米原',             emoji: '🚄' },
+  { station: 3,   km: 98,   name: '敦賀',             emoji: '🦀' },
+  { station: 4,   km: 120,  name: '越前たけふ',       emoji: '🚄' },
+  { station: 5,   km: 153,  name: '福井',             emoji: '🦕' },
+  { station: 6,   km: 168,  name: '芦原温泉',         emoji: '♨️' },
+  { station: 7,   km: 183,  name: '加賀温泉',         emoji: '♨️' },
+  { station: 8,   km: 199,  name: '小松',             emoji: '✈️' },
+  { station: 9,   km: 215,  name: '金沢',             emoji: '🦀' },
+  { station: 10,  km: 231,  name: '新高岡',           emoji: '🚄' },
+  { station: 11,  km: 248,  name: '富山',             emoji: '⛰️' },
+  { station: 12,  km: 265,  name: '黒部宇奈月温泉',   emoji: '♨️' },
+  { station: 13,  km: 282,  name: '糸魚川',           emoji: '🌊' },
+  { station: 14,  km: 305,  name: '上越妙高',         emoji: '⛰️' },
+  { station: 15,  km: 331,  name: '飯山',             emoji: '⛷️' },
+  { station: 16,  km: 357,  name: '長野',             emoji: '🏔️' },
+  { station: 17,  km: 393,  name: '上田',             emoji: '🏯' },
+  { station: 18,  km: 417,  name: '佐久平',           emoji: '🚄' },
+  { station: 19,  km: 442,  name: '軽井沢',           emoji: '🌲' },
+  { station: 20,  km: 472,  name: '安中榛名',         emoji: '🚄' },
+  { station: 21,  km: 499,  name: '高崎',             emoji: '🚄' },
+  { station: 22,  km: 524,  name: '本庄早稲田',       emoji: '🚄' },
+  { station: 23,  km: 542,  name: '熊谷',             emoji: '🚄' },
+  { station: 24,  km: 560,  name: '上毛高原',         emoji: '⛰️' },
+  { station: 25,  km: 578,  name: '越後湯沢',         emoji: '♨️⛷️' },
+  { station: 26,  km: 597,  name: '浦佐',             emoji: '🚄' },
+  { station: 27,  km: 617,  name: '長岡',             emoji: '🎆' },
+  { station: 28,  km: 645,  name: '燕三条',           emoji: '🔧' },
+  { station: 29,  km: 680,  name: '新潟',             emoji: '🍚' },
+  { station: 30,  km: 680,  name: '高崎✈️',           emoji: '✈️' },
+  { station: 31,  km: 733,  name: '大宮',             emoji: '🚄' },
+  { station: 32,  km: 760,  name: '上野',             emoji: '🐼' },
+  { station: 33,  km: 791,  name: '東京',             emoji: '🗼' },
+  { station: 34,  km: 824,  name: '上野',             emoji: '🐼' },
+  { station: 35,  km: 864,  name: '大宮',             emoji: '🚄' },
+  { station: 36,  km: 905,  name: '小山',             emoji: '🚄' },
+  { station: 37,  km: 937,  name: '宇都宮',           emoji: '🥟' },
+  { station: 38,  km: 997,  name: '那須塩原',         emoji: '♨️' },
+  { station: 39,  km: 1036, name: '新白河',           emoji: '🚄' },
+  { station: 40,  km: 1057, name: '郡山',             emoji: '🚄' },
+  { station: 41,  km: 1085, name: '福島',             emoji: '🍑' },
+  { station: 42,  km: 1116, name: '米沢',             emoji: '🥩' },
+  { station: 43,  km: 1137, name: '高畠',             emoji: '🚄' },
+  { station: 44,  km: 1159, name: '赤湯',             emoji: '♨️🍷' },
+  { station: 45,  km: 1197, name: 'かみのやま温泉',   emoji: '♨️' },
+  { station: 46,  km: 1237, name: '山形',             emoji: '🍒' },
+  { station: 47,  km: 1272, name: '天童',             emoji: '♟️' },
+  { station: 48,  km: 1312, name: 'さくらんぼ東根',   emoji: '🍒' },
+  { station: 49,  km: 1348, name: '村山',             emoji: '🚄' },
+  { station: 50,  km: 1419, name: '大石田',           emoji: '🚄' },
+  { station: 51,  km: 1470, name: '新庄',             emoji: '🚄' },
+  { station: 52,  km: 1470, name: '福島✈️',           emoji: '✈️🍑' },
+  { station: 53,  km: 1512, name: '白石蔵王',         emoji: '🏯' },
+  { station: 54,  km: 1643, name: '仙台',             emoji: '🌙' },
+  { station: 55,  km: 1783, name: '古川',             emoji: '🚄' },
+  { station: 56,  km: 1903, name: 'くりこま高原',     emoji: '🚄' },
+  { station: 57,  km: 2003, name: '一ノ関',           emoji: '🚄' },
+  { station: 58,  km: 2103, name: '水沢江刺',         emoji: '🚄' },
+  { station: 59,  km: 2193, name: '北上',             emoji: '🚄' },
+  { station: 60,  km: 2275, name: '新花巻',           emoji: '🚄' },
+  { station: 61,  km: 2315, name: '盛岡',             emoji: '🍜' },
+  { station: 62,  km: 2355, name: '雫石',             emoji: '🚄' },
+  { station: 63,  km: 2395, name: '田沢湖',           emoji: '🏔️' },
+  { station: 64,  km: 2458, name: '角館',             emoji: '🌸' },
+  { station: 65,  km: 2498, name: '大曲',             emoji: '🎆' },
+  { station: 66,  km: 2558, name: '秋田',             emoji: '🐶' },
+  { station: 67,  km: 2558, name: '盛岡✈️',           emoji: '✈️🍜' },
+  { station: 68,  km: 2598, name: 'いわて沼宮内',     emoji: '🚄' },
+  { station: 69,  km: 2620, name: '二戸',             emoji: '🚄' },
+  { station: 70,  km: 2634, name: '八戸',             emoji: '🦑' },
+  { station: 71,  km: 2646, name: '七戸十和田',       emoji: '🚄' },
+  { station: 72,  km: 2674, name: '新青森',           emoji: '🍎' },
+  { station: 73,  km: 2696, name: '奥津軽いまべつ',   emoji: '🚄' },
+  { station: 74,  km: 2715, name: '木古内',           emoji: '🚄' },
+  { station: 75,  km: 2736, name: '新函館北斗',       emoji: '🦑🌃' },
+  { station: 76,  km: 2736, name: '東京✈️',           emoji: '✈️🗼' },
+  { station: 77,  km: 2766, name: '品川',             emoji: '🚄' },
+  { station: 78,  km: 2796, name: '新横浜',           emoji: '⚾' },
+  { station: 79,  km: 2835, name: '小田原',           emoji: '🏯' },
+  { station: 80,  km: 2877, name: '熱海',             emoji: '♨️🌊' },
+  { station: 81,  km: 2907, name: '三島',             emoji: '🗻' },
+  { station: 82,  km: 2932, name: '新富士',           emoji: '🗻' },
+  { station: 83,  km: 2966, name: '静岡',             emoji: '🍵' },
+  { station: 84,  km: 3000, name: '掛川',             emoji: '🏯' },
+  { station: 85,  km: 3016, name: '浜松',             emoji: '🎹' },
+  { station: 86,  km: 3030, name: '豊橋',             emoji: '🚄' },
+  { station: 87,  km: 3043, name: '三河安城',         emoji: '🚄' },
+  { station: 88,  km: 3075, name: '名古屋',           emoji: '🏯' },
+  { station: 89,  km: 3100, name: '岐阜羽島',         emoji: '🚄' },
+  { station: 90,  km: 3143, name: '米原',             emoji: '🚄' },
+  { station: 91,  km: 3173, name: '京都',             emoji: '⛩️' },
+  { station: 92,  km: 3200, name: '新大阪',           emoji: '🏯' },
+  { station: 93,  km: 3226, name: '新神戸',           emoji: '🌃' },
+  { station: 94,  km: 3238, name: '西明石',           emoji: '🐙' },
+  { station: 95,  km: 3254, name: '姫路',             emoji: '🏯' },
+  { station: 96,  km: 3275, name: '相生',             emoji: '🚄' },
+  { station: 97,  km: 3311, name: '岡山',             emoji: '🍑' },
+  { station: 98,  km: 3347, name: '新倉敷',           emoji: '🚄' },
+  { station: 99,  km: 3379, name: '福山',             emoji: '🚄' },
+  { station: 100, km: 3408, name: '新尾道',           emoji: '🚄' },
+  { station: 101, km: 3439, name: '三原',             emoji: '🐙' },
+  { station: 102, km: 3467, name: '東広島',           emoji: '🍶' },
+  { station: 103, km: 3489, name: '広島',             emoji: '⚾🦪' },
+  { station: 104, km: 3528, name: '新岩国',           emoji: '🚄' },
+  { station: 105, km: 3550, name: '徳山',             emoji: '🚄' },
+  { station: 106, km: 3570, name: '新山口',           emoji: '🐡' },
+  { station: 107, km: 3668, name: '厚狭',             emoji: '🚄' },
+  { station: 108, km: 3715, name: '新下関',           emoji: '🐡' },
+  { station: 109, km: 3770, name: '小倉',             emoji: '🏯' },
+  { station: 110, km: 3810, name: '博多',             emoji: '🍜' },
+  { station: 111, km: 3850, name: '久留米',           emoji: '🍜' },
+  { station: 112, km: 3885, name: '筑後船小屋',       emoji: '♨️' },
+  { station: 113, km: 3950, name: '新鳥栖',           emoji: '🚄' },
+  { station: 114, km: 4000, name: '新大牟田',         emoji: '🚄' },
+  { station: 115, km: 4050, name: '新玉名',           emoji: '🚄' },
+  { station: 116, km: 4100, name: '熊本',             emoji: '🏯🐻' },
+  { station: 117, km: 4150, name: '新八代',           emoji: '🚄' },
+  { station: 118, km: 4200, name: '新水俣',           emoji: '♨️' },
+  { station: 119, km: 4250, name: '出水',             emoji: '🦩' },
+  { station: 120, km: 4300, name: '川内',             emoji: '🚄' },
+  { station: 121, km: 4350, name: '鹿児島中央',       emoji: '🌋' },
+  { station: 122, km: 5015, name: '那覇',             emoji: '🌺✈️' },
+];
+
+// ============================================================
+// Supabase
+// ============================================================
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ============================================================
+// 今週の月曜日を取得
+// ============================================================
+function getThisWeekMonday() {
+  const today   = new Date();
+  const dayOfWeek = today.getDay();
+  const diff    = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek);
+  const monday  = new Date(today);
+  monday.setDate(today.getDate() + diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday.toISOString().split('T')[0];
+}
+
+// ============================================================
+// 路線図の生成
+// ============================================================
+function generateRouteMap() {
+  const container = document.getElementById('map-container');
+  if (!container) return;
+
+  container.innerHTML = '';
+  const stationsPerRow = 10;
+  const rows = Math.ceil(WAYPOINTS.length / stationsPerRow);
+
+  for (let row = 0; row < rows; row++) {
+    const rowDiv = document.createElement('div');
+    rowDiv.style.cssText = 'display:flex; gap:8px; flex-wrap:wrap; justify-content:center;';
+
+    const startIdx = row * stationsPerRow;
+    const endIdx   = Math.min(startIdx + stationsPerRow, WAYPOINTS.length);
+
+    for (let i = startIdx; i < endIdx; i++) {
+      const wp = WAYPOINTS[i];
+      if (!wp) continue;
+
+      const stationDiv = document.createElement('div');
+      const stationNum = String(wp.station).padStart(3, '0');
+      stationDiv.id        = `station-${stationNum}`;
+      stationDiv.className = 'station';
+      stationDiv.style.cssText = `
+        width:60px; height:60px; border-radius:8px;
+        background:#dfe6e9; border:3px solid #b2bec3;
+        display:flex; flex-direction:column;
+        justify-content:center; align-items:center;
+        font-size:0.7rem; font-weight:bold; color:#2d3436;
+        cursor:pointer; transition:all 0.3s;
+      `;
+      stationDiv.innerHTML = `
+        <div style="font-size:1.2rem;">${wp.emoji || '🚉'}</div>
+        <div style="font-size:0.55rem;margin-top:2px;text-align:center;line-height:1.1;">${wp.name}</div>
+      `;
+      stationDiv.addEventListener('mouseenter', () => {
+        stationDiv.style.transform = 'scale(1.1)';
+        stationDiv.style.zIndex   = '10';
+      });
+      stationDiv.addEventListener('mouseleave', () => {
+        stationDiv.style.transform = 'scale(1)';
+        stationDiv.style.zIndex   = '1';
+      });
+
+      rowDiv.appendChild(stationDiv);
+    }
+    container.appendChild(rowDiv);
+  }
+}
+
+// ============================================================
+// 起動
+// ============================================================
+window.addEventListener('load', async () => {
+  generateRouteMap();
+  renderStampGrid(0);
+  await loadMap();
+  await loadData();
+  setupRealtime();
+  if (myName) document.getElementById('input-name').value = myName;
+});
+
+// ============================================================
+// 地図読み込み
+// ============================================================
+async function loadMap() {
+  const area = document.getElementById('map-svg-area');
+  try {
+    const res = await fetch('https://raw.githubusercontent.com/geolonia/japanese-prefectures/master/map-polygon.svg');
+    if (!res.ok) throw new Error();
+    area.innerHTML = await res.text();
+    const svg = area.querySelector('svg');
+    if (svg) {
+      svg.style.width  = '100%';
+      svg.style.height = '100%';
+      svg.setAttribute('preserveAspectRatio', 'xMidYMid meet');
+    }
+  } catch {
+    area.innerHTML = `
+      <svg viewBox="0 0 200 200" style="width:100%;height:100%">
+        <rect width="200" height="200" fill="#81ecec"/>
+        <ellipse cx="110" cy="105" rx="55" ry="22" fill="#55efc4" stroke="#2c3e50" stroke-width="2"/>
+        <ellipse cx="130" cy="55"  rx="30" ry="18" fill="#55efc4" stroke="#2c3e50" stroke-width="2"/>
+        <ellipse cx="62"  cy="130" rx="16" ry="14" fill="#55efc4" stroke="#2c3e50" stroke-width="2"/>
+        <ellipse cx="35"  cy="170" rx="10" ry="5"  fill="#55efc4" stroke="#2c3e50" stroke-width="2"/>
+      </svg>`;
+  }
+}
+
+// ============================================================
+// データ読み込み
+// ============================================================
+async function loadData() {
+  const thisWeekMonday = getThisWeekMonday();
+  const [r1, r2] = await Promise.all([
+    sb.from('participations').select('*').eq('date', getToday()),
+    sb.from('participations').select('*').gte('date', thisWeekMonday),
+  ]);
+  todayData = r1.data || [];
+  allData   = r2.data || [];
+  renderAll();
+}
+
+// ============================================================
+// 全描画
+// ============================================================
+function renderAll() {
+  const total = calculateTotalStations();
+  renderProgress(total);
+  updateMarkerPosition(total);
+  updateLocationBar(total);
+  renderStampGrid(total);
+  renderMemberList();
+  renderWaypoints(total);
+  renderWeeklyRanking();
+  renderSessionStatus();
+  renderMyStats();
+  checkGoalReached(total);
+
+  if (total >= GOAL_GOLD) {
+    showGoalCelebration();
+  }
+
+  // 路線図の色を更新（少し遅延して確実に DOM が準備できてから）
+  setTimeout(() => {
+    const stations = document.querySelectorAll('[id^="station-"]');
+    if (stations.length === 0) {
+      generateRouteMap();
+      setTimeout(() => { if (total > 0) updateMapColors(total); }, 100);
+    } else {
+      if (total > 0) updateMapColors(total);
+    }
+  }, 200);
+
+  prevStation = total;
+}
+
+// ============================================================
+// 駅数計算
+// ============================================================
+function calculateTotalStations() {
+  const total = allData.reduce((sum, r) => sum + (r.station_progress || 1), 0);
+  return Math.min(total, GOAL_GOLD);
+}
+
+// ============================================================
+// スタンプグリッド描画
+// ============================================================
+function renderStampGrid(totalStations) {
+  const grid = document.getElementById('stamp-grid');
+  grid.innerHTML = '';
+
+  STAMPS.forEach(stamp => {
+    const earned = totalStations >= stamp.station;
+    const isNew  = earned && prevStation < stamp.station && !stampShown[stamp.station];
+
+    const item = document.createElement('div');
+    item.className = 'stamp-item' + (earned ? ' earned' : '') + (isNew ? ' just-earned' : '');
+    item.innerHTML = `
+      <div class="stamp-emoji">${stamp.emoji}</div>
+      <div class="stamp-name">${stamp.name}</div>
+      <div class="stamp-km">${earned ? stamp.desc : stamp.station + '駅目〜'}</div>
+    `;
+
+    if (isNew) {
+      stampShown[stamp.station] = true;
+      localStorage.setItem('stampShown', JSON.stringify(stampShown));
+      setTimeout(() => showToast(`🎫 スタンプ獲得！ ${stamp.emoji} ${stamp.name}`), 400);
+    }
+
+    item.title = earned
+      ? `${stamp.name}：${stamp.desc}（${stamp.station}駅目）`
+      : `${stamp.name}（${stamp.station}駅目で獲得）`;
+
+    grid.appendChild(item);
+  });
+}
+
+// ============================================================
+// 路線図の色更新
+// ============================================================
+function updateMapColors(totalStations) {
+  const currentIdx = Math.min(Math.floor(totalStations), WAYPOINTS.length - 1);
+
+  // 全駅リセット
+  WAYPOINTS.forEach(wp => {
+    if (!wp) return;
+    const el = document.getElementById(`station-${String(wp.station).padStart(3, '0')}`);
+    if (el) {
+      el.classList.remove('passed', 'current');
+      el.style.backgroundColor = '#dfe6e9';
+      el.style.borderColor     = '#b2bec3';
+      el.style.animation       = '';
+      el.style.boxShadow       = '';
+    }
+  });
+
+  // 通過済み & 現在地に色を適用
+  for (let i = 0; i <= currentIdx; i++) {
+    const wp = WAYPOINTS[i];
+    if (!wp) continue;
+    const el = document.getElementById(`station-${String(wp.station).padStart(3, '0')}`);
+    if (!el) continue;
+
+    if (i === currentIdx) {
+      el.classList.add('current');
+      el.style.backgroundColor = '#fdcb6e';
+      el.style.borderColor     = '#f39c12';
+      el.style.boxShadow       = '0 0 15px rgba(243,156,18,0.8)';
+      el.style.animation       = 'stationPulse 1.5s infinite';
+    } else {
+      el.classList.add('passed');
+      el.style.backgroundColor = '#00b894';
+      el.style.borderColor     = '#00916a';
+    }
+  }
+}
+
+// ============================================================
+// マーカー位置
+// ============================================================
+function updateMarkerPosition(totalStations) {
+  const wp     = WAYPOINTS[Math.min(totalStations, WAYPOINTS.length - 1)];
+  const marker = document.getElementById('map-marker');
+  marker.style.left = (wp.mapX || 50) + '%';
+  marker.style.top  = (wp.mapY || 50) + '%';
+
+  const u = new Set(todayData.map(d => d.user_name)).size;
+  marker.textContent = u >= 15 ? '🚄🚄🚄' : u >= 10 ? '🚄🚄' : '🚄';
+}
+
+// ============================================================
+// 現在地バー
+// ============================================================
+function updateLocationBar(totalStations) {
+  const currentWp = WAYPOINTS[Math.min(totalStations, WAYPOINTS.length - 1)];
+  const nextWp    = WAYPOINTS[Math.min(totalStations + 1, WAYPOINTS.length - 1)];
+
+  document.getElementById('loc-emoji').textContent = currentWp.emoji;
+  document.getElementById('loc-name').textContent  = currentWp.name;
+
+  if (totalStations >= WAYPOINTS.length - 1) {
+    document.getElementById('loc-next').textContent = '🎉 ゴール達成！おめでとう！';
+  } else {
+    document.getElementById('loc-next').textContent =
+      `次の駅: ${nextWp.emoji} ${nextWp.name}（あと1駅）`;
+  }
+}
+
+// ============================================================
+// 進捗バー
+// ============================================================
+function renderProgress(totalStations) {
+  document.getElementById('current-km').innerHTML =
+    `${totalStations} <span>駅目 / ${GOAL_GOLD}駅</span>`;
+  document.getElementById('progress-bar').style.width =
+    Math.min((totalStations / GOAL_GOLD) * 100, 100) + '%';
+
+  const todayStations = todayData.reduce((sum, r) => sum + (r.station_progress || 1), 0);
+  document.getElementById('stat-today').textContent = `今日: ${todayStations}駅進行`;
+  document.getElementById('stat-total').textContent = `合計: ${totalStations} / ${GOAL_GOLD}駅`;
+
+  document.getElementById('badge-bronze').classList.toggle('reached', totalStations >= GOAL_BRONZE);
+  document.getElementById('badge-silver').classList.toggle('reached', totalStations >= GOAL_SILVER);
+  document.getElementById('badge-gold').classList.toggle('reached',   totalStations >= GOAL_GOLD);
+}
+
+// ============================================================
+// 通過駅チップ
+// ============================================================
+function renderWaypoints(totalStations) {
+  const el = document.getElementById('waypoint-list');
+  el.innerHTML = '';
+
+  const startIdx = Math.max(0, totalStations - 5);
+  const endIdx   = Math.min(WAYPOINTS.length, totalStations + 6);
+
+  WAYPOINTS.slice(startIdx, endIdx).forEach(wp => {
+    const chip = document.createElement('div');
+    chip.className = 'wp-chip';
+    if (wp.station === totalStations)      chip.classList.add('current');
+    else if (wp.station < totalStations)   chip.classList.add('visited');
+    else                                   chip.classList.add('upcoming');
+    chip.textContent = `${wp.emoji} ${wp.name}`;
+    chip.title = `${wp.name}（${wp.station}駅目）`;
+    el.appendChild(chip);
+  });
+}
+
+// ============================================================
+// 今日の運転手
+// ============================================================
+function renderMemberList() {
+  const el = document.getElementById('member-list');
+  if (!todayData || todayData.length === 0) {
+    el.innerHTML = '<span style="color:#bbb;">まだ誰も乗務していません</span>';
+    return;
+  }
+
+  const userMap = {};
+  todayData.forEach(record => {
+    const name = record.user_name;
+    if (!userMap[name]) {
+      userMap[name] = { name, totalStations: 0, comments: [], isDoctorYellow: false, latestTime: record.created_at || '' };
+    }
+    userMap[name].totalStations += (record.station_progress || 1);
+    if (record.comment && record.comment.trim()) userMap[name].comments.push(record.comment.trim());
+    if (record.is_doctor_yellow) userMap[name].isDoctorYellow = true;
+    if (record.created_at > userMap[name].latestTime) userMap[name].latestTime = record.created_at;
+  });
+
+  const users = Object.values(userMap).sort((a, b) => new Date(b.latestTime) - new Date(a.latestTime));
+  el.innerHTML = '';
+
+  users.forEach(user => {
+    const card = document.createElement('div');
+    card.style.cssText = `
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border: 3px solid #fff; border-radius: 10px;
+      padding: 12px; margin-bottom: 8px; cursor: pointer;
+      transition: all 0.3s; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+    `;
+    card.addEventListener('mouseenter', () => {
+      card.style.transform = 'translateX(5px) scale(1.02)';
+      card.style.boxShadow = '0 6px 12px rgba(255,255,255,0.3)';
+    });
+    card.addEventListener('mouseleave', () => {
+      card.style.transform = 'none';
+      card.style.boxShadow = '0 4px 6px rgba(0,0,0,0.3)';
+    });
+
+    const icon = user.isDoctorYellow ? '🚄' : '🚂';
+    const commentHTML = user.comments.map(c => `
+      <div style="background:rgba(255,255,255,0.9);color:#333;padding:8px 10px;border-radius:8px;margin-top:8px;font-size:0.8rem;border-left:4px solid #ffd700;">
+        💬 ${escapeHtml(c)}
+      </div>
+    `).join('');
+
+    card.innerHTML = `
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <span style="font-size:1.5rem;">${icon}</span>
+        <span style="flex:1;margin-left:10px;font-size:0.9rem;font-weight:bold;">${escapeHtml(user.name)}</span>
+        <span style="background:#ffd700;color:#333;padding:4px 8px;border-radius:5px;font-size:0.75rem;font-weight:bold;">+${user.totalStations}駅</span>
+      </div>
+      ${commentHTML}
+    `;
+
+    card.addEventListener('click', async () => {
+      const { data } = await sb.from('participations').select('*').eq('user_name', user.name).gte('date', EVENT_START);
+      const total = (data || []).reduce((sum, r) => sum + (r.station_progress || 1), 0);
+      showToast(`📊 ${user.name}さん 週間累計: ${total}駅進行！`);
+    });
+
+    el.appendChild(card);
+  });
+}
+
+// ============================================================
+// 週間ランキング
+// ============================================================
+function renderWeeklyRanking() {
+  const el = document.getElementById('weekly-ranking');
+  if (!allData.length) {
+    el.innerHTML = '<span style="color:#2c3e50;font-size:0.75rem;">データなし</span>';
+    return;
+  }
+
+  const countMap = {};
+  allData.forEach(d => {
+    if (!countMap[d.user_name]) countMap[d.user_name] = 0;
+    countMap[d.user_name] += (d.station_progress || 1);
+  });
+
+  const sorted = Object.entries(countMap)
+    .map(([name, stations]) => ({ name, stations }))
+    .sort((a, b) => b.stations - a.stations)
+    .slice(0, 10);
+
+  el.innerHTML = '';
+  const medals = ['🥇', '🥈', '🥉'];
+  let rank = 1;
+
+  sorted.forEach((entry, i) => {
+    if (i > 0 && entry.stations < sorted[i - 1].stations) rank = i + 1;
+    const item = document.createElement('div');
+    item.className = 'rank-item';
+    item.innerHTML = `
+      <div class="rank-num">${rank <= 3 ? medals[rank - 1] : rank + '位'}</div>
+      <div class="rank-name">${escapeHtml(entry.name)}</div>
+      <div class="rank-km">${entry.stations}駅</div>
+    `;
+    el.appendChild(item);
+  });
+}
+
+// ============================================================
+// セッション残り（曜日別）
+// ============================================================
+function renderSessionStatus() {
+  const name     = document.getElementById('input-name').value.trim() || myName;
+  const used     = todayData.filter(d => d.user_name === name).length;
+  const maxToday = getMaxSessionsForToday();
+  const rem      = maxToday - used;
+
+  const today    = new Date();
+  const dayNames = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'];
+  const dayMessage = `📅 ${dayNames[today.getDay()]} - 今日は${maxToday}回まで参加できます`;
+
+  const btn = document.getElementById('btn-participate');
+  if (rem <= 0) {
+    btn.disabled     = true;
+    btn.textContent  = '👨‍✈️ 本日の勤務お疲れ様でした！';
+    btn.style.background  = '#636e72';
+    btn.style.borderColor = '#2d3436';
+  } else {
+    btn.disabled     = false;
+    btn.textContent  = `👨‍✈️ 乗車報告（残り${rem}回）`;
+    btn.style.background  = 'linear-gradient(180deg, #00b894 0%, #00916a 100%)';
+    btn.style.borderColor = '#006644';
+  }
+
+  let dayMsgEl = document.getElementById('day-message');
+  if (!dayMsgEl) {
+    dayMsgEl = document.createElement('div');
+    dayMsgEl.id = 'day-message';
+    dayMsgEl.style.cssText = `
+      text-align:center; font-size:0.9rem; margin-top:10px; padding:8px;
+      background:rgba(255,215,0,0.1); border-radius:8px;
+      font-weight:bold; color:#f39c12;
+    `;
+    btn.parentElement.insertBefore(dayMsgEl, btn.nextSibling);
+  }
+  dayMsgEl.textContent = dayMessage;
+}
+
+// ============================================================
+// 個人累積
+// ============================================================
+function renderMyStats() {
+  const name = localStorage.getItem('myName');
+  if (!name) return;
+  const myAll = allData.filter(d => d.user_name === name);
+  if (!myAll.length) return;
+  const myStations = myAll.reduce((sum, r) => sum + (r.station_progress || 1), 0);
+
+  document.getElementById('my-stats').style.display   = 'block';
+  document.getElementById('my-stats-name').textContent = `${name}さんの累計`;
+  document.getElementById('my-stats-km').textContent   = `${myStations}駅`;
+  document.getElementById('my-stats-count').textContent = `${myAll.length}回参加`;
+}
+
+// ============================================================
+// ゴール判定
+// ============================================================
+function checkGoalReached(totalStations) {
+  const goals = [
+    {
+      stations: GOAL_GOLD, key: 'gold', emoji: '🥇',
+      title: 'ゴール！那覇に到着！',
+      desc: 'チームで日本一周完走！🎉',
+      stamps: STAMPS.filter(s => s.station <= GOAL_GOLD).map(s => s.emoji),
+    },
+    {
+      stations: GOAL_SILVER, key: 'silver', emoji: '🥈',
+      title: 'シルバー達成！',
+      desc: `${GOAL_SILVER}駅 到達！折り返し完了！`,
+      stamps: STAMPS.filter(s => s.station <= GOAL_SILVER).map(s => s.emoji),
+    },
+    {
+      stations: GOAL_BRONZE, key: 'bronze', emoji: '🥉',
+      title: 'ブロンズ達成！',
+      desc: `${GOAL_BRONZE}駅 到達！東京を通過！`,
+      stamps: STAMPS.filter(s => s.station <= GOAL_BRONZE).map(s => s.emoji),
+    },
+  ];
+
+  for (const g of goals) {
+    if (totalStations >= g.stations && !goalShown[g.key]) {
+      goalShown[g.key] = true;
+      localStorage.setItem('goalShown', JSON.stringify(goalShown));
+      document.getElementById('goal-emoji').textContent = g.emoji;
+      document.getElementById('goal-title').textContent = g.title;
+      document.getElementById('goal-desc').textContent  = g.desc;
+      document.getElementById('goal-stamps').innerHTML  =
+        g.stamps.map(e => `<div class="goal-stamp-chip">${e}</div>`).join('');
+      document.getElementById('goal-overlay').classList.add('show');
+      break;
+    }
+  }
+}
+
+function closeGoal() {
+  document.getElementById('goal-overlay').classList.remove('show');
+}
+
+// ============================================================
+// ゴール演出（花吹雪）
+// ============================================================
+function showGoalCelebration() {
+  if (document.getElementById('goal-celebration-msg')) return; // 重複防止
+
+  const message = document.createElement('div');
+  message.id = 'goal-celebration-msg';
+  message.style.cssText = `
+    position:fixed; top:50%; left:50%;
+    transform:translate(-50%,-50%);
+    background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+    color:white; padding:40px; border-radius:20px;
+    font-size:1rem; font-weight:bold; text-align:center;
+    z-index:10000; box-shadow:0 20px 60px rgba(0,0,0,0.4);
+    animation:popIn 0.5s ease-out;
+  `;
+  message.innerHTML = `
+    🎊🌺🌸 ゴール到達！🌸🌺🎊<br><br>
+    <span style="font-size:1.5rem;">那覇に到着しました！</span><br><br>
+    日本新幹線全路線123駅完全制覇！<br>
+    1週間の大冒険、本当にお疲れ様でした！<br><br>
+    <span style="font-size:1.2rem;">めんそーれ沖縄！🌴</span>
+  `;
+  document.body.appendChild(message);
+
+  for (let i = 0; i < 100; i++) {
+    setTimeout(() => createPetal(), i * 40);
+  }
+  setTimeout(() => message.remove(), 10000);
+}
+
+function createPetal() {
+  const petal = document.createElement('div');
+  petal.textContent = Math.random() > 0.5 ? '🌺' : '🌸';
+  petal.style.cssText = `
+    position:fixed; top:-50px;
+    left:${Math.random() * 100}vw;
+    font-size:${Math.random() * 25 + 25}px;
+    z-index:9999; pointer-events:none;
+    animation:fall ${Math.random() * 3 + 4}s linear;
+  `;
+  document.body.appendChild(petal);
+  setTimeout(() => petal.remove(), 8000);
+}
+
+// アニメーション定義
+const goalStyle = document.createElement('style');
+goalStyle.textContent = `
+  @keyframes fall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+  @keyframes popIn {
+    0%   { transform: translate(-50%,-50%) scale(0.5); opacity: 0; }
+    100% { transform: translate(-50%,-50%) scale(1); opacity: 1; }
+  }
+`;
+document.head.appendChild(goalStyle);
+
+// ============================================================
+// 乗車報告
+// ============================================================
+async function participate() {
+  const nameEl    = document.getElementById('input-name');
+  const commentEl = document.getElementById('input-comment');
+  const userName  = nameEl.value.trim();
+
+  if (!userName) { showToast('⚠️ 運転手の名前を入力してください'); nameEl.focus(); return; }
+
+  const { data: chk } = await sb.from('participations').select('id')
+    .eq('user_name', userName).eq('date', getToday());
+  if ((chk || []).length >= MAX_SESSIONS) {
+    showToast('🎉 本日の勤務お疲れ様でした！'); return;
+  }
+
+  const isDoctorYellow  = Math.random() < DOCTOR_YELLOW_PROBABILITY;
+  const stationProgress = isDoctorYellow ? 2 : 1;
+
+  if (isDoctorYellow) soundDoctorYellowDepart.play();
+  else                soundTrainDepart.play();
+
+  const btn = document.getElementById('btn-participate');
+  btn.disabled    = true;
+  btn.textContent = isDoctorYellow ? '🚄 ドクターイエロー搭乗中…' : '登録中…';
+
+  const { error } = await sb.from('participations').insert({
+    user_name:        userName,
+    date:             getToday(),
+    comment:          commentEl.value.trim() || null,
+    participated:     true,
+    station_progress: stationProgress,
+    is_doctor_yellow: isDoctorYellow,
+  });
+
+  btn.textContent = '👨‍✈️ 乗車報告';
+  if (error) {
+    showToast('❌ エラーが発生しました');
+    console.error(error);
+    btn.disabled = false;
+    return;
+  }
+
+  myName = userName;
+  localStorage.setItem('myName', userName);
+  commentEl.value = '';
+  nameEl.value    = '';
+
+  if (isDoctorYellow) {
+    document.getElementById('goal-emoji').textContent = '🚄';
+    document.getElementById('goal-title').textContent = 'ドクターイエロー搭乗！';
+    document.getElementById('goal-desc').textContent  = 'ラッキー！2駅進めます！🎉';
+    document.getElementById('goal-stamps').innerHTML  = '';
+    document.getElementById('goal-overlay').classList.add('show');
+    setTimeout(() => closeGoal(), 2500);
+    showToast('🚄✨ ラッキー！ドクターイエロー搭乗！ +2駅！🎉');
+  } else {
+    showToast('✅ 乗車報告完了！ +1駅進みました！');
+  }
+
+  await loadData();
+}
+
+// ============================================================
+// リアルタイム
+// ============================================================
+function setupRealtime() {
+  sb.channel('participations-channel')
+    .on('postgres_changes',
+      { event: 'INSERT', schema: 'public', table: 'participations' },
+      payload => {
+        const isDoctorYellow = payload.new?.is_doctor_yellow || false;
+        const stations       = payload.new?.station_progress || 1;
+        if (payload.new?.user_name !== myName) {
+          showToast(isDoctorYellow
+            ? `🚄✨ ${payload.new.user_name}さんがドクターイエロー搭乗！ +2駅！`
+            : `🎉 ${payload.new.user_name}さんが乗車報告しました！ +${stations}駅`
+          );
+        }
+        loadData();
+      })
+    .subscribe();
+}
+
+// ============================================================
+// 管理パネル
+// ============================================================
+function openAdminPanel() {
+  document.getElementById('admin-panel').classList.add('show');
+  if (isAdminAuth) {
+    document.getElementById('password-section').style.display  = 'none';
+    document.getElementById('admin-controls').style.display    = 'block';
+  }
+}
+
+function closeAdminPanel() {
+  document.getElementById('admin-panel').classList.remove('show');
+}
+
+function checkPassword() {
+  const pwd = document.getElementById('admin-password').value;
+  if (pwd === ADMIN_PASSWORD) {
+    isAdminAuth = true;
+    document.getElementById('password-section').style.display = 'none';
+    document.getElementById('admin-controls').style.display   = 'block';
+    showToast('✅ 認証成功！管理者権限が有効になりました');
+  } else {
+    showToast('❌ パスワードが違います');
+    document.getElementById('admin-password').value = '';
+  }
+}
+
+async function resetAllData() {
+  if (!isAdminAuth) { showToast('❌ 認証が必要です'); return; }
+  if (!confirm('⚠️ 本当に全データを削除しますか？')) return;
+  if (!confirm('⚠️⚠️ 最終確認：全てのユーザーデータが削除されます！')) return;
+  try {
+    const { error } = await sb.from('participations').delete().gte('date', '2000-01-01');
+    if (error) throw error;
+    localStorage.removeItem('goalShown');
+    localStorage.removeItem('stampShown');
+    goalShown  = {};
+    stampShown = {};
+    showToast('✅ 全データを削除しました');
+    closeAdminPanel();
+    await loadData();
+  } catch (err) {
+    console.error(err);
+    showToast('❌ エラーが発生しました');
+  }
+}
+
+async function resetTodayData() {
+  if (!isAdminAuth) { showToast('❌ 認証が必要です'); return; }
+  if (!confirm('今日のデータを全て削除しますか？')) return;
+  try {
+    const { error } = await sb.from('participations').delete().eq('date', getToday());
+    if (error) throw error;
+    showToast('✅ 今日のデータを削除しました');
+    closeAdminPanel();
+    await loadData();
+  } catch (err) {
+    console.error(err);
+    showToast('❌ エラーが発生しました');
+  }
+}
+
+async function deleteUserData() {
+  if (!isAdminAuth) { showToast('❌ 認証が必要です'); return; }
+  const userName = document.getElementById('delete-user-name').value.trim();
+  if (!userName) { showToast('❌ ユーザー名を入力してください'); return; }
+  if (!confirm(`「${userName}」さんの全データを削除しますか？`)) return;
+  try {
+    const { error } = await sb.from('participations').delete().eq('user_name', userName);
+    if (error) throw error;
+    showToast(`✅ ${userName}さんのデータを削除しました`);
+    document.getElementById('delete-user-name').value = '';
+    closeAdminPanel();
+    await loadData();
+  } catch (err) {
+    console.error(err);
+    showToast('❌ エラーが発生しました');
+  }
+}
+
+// ============================================================
+// タブ切り替え
+// ============================================================
+function switchPage(pageNum) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-button').forEach(b => b.classList.remove('active'));
+  document.getElementById(`page-${pageNum}`).classList.add('active');
+  document.querySelectorAll('.tab-button')[pageNum - 1].classList.add('active');
+}
+
+// ============================================================
+// ユーティリティ
+// ============================================================
+function getToday() { return new Date().toLocaleDateString('sv-SE'); }
+
+let toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+function escapeHtml(str) {
+  return str.replace(/[&<>"']/g, c =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])
+  );
+}
+
+document.getElementById('input-name').addEventListener('input', renderSessionStatus);
+</script>
+</body>
+</html>
+
 // データ読み込み
 // ============================================================
 // ============================================================
