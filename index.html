@@ -1399,133 +1399,192 @@ function switchPage(pageNum) {
 // 名所スタンプ定義（駅番号ベース）
 // ============================================================
 const STAMPS = [
-  { station: 5,   emoji:'🏯', name:'名古屋',     desc:'天下の堅城！' },
-  { station: 12,  emoji:'🌸', name:'金沢',       desc:'日本三名園のひとつ' },
-  { station: 20,  emoji:'🌊', name:'新潟',       desc:'日本海の大海原' },
-  { station: 29,  emoji:'⛩️',  name:'長野',      desc:'長野の聖地' },
-  { station: 34,  emoji:'🗼', name:'東京',       desc:'いつか来た道' },
-  { station: 44,  emoji:'🎋', name:'仙台',       desc:'東北の祭り' },
-  { station: 49,  emoji:'🍲', name:'盛岡',       desc:'旅の腹ごしらえ' },
-  { station: 55,  emoji:'🎆', name:'新青森',     desc:'青森の炎' },
-  { station: 57,  emoji:'🌃', name:'新函館北斗', desc:'100万ドルの夜景' },
-  { station: 60,  emoji:'🦭', name:'稚内',       desc:'日本の果て！' },
-  { station: 87,  emoji:'🕊️',  name:'広島',      desc:'平和の誓い' },
-  { station: 98,  emoji:'🏯', name:'熊本',       desc:'難攻不落の城' },
-  { station: 105, emoji:'🌋', name:'鹿児島中央', desc:'薩摩の火山' },
-  { station: 106, emoji:'🌺', name:'那覇',       desc:'琉球王国のゴール！' },
+  { station: 1,   emoji:'⛩️',  name:'京都',           desc:'千年の都' },
+  { station: 9,   emoji:'🦀', name:'金沢',           desc:'加賀百万石' },
+  { station: 11,  emoji:'⛰️',  name:'富山',           desc:'立山連峰の玄関口' },
+  { station: 16,  emoji:'🏔️',  name:'長野',           desc:'善光寺の聖地' },
+  { station: 19,  emoji:'🌲', name:'軽井沢',         desc:'高原リゾート' },
+  { station: 25,  emoji:'♨️⛷️', name:'越後湯沢',       desc:'雪国の温泉郷' },
+  { station: 29,  emoji:'🍚', name:'新潟',           desc:'米どころ日本海' },
+  { station: 33,  emoji:'🗼', name:'東京',           desc:'日本の心臓' },
+  { station: 37,  emoji:'🥟', name:'宇都宮',         desc:'餃子の聖地' },
+  { station: 46,  emoji:'🍒', name:'山形',           desc:'さくらんぼ王国' },
+  { station: 54,  emoji:'🌙', name:'仙台',           desc:'杜の都' },
+  { station: 61,  emoji:'🍜', name:'盛岡',           desc:'わんこそば' },
+  { station: 63,  emoji:'🏔️',  name:'田沢湖',         desc:'日本一深い湖' },
+  { station: 66,  emoji:'🐶', name:'秋田',           desc:'秋田犬のふるさと' },
+  { station: 70,  emoji:'🦑', name:'八戸',           desc:'イカの街' },
+  { station: 72,  emoji:'🍎', name:'新青森',         desc:'りんごの王国' },
+  { station: 75,  emoji:'🦑🌃', name:'新函館北斗',     desc:'100万ドルの夜景' },
+  { station: 88,  emoji:'🏯', name:'名古屋',         desc:'天下の堅城' },
+  { station: 97,  emoji:'🍑', name:'岡山',           desc:'晴れの国' },
+  { station: 103, emoji:'⚾🦪', name:'広島',           desc:'平和の誓い' },
+  { station: 110, emoji:'🍜', name:'博多',           desc:'豚骨ラーメン' },
+  { station: 116, emoji:'🏯🐻', name:'熊本',           desc:'難攻不落の城' },
+  { station: 121, emoji:'🌋', name:'鹿児島中央',     desc:'桜島の火山' },
+  { station: 122, emoji:'🌺', name:'那覇',           desc:'琉球王国のゴール！' },
 ];
 
 // ============================================================
 // WAYPOINTS（駅番号を追加）
 // ============================================================
 const WAYPOINTS = [
-  { station: 0,   km:    0, name:'新大阪',   emoji:'🍜', prefCode:'27', mapX:54.5, mapY:51.5 },
-  { station: 1,   km:   14, name:'京都',     emoji:'⛩️',  prefCode:'26', mapX:57.5, mapY:49.5 },
-  { station: 2,   km:   64, name:'米原',     emoji:'🏔️',  prefCode:'25', mapX:62.0, mapY:48.0 },
-  { station: 3,   km:   98, name:'岐阜羽島', emoji:'🦅', prefCode:'21', mapX:65.5, mapY:49.5 },
-  { station: 4,   km:  123, name:'名古屋',   emoji:'🏯', prefCode:'23', mapX:67.5, mapY:50.5 },
-  { station: 5,   km:  153, name:'敦賀',           emoji:'⚓', prefCode:'18', mapX:57.0, mapY:44.0 },
-  { station: 6,   km:  168, name:'越前たけふ',     emoji:'🌾', prefCode:'18', mapX:54.5, mapY:43.0 },
-  { station: 7,   km:  183, name:'福井',           emoji:'🦕', prefCode:'18', mapX:55.5, mapY:42.5 },
-  { station: 8,   km:  199, name:'芦原温泉',       emoji:'♨️',  prefCode:'18', mapX:56.5, mapY:42.0 },
-  { station: 9,   km:  215, name:'加賀温泉',       emoji:'♨️',  prefCode:'17', mapX:57.5, mapY:41.5 },
-  { station: 10,  km:  231, name:'小松',           emoji:'🔧', prefCode:'17', mapX:58.5, mapY:41.0 },
-  { station: 11,  km:  248, name:'金沢',           emoji:'🥢', prefCode:'17', mapX:59.5, mapY:40.5 },
-  { station: 12,  km:  265, name:'新高岡',         emoji:'🌸', prefCode:'16', mapX:61.5, mapY:39.5 },
-  { station: 13,  km:  282, name:'富山',           emoji:'💊', prefCode:'16', mapX:62.5, mapY:39.0 },
-  { station: 14,  km:  305, name:'黒部宇奈月温泉', emoji:'♨️',  prefCode:'16', mapX:64.0, mapY:38.5 },
-  { station: 15,  km:  331, name:'糸魚川',         emoji:'🦕', prefCode:'15', mapX:65.5, mapY:38.0 },
-  { station: 16,  km:  357, name:'上越妙高',       emoji:'🌊', prefCode:'15', mapX:67.0, mapY:38.5 },
-  { station: 17,  km:  393, name:'長岡',           emoji:'🎆', prefCode:'15', mapX:72.0, mapY:37.5 },
-  { station: 18,  km:  417, name:'燕三条',         emoji:'🔨', prefCode:'15', mapX:71.5, mapY:36.5 },
-  { station: 19,  km:  442, name:'新潟',           emoji:'🍚', prefCode:'15', mapX:71.0, mapY:35.5 },
-  { station: 20,  km:  472, name:'浦佐',           emoji:'🌿', prefCode:'15', mapX:73.0, mapY:38.5 },
-  { station: 21,  km:  499, name:'越後湯沢',       emoji:'⛷️',  prefCode:'15', mapX:74.5, mapY:39.5 },
-  { station: 22,  km:  524, name:'上毛高原',       emoji:'🏔️',  prefCode:'10', mapX:76.5, mapY:40.5 },
-  { station: 23,  km:  542, name:'高崎',           emoji:'🥊', prefCode:'10', mapX:77.5, mapY:42.0 },
-  { station: 24,  km:  560, name:'安中榛名',       emoji:'♨️',  prefCode:'10', mapX:76.0, mapY:42.0 },
-  { station: 25,  km:  578, name:'軽井沢',         emoji:'🏔️',  prefCode:'20', mapX:74.5, mapY:41.5 },
-  { station: 26,  km:  597, name:'佐久平',         emoji:'🌾', prefCode:'20', mapX:73.0, mapY:41.5 },
-  { station: 27,  km:  617, name:'上田',           emoji:'🏯', prefCode:'20', mapX:71.5, mapY:41.5 },
-  { station: 28,  km:  645, name:'長野',           emoji:'🏔️',  prefCode:'20', mapX:70.0, mapY:40.0 },
-  { station: 29,  km:  680, name:'飯山',           emoji:'⛷️',  prefCode:'20', mapX:68.5, mapY:39.0 },
-  { station: 30,  km:  638, name:'本庄早稲田',     emoji:'📚', prefCode:'11', mapX:78.5, mapY:43.0 },
-  { station: 31,  km:  650, name:'熊谷',           emoji:'🌺', prefCode:'11', mapX:79.5, mapY:43.5 },
-  { station: 32,  km:  656, name:'大宮',           emoji:'🌸', prefCode:'11', mapX:81.0, mapY:44.0 },
-  { station: 33,  km:  668, name:'東京',           emoji:'🗼', prefCode:'13', mapX:81.5, mapY:45.5 },
-  { station: 34,  km:  670, name:'上野',           emoji:'🐼', prefCode:'13', mapX:81.5, mapY:45.0 },
-  { station: 35,  km:  692, name:'大宮',           emoji:'🌸', prefCode:'11', mapX:81.0, mapY:44.0 },
-  { station: 36,  km:  733, name:'小山',           emoji:'🏰', prefCode:'09', mapX:82.0, mapY:43.5 },
-  { station: 37,  km:  760, name:'宇都宮',         emoji:'🥟', prefCode:'09', mapX:82.5, mapY:42.5 },
-  { station: 38,  km:  791, name:'那須塩原',       emoji:'♨️',  prefCode:'09', mapX:82.5, mapY:41.5 },
-  { station: 39,  km:  824, name:'新白河',         emoji:'⛩️',  prefCode:'07', mapX:82.5, mapY:40.5 },
-  { station: 40,  km:  864, name:'郡山',           emoji:'🌸', prefCode:'07', mapX:83.0, mapY:39.5 },
-  { station: 41,  km:  905, name:'福島',           emoji:'🍑', prefCode:'07', mapX:83.0, mapY:38.0 },
-  { station: 42,  km:  937, name:'白石蔵王',       emoji:'⛷️',  prefCode:'04', mapX:82.5, mapY:37.0 },
-  { station: 43,  km:  997, name:'仙台',           emoji:'🌸', prefCode:'04', mapX:82.0, mapY:36.0 },
-  { station: 44,  km: 1036, name:'古川',           emoji:'🌾', prefCode:'04', mapX:82.0, mapY:34.5 },
-  { station: 45,  km: 1057, name:'くりこま高原',   emoji:'🦌', prefCode:'04', mapX:82.5, mapY:33.5 },
-  { station: 46,  km: 1085, name:'一ノ関',         emoji:'⛩️',  prefCode:'03', mapX:83.0, mapY:32.0 },
-  { station: 47,  km: 1116, name:'水沢江刺',       emoji:'🌿', prefCode:'03', mapX:83.0, mapY:31.0 },
-  { station: 48,  km: 1137, name:'北上',           emoji:'🌸', prefCode:'03', mapX:83.0, mapY:30.0 },
-  { station: 49,  km: 1159, name:'新花巻',         emoji:'🌸', prefCode:'03', mapX:83.0, mapY:29.0 },
-  { station: 50,  km: 1197, name:'盛岡',           emoji:'🍲', prefCode:'03', mapX:83.0, mapY:28.0 },
-  { station: 51,  km: 1237, name:'いわて沼宮内',   emoji:'🌿', prefCode:'03', mapX:82.5, mapY:26.5 },
-  { station: 52,  km: 1272, name:'二戸',           emoji:'🌿', prefCode:'03', mapX:82.0, mapY:25.0 },
-  { station: 53,  km: 1312, name:'八戸',           emoji:'🐙', prefCode:'02', mapX:82.0, mapY:23.5 },
-  { station: 54,  km: 1348, name:'七戸十和田',     emoji:'🌊', prefCode:'02', mapX:80.5, mapY:22.5 },
-  { station: 55,  km: 1379, name:'新青森',         emoji:'🍎', prefCode:'02', mapX:79.5, mapY:21.5 },
-  { station: 56,  km: 1419, name:'奥津軽いまべつ', emoji:'🌊', prefCode:'02', mapX:77.5, mapY:20.5 },
-  { station: 57,  km: 1470, name:'木古内',         emoji:'❄️',  prefCode:'01', mapX:75.0, mapY:20.0 },
-  { station: 58,  km: 1512, name:'新函館北斗',     emoji:'🦑', prefCode:'01', mapX:73.5, mapY:19.5 },
-  { station: 59,  km: 1643, name:'札幌',           emoji:'🦀', prefCode:'01', mapX:70.5, mapY:15.0 },
-  { station: 60,  km: 1783, name:'旭川',           emoji:'❄️',  prefCode:'01', mapX:66.5, mapY:11.5 },
-  { station: 61,  km: 1903, name:'稚内',           emoji:'🦭', prefCode:'01', mapX:62.5, mapY: 7.0 },
-  { station: 62,  km: 2003, name:'旭川',           emoji:'🔄', prefCode:'01', mapX:66.5, mapY:11.5 },
-  { station: 63,  km: 2103, name:'札幌',           emoji:'🔄', prefCode:'01', mapX:70.5, mapY:15.0 },
-  { station: 64,  km: 2193, name:'新函館北斗',     emoji:'🔄', prefCode:'01', mapX:73.5, mapY:19.5 },
-  { station: 65,  km: 2275, name:'新青森',         emoji:'🍎', prefCode:'02', mapX:79.5, mapY:21.5 },
-  { station: 66,  km: 2315, name:'八戸',           emoji:'🐙', prefCode:'02', mapX:82.0, mapY:23.5 },
-  { station: 67,  km: 2355, name:'盛岡',           emoji:'🍲', prefCode:'03', mapX:83.0, mapY:28.0 },
-  { station: 68,  km: 2395, name:'仙台',           emoji:'🌸', prefCode:'04', mapX:82.0, mapY:36.0 },
-  { station: 69,  km: 2458, name:'福島',           emoji:'🍑', prefCode:'07', mapX:83.0, mapY:38.0 },
-  { station: 70,  km: 2498, name:'郡山',           emoji:'🌸', prefCode:'07', mapX:83.0, mapY:39.5 },
-  { station: 71,  km: 2558, name:'宇都宮',         emoji:'🥟', prefCode:'09', mapX:82.5, mapY:42.5 },
-  { station: 72,  km: 2598, name:'大宮',           emoji:'🌸', prefCode:'11', mapX:81.0, mapY:44.0 },
-  { station: 73,  km: 2620, name:'東京',           emoji:'🗼', prefCode:'13', mapX:81.5, mapY:45.5 },
-  { station: 74,  km: 2634, name:'品川',           emoji:'🐟', prefCode:'13', mapX:81.5, mapY:46.0 },
-  { station: 75,  km: 2646, name:'新横浜',         emoji:'⚽', prefCode:'14', mapX:81.0, mapY:47.0 },
-  { station: 76,  km: 2674, name:'小田原',         emoji:'🏯', prefCode:'14', mapX:79.5, mapY:48.5 },
-  { station: 77,  km: 2696, name:'熱海',           emoji:'♨️',  prefCode:'22', mapX:78.5, mapY:49.5 },
-  { station: 78,  km: 2715, name:'三島',           emoji:'♨️',  prefCode:'22', mapX:77.5, mapY:50.0 },
-  { station: 79,  km: 2736, name:'新富士',         emoji:'🗻', prefCode:'22', mapX:76.5, mapY:50.5 },
-  { station: 80,  km: 2766, name:'静岡',           emoji:'🗻', prefCode:'22', mapX:75.0, mapY:51.5 },
-  { station: 81,  km: 2796, name:'掛川',           emoji:'🍵', prefCode:'22', mapX:73.5, mapY:52.0 },
-  { station: 82,  km: 2835, name:'豊橋',           emoji:'🍊', prefCode:'23', mapX:71.5, mapY:51.5 },
-  { station: 83,  km: 2877, name:'三河安城',       emoji:'🌸', prefCode:'23', mapX:69.5, mapY:51.0 },
-  { station: 84,  km: 2907, name:'名古屋',         emoji:'🏯', prefCode:'23', mapX:67.5, mapY:50.5 },
-  { station: 85,  km: 2932, name:'岐阜羽島',       emoji:'🦅', prefCode:'21', mapX:65.5, mapY:49.5 },
-  { station: 86,  km: 2966, name:'米原',           emoji:'🏔️',  prefCode:'25', mapX:62.0, mapY:48.0 },
-  { station: 87,  km: 3016, name:'京都',           emoji:'⛩️',  prefCode:'26', mapX:57.5, mapY:49.5 },
-  { station: 88,  km: 3030, name:'新大阪',         emoji:'🍜', prefCode:'27', mapX:54.5, mapY:51.5 },
-  { station: 89,  km: 3043, name:'新神戸',         emoji:'🌉', prefCode:'28', mapX:52.0, mapY:52.0 },
-  { station: 90,  km: 3075, name:'西明石',         emoji:'⚓', prefCode:'28', mapX:48.5, mapY:53.0 },
-  { station: 91,  km: 3100, name:'姫路',           emoji:'🏯', prefCode:'28', mapX:46.0, mapY:52.5 },
-  { station: 92,  km: 3143, name:'相生',           emoji:'🌿', prefCode:'28', mapX:43.5, mapY:53.5 },
-  { station: 93,  km: 3173, name:'岡山',           emoji:'🍑', prefCode:'33', mapX:41.0, mapY:52.0 },
-  { station: 94,  km: 3200, name:'新倉敷',         emoji:'🎨', prefCode:'33', mapX:39.5, mapY:52.5 },
-  { station: 95,  km: 3226, name:'福山',           emoji:'🌹', prefCode:'34', mapX:38.0, mapY:52.5 },
-  { station: 96,  km: 3238, name:'新尾道',         emoji:'🌊', prefCode:'34', mapX:37.0, mapY:52.5 },
-  { station: 97,  km: 3254, name:'三原',           emoji:'🐙', prefCode:'34', mapX:36.0, mapY:52.0 },
-  { station: 98,  km: 3275, name:'東広島',         emoji:'🍺', prefCode:'34', mapX:38.5, mapY:51.5 },
-  { station: 99,  km: 3311, name:'広島',           emoji:'🕊️',  prefCode:'34', mapX:40.5, mapY:52.5 },
-  { station: 100, km: 3347, name:'新岩国',         emoji:'🌉', prefCode:'35', mapX:38.0, mapY:53.5 },
-  { station: 101, km: 3379, name:'徳山',           emoji:'🏭', prefCode:'35', mapX:36.0, mapY:54.0 },
-  { station: 102, km: 3408, name:'新山口',         emoji:'🐡', prefCode:'35', mapX:33.5, mapY:54.5 },
-  { station: 103, km: 3439, name:'厚狭',           emoji:'🌿', prefCode:'35', mapX:31.5, mapY:54.5 },
-  { station: 104, km: 3467, name:'新下関',         emoji:'🐡', prefCode:'35', mapX:30.0, mapY:55.0 },
-  { station: 105, km: 3489, name:'小倉',           emoji:'🍜', prefCode:'40', mapX:29.5, mapY:55.5 },
-  { station: 106, km: 3528, name:'博多',           emoji:'🍜', prefCode:'40', mapX:27.5, mapY:57.0 },
+  // 🚩 スタート
+  { station: 0, km: 0, name: '新大阪', emoji: '🚩' },
+  
+  // 【北陸新幹線】新大阪→高崎
+  { station: 1, km: 14, name: '京都', emoji: '⛩️' },
+  { station: 2, km: 64, name: '米原', emoji: '🚄' },
+  { station: 3, km: 98, name: '敦賀', emoji: '🦀' },
+  { station: 4, km: 120, name: '越前たけふ', emoji: '🚄' },
+  { station: 5, km: 153, name: '福井', emoji: '🦕' },
+  { station: 6, km: 168, name: '芦原温泉', emoji: '♨️' },
+  { station: 7, km: 183, name: '加賀温泉', emoji: '♨️' },
+  { station: 8, km: 199, name: '小松', emoji: '✈️' },
+  { station: 9, km: 215, name: '金沢', emoji: '🦀' },
+  { station: 10, km: 231, name: '新高岡', emoji: '🚄' },
+  { station: 11, km: 248, name: '富山', emoji: '⛰️' },
+  { station: 12, km: 265, name: '黒部宇奈月温泉', emoji: '♨️' },
+  { station: 13, km: 282, name: '糸魚川', emoji: '🌊' },
+  { station: 14, km: 305, name: '上越妙高', emoji: '⛰️' },
+  { station: 15, km: 331, name: '飯山', emoji: '⛷️' },
+  { station: 16, km: 357, name: '長野', emoji: '🏔️' },
+  { station: 17, km: 393, name: '上田', emoji: '🏯' },
+  { station: 18, km: 417, name: '佐久平', emoji: '🚄' },
+  { station: 19, km: 442, name: '軽井沢', emoji: '🌲' },
+  { station: 20, km: 472, name: '安中榛名', emoji: '🚄' },
+  { station: 21, km: 499, name: '高崎', emoji: '🚄' },
+  
+  // 【上越新幹線】高崎→新潟
+  { station: 22, km: 524, name: '本庄早稲田', emoji: '🚄' },
+  { station: 23, km: 542, name: '熊谷', emoji: '🚄' },
+  { station: 24, km: 560, name: '上毛高原', emoji: '⛰️' },
+  { station: 25, km: 578, name: '越後湯沢', emoji: '♨️⛷️' },
+  { station: 26, km: 597, name: '浦佐', emoji: '🚄' },
+  { station: 27, km: 617, name: '長岡', emoji: '🎆' },
+  { station: 28, km: 645, name: '燕三条', emoji: '🔧' },
+  { station: 29, km: 680, name: '新潟', emoji: '🍚' },
+  
+  // ✈️ ワープ: 新潟→高崎
+  { station: 30, km: 680, name: '高崎✈️', emoji: '✈️' },
+  
+  // 【北陸新幹線】高崎→東京
+  { station: 31, km: 733, name: '大宮', emoji: '🚄' },
+  { station: 32, km: 760, name: '上野', emoji: '🐼' },
+  { station: 33, km: 791, name: '東京', emoji: '🗼' },
+  
+  // 【東北新幹線】東京→福島
+  { station: 34, km: 824, name: '上野', emoji: '🐼' },
+  { station: 35, km: 864, name: '大宮', emoji: '🚄' },
+  { station: 36, km: 905, name: '小山', emoji: '🚄' },
+  { station: 37, km: 937, name: '宇都宮', emoji: '🥟' },
+  { station: 38, km: 997, name: '那須塩原', emoji: '♨️' },
+  { station: 39, km: 1036, name: '新白河', emoji: '🚄' },
+  { station: 40, km: 1057, name: '郡山', emoji: '🚄' },
+  { station: 41, km: 1085, name: '福島', emoji: '🍑' },
+  
+  // 【山形新幹線】福島→新庄
+  { station: 42, km: 1116, name: '米沢', emoji: '🥩' },
+  { station: 43, km: 1137, name: '高畠', emoji: '🚄' },
+  { station: 44, km: 1159, name: '赤湯', emoji: '♨️🍷' },
+  { station: 45, km: 1197, name: 'かみのやま温泉', emoji: '♨️' },
+  { station: 46, km: 1237, name: '山形', emoji: '🍒' },
+  { station: 47, km: 1272, name: '天童', emoji: '♟️' },
+  { station: 48, km: 1312, name: 'さくらんぼ東根', emoji: '🍒' },
+  { station: 49, km: 1348, name: '村山', emoji: '🚄' },
+  { station: 50, km: 1419, name: '大石田', emoji: '🚄' },
+  { station: 51, km: 1470, name: '新庄', emoji: '🚄' },
+  
+  // ✈️ ワープ: 新庄→福島
+  { station: 52, km: 1470, name: '福島✈️', emoji: '✈️🍑' },
+  
+  // 【東北新幹線】福島→盛岡
+  { station: 53, km: 1512, name: '白石蔵王', emoji: '🏯' },
+  { station: 54, km: 1643, name: '仙台', emoji: '🌙' },
+  { station: 55, km: 1783, name: '古川', emoji: '🚄' },
+  { station: 56, km: 1903, name: 'くりこま高原', emoji: '🚄' },
+  { station: 57, km: 2003, name: '一ノ関', emoji: '🚄' },
+  { station: 58, km: 2103, name: '水沢江刺', emoji: '🚄' },
+  { station: 59, km: 2193, name: '北上', emoji: '🚄' },
+  { station: 60, km: 2275, name: '新花巻', emoji: '🚄' },
+  { station: 61, km: 2315, name: '盛岡', emoji: '🍜' },
+  
+  // 【秋田新幹線】盛岡→秋田
+  { station: 62, km: 2355, name: '雫石', emoji: '🚄' },
+  { station: 63, km: 2395, name: '田沢湖', emoji: '🏔️' },
+  { station: 64, km: 2458, name: '角館', emoji: '🌸' },
+  { station: 65, km: 2498, name: '大曲', emoji: '🎆' },
+  { station: 66, km: 2558, name: '秋田', emoji: '🐶' },
+  
+  // ✈️ ワープ: 秋田→盛岡
+  { station: 67, km: 2558, name: '盛岡✈️', emoji: '✈️🍜' },
+  
+  // 【東北新幹線】盛岡→新函館北斗
+  { station: 68, km: 2598, name: 'いわて沼宮内', emoji: '🚄' },
+  { station: 69, km: 2620, name: '二戸', emoji: '🚄' },
+  { station: 70, km: 2634, name: '八戸', emoji: '🦑' },
+  { station: 71, km: 2646, name: '七戸十和田', emoji: '🚄' },
+  { station: 72, km: 2674, name: '新青森', emoji: '🍎' },
+  { station: 73, km: 2696, name: '奥津軽いまべつ', emoji: '🚄' },
+  { station: 74, km: 2715, name: '木古内', emoji: '🚄' },
+  { station: 75, km: 2736, name: '新函館北斗', emoji: '🦑🌃' },
+  
+  // ✈️ ワープ: 新函館北斗→東京
+  { station: 76, km: 2736, name: '東京✈️', emoji: '✈️🗼' },
+  
+  // 【東海道新幹線】東京→新大阪
+  { station: 77, km: 2766, name: '品川', emoji: '🚄' },
+  { station: 78, km: 2796, name: '新横浜', emoji: '⚾' },
+  { station: 79, km: 2835, name: '小田原', emoji: '🏯' },
+  { station: 80, km: 2877, name: '熱海', emoji: '♨️🌊' },
+  { station: 81, km: 2907, name: '三島', emoji: '🗻' },
+  { station: 82, km: 2932, name: '新富士', emoji: '🗻' },
+  { station: 83, km: 2966, name: '静岡', emoji: '🍵' },
+  { station: 84, km: 3000, name: '掛川', emoji: '🏯' },
+  { station: 85, km: 3016, name: '浜松', emoji: '🎹' },
+  { station: 86, km: 3030, name: '豊橋', emoji: '🚄' },
+  { station: 87, km: 3043, name: '三河安城', emoji: '🚄' },
+  { station: 88, km: 3075, name: '名古屋', emoji: '🏯' },
+  { station: 89, km: 3100, name: '岐阜羽島', emoji: '🚄' },
+  { station: 90, km: 3143, name: '米原', emoji: '🚄' },
+  { station: 91, km: 3173, name: '京都', emoji: '⛩️' },
+  { station: 92, km: 3200, name: '新大阪', emoji: '🏯' },
+  
+  // 【山陽新幹線】新大阪→博多
+  { station: 93, km: 3226, name: '新神戸', emoji: '🌃' },
+  { station: 94, km: 3238, name: '西明石', emoji: '🐙' },
+  { station: 95, km: 3254, name: '姫路', emoji: '🏯' },
+  { station: 96, km: 3275, name: '相生', emoji: '🚄' },
+  { station: 97, km: 3311, name: '岡山', emoji: '🍑' },
+  { station: 98, km: 3347, name: '新倉敷', emoji: '🚄' },
+  { station: 99, km: 3379, name: '福山', emoji: '🚄' },
+  { station: 100, km: 3408, name: '新尾道', emoji: '🚄' },
+  { station: 101, km: 3439, name: '三原', emoji: '🐙' },
+  { station: 102, km: 3467, name: '東広島', emoji: '🍶' },
+  { station: 103, km: 3489, name: '広島', emoji: '⚾🦪' },
+  { station: 104, km: 3528, name: '新岩国', emoji: '🚄' },
+  { station: 105, km: 3550, name: '徳山', emoji: '🚄' },
+  { station: 106, km: 3570, name: '新山口', emoji: '🐡' },
+  { station: 107, km: 3668, name: '厚狭', emoji: '🚄' },
+  { station: 108, km: 3715, name: '新下関', emoji: '🐡' },
+  { station: 109, km: 3770, name: '小倉', emoji: '🏯' },
+  { station: 110, km: 3810, name: '博多', emoji: '🍜' },
+  
+  // 【九州新幹線】博多→鹿児島中央
+  { station: 111, km: 3850, name: '久留米', emoji: '🍜' },
+  { station: 112, km: 3885, name: '筑後船小屋', emoji: '♨️' },
+  { station: 113, km: 3950, name: '新鳥栖', emoji: '🚄' },
+  { station: 114, km: 4000, name: '新大牟田', emoji: '🚄' },
+  { station: 115, km: 4050, name: '新玉名', emoji: '🚄' },
+  { station: 116, km: 4100, name: '熊本', emoji: '🏯🐻' },
+  { station: 117, km: 4150, name: '新八代', emoji: '🚄' },
+  { station: 118, km: 4200, name: '新水俣', emoji: '♨️' },
+  { station: 119, km: 4250, name: '出水', emoji: '🦩' },
+  { station: 120, km: 4300, name: '川内', emoji: '🚄' },
+  { station: 121, km: 4350, name: '鹿児島中央', emoji: '🌋' },
+  
+  // ✈️ 最終ワープ: 鹿児島中央→那覇
+  { station: 122, km: 5015, name: '那覇', emoji: '🌺✈️' }
 ];
 
 // ============================================================
@@ -1580,6 +1639,89 @@ async function loadMap() {
       </svg>`;
   }
 }
+// 🌸🌺 ゴール演出（花吹雪）
+function showGoalCelebration() {
+  // メッセージ表示
+  const message = document.createElement('div');
+  message.style.cssText = `
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px;
+    border-radius: 20px;
+    font-size: 1.3rem;
+    font-weight: bold;
+    text-align: center;
+    z-index: 10000;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    animation: popIn 0.5s ease-out;
+  `;
+  message.innerHTML = `
+    🎊🌺🌸 ゴール到達！🌸🌺🎊<br><br>
+    <span style="font-size:2rem;">那覇に到着しました！</span><br><br>
+    <span style="font-size:1rem;">日本新幹線全路線123駅完全制覇！</span><br>
+    <span style="font-size:1rem;">1週間の大冒険、本当にお疲れ様でした！</span><br><br>
+    <span style="font-size:1.5rem;">めんそーれ沖縄！🌴</span>
+  `;
+  document.body.appendChild(message);
+
+  // 花吹雪生成（桜+ハイビスカス）
+  for (let i = 0; i < 100; i++) {
+    setTimeout(() => createPetal(), i * 40);
+  }
+
+  // 10秒後にメッセージ削除
+  setTimeout(() => message.remove(), 10000);
+}
+
+function createPetal() {
+  const petal = document.createElement('div');
+  const isHibiscus = Math.random() > 0.5;
+  
+  petal.textContent = isHibiscus ? '🌺' : '🌸';
+  petal.style.cssText = `
+    position: fixed;
+    top: -50px;
+    left: ${Math.random() * 100}vw;
+    font-size: ${Math.random() * 25 + 25}px;
+    z-index: 9999;
+    pointer-events: none;
+    animation: fall ${Math.random() * 3 + 4}s linear;
+    transform: rotate(${Math.random() * 360}deg);
+  `;
+  
+  document.body.appendChild(petal);
+  setTimeout(() => petal.remove(), 8000);
+}
+
+// アニメーション追加
+const goalStyle = document.createElement('style');
+goalStyle.textContent = `
+  @keyframes fall {
+    0% {
+      transform: translateY(0) rotate(0deg);
+      opacity: 1;
+    }
+    100% {
+      transform: translateY(110vh) rotate(720deg);
+      opacity: 0;
+    }
+  }
+  @keyframes popIn {
+    0% {
+      transform: translate(-50%, -50%) scale(0.5);
+      opacity: 0;
+    }
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+      opacity: 1;
+    }
+  }
+`;
+document.head.appendChild(goalStyle);
 
 // ============================================================
 // データ読み込み
@@ -1605,6 +1747,10 @@ function renderAll() {
   updateLocationBar(totalStations);
   renderStampGrid(totalStations);
   renderMemberList();
+  // 🎉 ゴール判定（毎回表示）
+if (totalStations >= 123) {
+  showGoalCelebration();
+}
   renderWaypoints(totalStations);
   renderWeeklyRanking();
   renderSessionStatus();
@@ -1899,27 +2045,67 @@ function renderWeeklyRanking() {
 }
 
 // ============================================================
-// セッション残り
+// セッション残り（曜日別対応）
 // ============================================================
 function renderSessionStatus() {
   const name = document.getElementById('input-name').value.trim() || myName;
   const used = todayData.filter(d => d.user_name === name).length;
-  const rem  = MAX_SESSIONS - used;
+  const maxToday = getMaxSessionsForToday(); // 曜日に応じた上限
+  const rem = maxToday - used;
   
+  // 曜日表示
+  const today = new Date();
+  const dayOfWeek = today.getDay();
+  const dayName = ['日曜日', '月曜日', '火曜日', '水曜日', '木曜日', '金曜日', '土曜日'][dayOfWeek];
+  const dayMessage = (dayOfWeek === 0) 
+    ? `🎉 ${dayName}！今日は${maxToday}回まで参加できます！` 
+    : `📅 ${dayName} - 今日は${maxToday}回まで参加できます`;
+  
+  // ボタン状態
+  const btn = document.getElementById('btn-participate');
   if (rem <= 0) {
-    document.getElementById('btn-participate').disabled = true;
-    document.getElementById('btn-participate').textContent = '👨‍✈️ 勤務終了！お疲れ様でした！';
-    document.getElementById('btn-participate').style.background = '#636e72';
-    document.getElementById('btn-participate').style.borderColor = '#2d3436';
+    btn.disabled = true;
+    btn.textContent = '👨‍✈️ 本日の勤務お疲れ様でした！';
+    btn.style.background = '#636e72';
+    btn.style.borderColor = '#2d3436';
   } else {
-    document.getElementById('btn-participate').disabled = false;
-    document.getElementById('btn-participate').textContent = '👨‍✈️ 乗車報告！ ';
-    document.getElementById('btn-participate').style.background = 'linear-gradient(180deg, #00b894 0%, #00916a 100%)';
-    document.getElementById('btn-participate').style.borderColor = '#006644';
+    btn.disabled = false;
+    btn.textContent = `👨‍✈️ 訪問終了！お疲れ様でした！ (残り${rem}回)`;
+    btn.style.background = 'linear-gradient(180deg, #00b894 0%, #00916a 100%)';
+    btn.style.borderColor = '#006644';
   }
   
-  for (let i = 0; i < MAX_SESSIONS; i++)
-    document.getElementById(`dot-${i}`).classList.toggle('used', i < used);
+  // 参加回数ドット表示（最大2個まで）
+  for (let i = 0; i < 2; i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    if (dot) {
+      if (i < maxToday) {
+        dot.style.display = 'inline-block';
+        dot.classList.toggle('used', i < used);
+      } else {
+        dot.style.display = 'none';
+      }
+    }
+  }
+  
+  // 曜日メッセージ表示（既存の要素に追加）
+  let dayMsgEl = document.getElementById('day-message');
+  if (!dayMsgEl) {
+    dayMsgEl = document.createElement('div');
+    dayMsgEl.id = 'day-message';
+    dayMsgEl.style.cssText = `
+      text-align: center;
+      font-size: 0.9rem;
+      margin-top: 10px;
+      padding: 8px;
+      background: rgba(255, 215, 0, 0.1);
+      border-radius: 8px;
+      font-weight: bold;
+      color: #f39c12;
+    `;
+    btn.parentElement.insertBefore(dayMsgEl, btn.nextSibling);
+  }
+  dayMsgEl.textContent = dayMessage;
 }
 
 // ============================================================
@@ -1931,12 +2117,12 @@ function renderMyStats() {
   const myAll = allData.filter(d => d.user_name === name);
   if (!myAll.length) return;
   const myStations = myAll.reduce((sum, r) => sum + (r.station_progress || 1), 0);
-  document.getElementById('my-stats').style.display    = 'block';
-  document.getElementById('my-stats-name').textContent  = `${name}さんの累計`;
-  document.getElementById('my-stats-km').textContent    = `${myStations}駅`;
+  
+  document.getElementById('my-stats').style.display = 'block';
+  document.getElementById('my-stats-name').textContent = `${name}さんの累計`;
+  document.getElementById('my-stats-km').textContent = `${myStations}駅`;
   document.getElementById('my-stats-count').textContent = `${myAll.length}回参加`;
 }
-
 // ============================================================
 // ゴール判定
 // ============================================================
