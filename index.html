@@ -582,10 +582,15 @@
       display: flex;
       gap: 12px;
       justify-content: center;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
       margin-top: 20px;
     }
-
+@media (max-width: 600px) {
+  .badges {
+    flex-direction: column;
+    gap: 10px;
+  }
+}
     .badge {
       padding: 12px 20px;
       border-radius: 4px;
@@ -1726,10 +1731,23 @@ document.head.appendChild(goalStyle);
 // ============================================================
 // データ読み込み
 // ============================================================
-async function loadData() {
+// ============================================================
+// 週次リセット用関数
+// ============================================================
+// 今週の月曜日0時を取得
+function getThisWeekMonday() {
+  const today = new Date();
+  const dayOfWeek = today.getDay(); // 0=日曜, 1=月曜, ..., 6=土曜
+  const diff = (dayOfWeek === 0 ? -6 : 1 - dayOfWeek); // 月曜日までの差分
+  const monday = new Date(today);
+  monday.setDate(today.getDate() + diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday.toISOString().split('T')[0]; // YYYY-MM-DD形式
+}async function loadData() {
+const thisWeekMonday = getThisWeekMonday(); // 今週の月曜日
   const [r1, r2] = await Promise.all([
     sb.from('participations').select('*').eq('date', getToday()),
-    sb.from('participations').select('*').gte('date', EVENT_START),
+    sb.from('participations').select('*').gte('date', thisWeekMonday),,
   ]);
   todayData = r1.data || [];
   allData   = r2.data || [];
