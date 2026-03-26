@@ -1118,7 +1118,16 @@ align-items: center;
     ::-webkit-scrollbar-thumb:hover {
       background: linear-gradient(180deg, #a29bfe 0%, #6c5ce7 100%);
     }
-/* ============================================================ */
+<!-- ============================================================ -->
+<!-- 路線図 -->
+<!-- ============================================================ -->
+<div id="route-map" style="margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.9); border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">
+  <h3 style="text-align: center; margin-bottom: 20px; color: #2d3436; font-size: 1.3rem;">🚄 全国新幹線路線図</h3>
+  <div id="map-container" style="display: flex; flex-direction: column; gap: 15px; max-width: 100%; overflow-x: auto;">
+    <!-- 路線は JavaScript で自動生成 -->
+  </div>
+</div>
+    /* ============================================================ */
 /* 通過済み・現在地の駅スタイル */
 /* ============================================================ */
 
@@ -1780,6 +1789,143 @@ function getThisWeekMonday() {
   monday.setDate(today.getDate() + diff);
   monday.setHours(0, 0, 0, 0);
   return monday.toISOString().split('T')[0]; // YYYY-MM-DD形式
+  // ============================================================
+// 路線図の生成
+// ============================================================
+function generateRouteMap() {
+  const container = document.getElementById('map-container');
+  if (!container) return;
+  
+  container.innerHTML = ''; // クリア
+  
+  // 駅を10駅ごとにグループ化
+  const stationsPerRow = 10;
+  const rows = Math.ceil(WAYPOINTS.length / stationsPerRow);
+  
+  for (let row = 0; row < rows; row++) {
+    const rowDiv = document.createElement('div');
+    rowDiv.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;';
+    
+    const startIdx = row * stationsPerRow;
+    const endIdx = Math.min(startIdx + stationsPerRow, WAYPOINTS.length);
+    
+    for (let i = startIdx; i < endIdx; i++) {
+      const waypoint = WAYPOINTS[i];
+      if (!waypoint) continue;
+      
+      const stationDiv = document.createElement('div');
+      const stationNum = String(waypoint.station).padStart(3, '0');
+      stationDiv.id = `station-${stationNum}`;
+      stationDiv.className = 'station';
+      stationDiv.style.cssText = `
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        background: #dfe6e9;
+        border: 3px solid #b2bec3;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: #2d3436;
+        cursor: pointer;
+        transition: all 0.3s;
+      `;
+      
+      stationDiv.innerHTML = `
+        <div style="font-size: 1.2rem;">${waypoint.emoji || '🚉'}</div>
+        <div style="font-size: 0.55rem; margin-top: 2px; text-align: center; line-height: 1.1;">${waypoint.name}</div>
+      `;
+      
+      // ホバー効果
+      stationDiv.addEventListener('mouseenter', () => {
+        stationDiv.style.transform = 'scale(1.1)';
+        stationDiv.style.zIndex = '10';
+      });
+      stationDiv.addEventListener('mouseleave', () => {
+        stationDiv.style.transform = 'scale(1)';
+        stationDiv.style.zIndex = '1';
+      });
+      
+      rowDiv.appendChild(stationDiv);
+    }
+    
+    container.appendChild(rowDiv);
+  }
+}
+// ============================================================
+// 路線図の生成
+// ============================================================
+function generateRouteMap() {
+  const container = document.getElementById('map-container');
+  if (!container) return;
+  
+  container.innerHTML = ''; // クリア
+  
+  // 駅を10駅ごとにグループ化
+  const stationsPerRow = 10;
+  const rows = Math.ceil(WAYPOINTS.length / stationsPerRow);
+  
+  for (let row = 0; row < rows; row++) {
+    const rowDiv = document.createElement('div');
+    rowDiv.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap; justify-content: center;';
+    
+    const startIdx = row * stationsPerRow;
+    const endIdx = Math.min(startIdx + stationsPerRow, WAYPOINTS.length);
+    
+    for (let i = startIdx; i < endIdx; i++) {
+      const waypoint = WAYPOINTS[i];
+      if (!waypoint) continue;
+      
+      const stationDiv = document.createElement('div');
+      const stationNum = String(waypoint.station).padStart(3, '0');
+      stationDiv.id = `station-${stationNum}`;
+      stationDiv.className = 'station';
+      stationDiv.style.cssText = `
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        background: #dfe6e9;
+        border: 3px solid #b2bec3;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-size: 0.7rem;
+        font-weight: bold;
+        color: #2d3436;
+        cursor: pointer;
+        transition: all 0.3s;
+      `;
+      
+      stationDiv.innerHTML = `
+        <div style="font-size: 1.2rem;">${waypoint.emoji || '🚉'}</div>
+        <div style="font-size: 0.55rem; margin-top: 2px; text-align: center; line-height: 1.1;">${waypoint.name}</div>
+      `;
+      
+      // ホバー効果
+      stationDiv.addEventListener('mouseenter', () => {
+        stationDiv.style.transform = 'scale(1.1)';
+        stationDiv.style.zIndex = '10';
+      });
+      stationDiv.addEventListener('mouseleave', () => {
+        stationDiv.style.transform = 'scale(1)';
+        stationDiv.style.zIndex = '1';
+      });
+      
+      rowDiv.appendChild(stationDiv);
+    }
+    
+    container.appendChild(rowDiv);
+  }
+}
+
+// ページ読み込み時に地図を生成
+window.addEventListener('DOMContentLoaded', () => {
+  generateRouteMap();
+});
 }async function loadData() {
 const thisWeekMonday = getThisWeekMonday(); // 今週の月曜日
   const [r1, r2] = await Promise.all([
@@ -1794,6 +1940,7 @@ for (const rec of allData) {
   totalStations += (rec.station_progress || 1);
 }
   renderAll();
+  generateRouteMap(); // ← 追加
 }
 
 // ============================================================
@@ -1803,7 +1950,7 @@ function renderAll() {
   const totalStations = calculateTotalStations();
   renderProgress(totalStations);
   updateMarkerPosition(totalStations);
- if (totalStations > 0) {
+if (totalStations > 0) {
   updateMapColors(totalStations);
 }
   updateLocationBar(totalStations);
