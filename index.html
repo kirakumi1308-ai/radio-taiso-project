@@ -714,7 +714,7 @@ let myName      = localStorage.getItem('myName') || '';
 let isAdminAuth = false;
 let goalShown   = JSON.parse(localStorage.getItem('goalShown')  || '{}');
 let stampShown  = JSON.parse(localStorage.getItem('stampShown') || '{}');
-let prevStation = 0;
+let prevStation = parseInt(localStorage.getItem('prevStation') || '0');
 
 function getMaxSessionsForToday() {
   const day = new Date().getDay();
@@ -1063,6 +1063,7 @@ function renderAll() {
   }, 200);
   if (total >= GOAL_GOLD) showGoalCelebration();
   prevStation = total;
+localStorage.setItem('prevStation', total);
 }
 
 // ============================================================
