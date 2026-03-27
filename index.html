@@ -1283,7 +1283,7 @@ function renderMemberList() {
    <span style="font-size:1.2rem;">${user.isDoctorYellow ? '🚄💛⚡' : '🚄'.repeat(Math.min(user.totalStations, 5))}
   </div>${commentHTML}`;
     card.addEventListener('click', async () => {
-      const { data } = await sb.from('participations').select('*').eq('user_name', user.name).gte('date', EVENT_START);
+      const { data } = await sb.from('participations').select('*').eq('user_name', user.name).gte('date', getThisWeekMonday());
       const total = (data||[]).reduce((sum,r) => sum+(r.station_progress||1), 0);
       showToast(`📊 ${user.name}さん 週間累計: ${total}駅進行！`);
     });
