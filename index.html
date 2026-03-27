@@ -1453,7 +1453,7 @@ async function participate() {
     document.getElementById('goal-stamps').innerHTML  = '';
     document.getElementById('goal-overlay').classList.add('show');
     setTimeout(() => closeGoal(), 2500);
-    showToast('🚄✨ ラッキー！ドクターイエロー搭乗！ +2駅！🎉');
+    showToast('🚄💛⚡ ラッキー！ドクターイエロー搭乗！ +2駅！🎉');
   } else {
     showToast('✅ 乗車報告完了！ +1駅進みました！');
   }
@@ -1470,7 +1470,7 @@ function setupRealtime() {
       const stations = payload.new?.station_progress || 1;
       if (payload.new?.user_name !== myName) {
         showToast(isDY
-          ? `🚄✨ ${payload.new.user_name}さんがドクターイエロー搭乗！ +2駅！`
+          ? `🚄💛⚡ ${payload.new.user_name}さんがドクターイエロー搭乗！ +2駅！`
           : `🎉 ${payload.new.user_name}さんが乗車報告しました！ +${stations}駅`);
       }
       loadData();
