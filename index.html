@@ -1276,12 +1276,11 @@ function renderMemberList() {
       <div style="background:rgba(255,255,255,0.9);color:#333;padding:8px 10px;border-radius:8px;margin-top:8px;font-size:0.8rem;border-left:4px solid #ffd700;">
         💬 ${escapeHtml(c)}
       </div>`).join('');
-    card.innerHTML = `
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <span style="font-size:1.5rem;">${user.isDoctorYellow ? '🚄' : '🚂'}</span>
-        <span style="flex:1;margin-left:10px;font-size:0.9rem;font-weight:bold;">${escapeHtml(user.name)}</span>
-        <span style="background:#ffd700;color:#333;padding:4px 8px;border-radius:5px;font-size:0.75rem;font-weight:bold;">+${user.totalStations}駅</span>
-      </div>${commentHTML}`;
+   card.innerHTML = `
+  <div style="display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:0.9rem;font-weight:bold;">${escapeHtml(user.name)}</span>
+   <span style="font-size:1.2rem;">${user.isDoctorYellow ? '🚄💛⚡' : '🚄'.repeat(Math.min(user.totalStations, 5))}
+  </div>${commentHTML}`;
     card.addEventListener('click', async () => {
       const { data } = await sb.from('participations').select('*').eq('user_name', user.name).gte('date', EVENT_START);
       const total = (data||[]).reduce((sum,r) => sum+(r.station_progress||1), 0);
@@ -1374,7 +1373,7 @@ function checkGoalReached(totalStations) {
     { stations:GOAL_BRONZE, key:'bronze', emoji:'🥉', title:'ブロンズ達成！',           desc:`${GOAL_BRONZE}駅 到達！東京を通過！` },
   ];
   for (const g of goals) {
-    if (totalStations >= g.stations && !goalShown[g.key]) {
+    if (totalStations >= g.stations && prevStation < g.stations && !goalShown[g.key]) {
       goalShown[g.key] = true;
       localStorage.setItem('goalShown', JSON.stringify(goalShown));
       document.getElementById('goal-emoji').textContent = g.emoji;
