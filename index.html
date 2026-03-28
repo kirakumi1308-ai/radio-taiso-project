@@ -550,33 +550,10 @@ Copy<!DOCTYPE html>
 </div>
 
 <!-- ページ1: メイン -->
-<div class="page active" id="page-1">
-  <div class="container">
-    <div class="card">
-      <h2>📊 チーム進捗</h2>
-      <div class="progress-km" id="current-km">0 <span>駅目</span></div>
-      <div class="progress-bar-bg">
-        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
-      </div>
-      <div class="progress-stats">
-        <span id="stat-today">今日: 0駅進行</span>
-        <span id="stat-total">合計: 0 / 123駅</span>
-      </div>
-      <div class="badges">
-        <div class="badge bronze" id="badge-bronze">🥉 ブロンズ 40駅</div>
-        <div class="badge silver" id="badge-silver">🥈 シルバー 80駅</div>
-        <div class="badge gold"   id="badge-gold">✨ ゴールド 123駅</div>
-      </div>
-      <div style="margin-top:24px">
-        <h2>🚄 通過駅</h2>
-        <div id="waypoint-list"></div>
-      </div>
-    </div>
-
     <div class="card">
       <h2>🚄 今日の乗車報告</h2>
       <a href="https://youtu.be/q91wVnUGcnk?si=8mDKoE7orh-Qt9CY" target="_blank" class="btn-youtube">
-        🔔 出発のベルを鳴らす（YouTube）
+        🔔 準備体操しよう！（YouTube）
       </a>
       <div id="my-stats">
         <div class="my-name"  id="my-stats-name">あなたの累計</div>
@@ -601,7 +578,28 @@ Copy<!DOCTYPE html>
         </div>
       </div>
     </div>
-
+<div class="page active" id="page-1">
+  <div class="container">
+    <div class="card">
+      <h2>📊 チーム進捗</h2>
+      <div class="progress-km" id="current-km">0 <span>駅目</span></div>
+      <div class="progress-bar-bg">
+        <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+      </div>
+      <div class="progress-stats">
+        <span id="stat-today">今日: 0駅進行</span>
+        <span id="stat-total">合計: 0 / 123駅</span>
+      </div>
+      <div class="badges">
+        <div class="badge bronze" id="badge-bronze">🥉 ブロンズ 40駅</div>
+        <div class="badge silver" id="badge-silver">🥈 シルバー 80駅</div>
+        <div class="badge gold"   id="badge-gold">✨ ゴールド 123駅</div>
+      </div>
+      <div style="margin-top:24px">
+        <h2>🚄 通過駅</h2>
+        <div id="waypoint-list"></div>
+      </div>
+    </div>
     <div class="card" style="grid-column: 1 / -1;">
       <h2>🏆 週間ランキング</h2>
       <div id="weekly-ranking">
