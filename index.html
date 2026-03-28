@@ -1616,6 +1616,8 @@ function escapeHtml(str) {
 }
 
 document.getElementById('input-name').addEventListener('input', renderSessionStatus);
+  const savedName = localStorage.getItem('userName');
+if (savedName) document.getElementById('input-name').value = savedName;
 </script>
 </body>
 </html>
