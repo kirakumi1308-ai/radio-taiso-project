@@ -434,7 +434,9 @@ Copy<!DOCTYPE html>
     .btn-participate:active   { transform: translate(3px, 3px); box-shadow: 3px 3px 0 rgba(0,0,0,0.6), inset 0 -4px 0 rgba(0,0,0,0.3); }
     .btn-participate:disabled { background: #636e72; border-color: #2d3436; cursor: not-allowed; transform: none; opacity: 0.6; }
     #member-list { display: flex; flex-wrap: wrap; gap: 12px; min-height: 80px; align-items: flex-start; }
-    #weekly-ranking { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    #weekly-ranking { display: grid;  grid-template-columns: 1fr;
+  gap: 12px;
+}
     
     .rank-item {
       display: flex; align-items: center; gap: 16px;
@@ -1476,6 +1478,7 @@ async function participate() {
   const commentEl = document.getElementById('input-comment');
   const userName  = nameEl.value.trim();
   if (!userName) { showToast('⚠️ 運転手の名前を入力してください'); nameEl.focus(); return; }
+  localStorage.setItem('userName', userName); // ★名前を保存
   const { data: chk } = await sb.from('participations').select('id').eq('user_name', userName).eq('date', getToday());
   if ((chk||[]).length >= MAX_SESSIONS) { showToast('🎉 本日の勤務お疲れ様でした！'); return; }
   const isDoctorYellow  = Math.random() < DOCTOR_YELLOW_PROBABILITY;
