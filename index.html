@@ -575,10 +575,14 @@ Copy<!DOCTYPE html>
 
 .sakura-petal {
   position: fixed;
-  top: -50px;
-  font-size: 1.2rem;
+  top: -20px;
+  width: 12px;
+  height: 16px;
+  background: linear-gradient(135deg, #ffb7c5, #ff85a1);
+  border-radius: 50% 0 50% 0;
   z-index: 9999;
   pointer-events: none;
+  opacity: 0.85;
   animation: sakuraFall linear forwards;
 }
   </style>
@@ -1643,12 +1647,9 @@ function startSakura() {
   function spawnPetal() {
     const petal = document.createElement('div');
     petal.className = 'sakura-petal';
-    const confetti = ['🌸', '🎊', '🎉', '⭐', '🌟', '✨', '🎈', '🌺'];
-petal.textContent = confetti[Math.floor(Math.random() * confetti.length)];
     const duration = 4 + Math.random() * 4;
     petal.style.left = `${Math.random() * 100}vw`;
     petal.style.animationDuration = `${duration}s`;
-    petal.style.fontSize = `${0.8 + Math.random() * 1.5}rem`;
     document.body.appendChild(petal);
     setTimeout(() => petal.remove(), duration * 1000);
   }
