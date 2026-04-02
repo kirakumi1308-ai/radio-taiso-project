@@ -566,6 +566,21 @@ Copy<!DOCTYPE html>
   border: 3px solid #000;
   box-shadow: 2px 2px 0 rgba(0,0,0,0.4);
 }   
+@keyframes sakuraFall {
+  to {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+.sakura-petal {
+  position: fixed;
+  top: -50px;
+  font-size: 1.2rem;
+  z-index: 9999;
+  pointer-events: none;
+  animation: sakuraFall linear forwards;
+}
   </style>
 </head>
 <body>
@@ -1433,7 +1448,11 @@ function checkGoalReached(totalStations) {
       document.getElementById('goal-stamps').innerHTML  =
         STAMPS.filter(s => s.station <= g.stations).map(s => `<div class="goal-stamp-chip">${s.emoji}</div>`).join('');
       document.getElementById('goal-overlay').classList.add('show');
-      break;
+     // ゴールド達成時に桜を開始＆記録
+if (g.key === 'gold') {
+  localStorage.setItem('goalAchieved', 'true');
+  startSakura();
+} break;
     }
   }
 }
@@ -1616,6 +1635,30 @@ function escapeHtml(str) {
 document.getElementById('input-name').addEventListener('input', renderSessionStatus);
   const savedName = localStorage.getItem('userName');
 if (savedName) document.getElementById('input-name').value = savedName;
-</script>
+// 桜を降らせ続ける関数
+let sakuraInterval = null;
+function startSakura() {
+  if (sakuraInterval) return;
+  function spawnPetal() {
+    const petal = document.createElement('div');
+    petal.className = 'sakura-petal';
+    petal.textContent = '🌸';
+    const duration = 4 + Math.random() * 4;
+    petal.style.left = `${Math.random() * 100}vw`;
+    petal.style.animationDuration = `${duration}s`;
+    petal.style.fontSize = `${0.8 + Math.random() * 1.5}rem`;
+    document.body.appendChild(petal);
+    setTimeout(() => petal.remove(), duration * 1000);
+  }
+  for (let i = 0; i < 30; i++) {
+    setTimeout(spawnPetal, i * 100);
+  }
+  sakuraInterval = setInterval(spawnPetal, 300);
+}
+
+// ゴール済みなら桜を自動で開始
+if (localStorage.getItem('goalAchieved') === 'true') {
+  startSakura();
+}</script>
 </body>
 </html>
