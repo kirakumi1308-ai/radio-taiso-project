@@ -1479,10 +1479,8 @@ function showGoalCelebration() {
 
 function createPetal() {
   const p = document.createElement('div');
- const confetti = ['🌸', '🎊', '🎉', '⭐', '🌟', '✨', '🎈', '🌺'];
-p.textContent = confetti[Math.floor(Math.random() * confetti.length)];
-  p.style.cssText = `position:fixed;top:-50px;left:${Math.random()*100}vw;font-size:${Math.random()*25+25}px;z-index:9999;pointer-events:none;animation:fall ${Math.random()*3+4}s linear;`;
-  document.body.appendChild(p);
+  p.className = 'sakura-petal';
+   document.body.appendChild(p);
   setTimeout(() => p.remove(), 8000);
 }
 
