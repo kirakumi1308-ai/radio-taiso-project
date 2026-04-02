@@ -1081,6 +1081,7 @@ async function loadData() {
   todayData = r1.data || [];
   allData   = r2.data || [];
   renderAll();
+  checkAndStartCelebration();
 }
 
 // ============================================================
@@ -1450,8 +1451,8 @@ function checkGoalReached(totalStations) {
       document.getElementById('goal-overlay').classList.add('show');
      // ゴールド達成時に桜を開始＆記録
 if (g.key === 'gold') {
-  localStorage.setItem('goalAchieved', 'true');
   startSakura();
+}
 } break;
     }
   }
@@ -1475,7 +1476,8 @@ function showGoalCelebration() {
 
 function createPetal() {
   const p = document.createElement('div');
-  p.textContent = Math.random() > 0.5 ? '🌺' : '🌸';
+ const confetti = ['🌸', '🎊', '🎉', '⭐', '🌟', '✨', '🎈', '🌺'];
+p.textContent = confetti[Math.floor(Math.random() * confetti.length)];
   p.style.cssText = `position:fixed;top:-50px;left:${Math.random()*100}vw;font-size:${Math.random()*25+25}px;z-index:9999;pointer-events:none;animation:fall ${Math.random()*3+4}s linear;`;
   document.body.appendChild(p);
   setTimeout(() => p.remove(), 8000);
@@ -1642,7 +1644,8 @@ function startSakura() {
   function spawnPetal() {
     const petal = document.createElement('div');
     petal.className = 'sakura-petal';
-    petal.textContent = '🌸';
+    const confetti = ['🌸', '🎊', '🎉', '⭐', '🌟', '✨', '🎈', '🌺'];
+petal.textContent = confetti[Math.floor(Math.random() * confetti.length)];
     const duration = 4 + Math.random() * 4;
     petal.style.left = `${Math.random() * 100}vw`;
     petal.style.animationDuration = `${duration}s`;
@@ -1656,9 +1659,13 @@ function startSakura() {
   sakuraInterval = setInterval(spawnPetal, 300);
 }
 
-// ゴール済みなら桜を自動で開始
-if (localStorage.getItem('goalAchieved') === 'true') {
-  startSakura();
-}</script>
+// ゴール済みなら全員に紙吹雪＆桜を自動で開始
+function checkAndStartCelebration() {
+  const total = allData.reduce((sum, d) => sum + (d.station_progress || 1), 0);
+  if (total >= GOAL_GOLD) {
+    startSakura();
+  }
+}
+</script>
 </body>
 </html>
